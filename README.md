@@ -38,20 +38,9 @@ cp config.example.json config.json
 
 ### 4. 运行
 ```bash
-python main.py
+python src/main.py
 ```
 输入你的问题，AI 就会调用工具帮你完成。
-
-## 📁 项目结构
-```
-EasyMate/
-├── main.py              # 程序入口（支持多行输入）
-├── agent.py             # EasyMate 核心类（对话管理、工具调用循环）
-├── tools.py             # 四个工具的具体实现
-├── config.json          # 用户配置文件（需自行创建）
-├── config.example.json  # 配置文件模板
-└── README.md
-```
 
 ## 🛠️ 工具说明
 | 工具 | 作用 | 安全限制 |

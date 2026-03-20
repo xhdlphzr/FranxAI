@@ -1,0 +1,21 @@
+{
+  "type": "function",
+  "function": {
+    "name": "add_task",
+    "description": "添加一个定时任务，将在指定时间触发。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "任务描述，例如 '提醒我去超市'"
+        },
+        "time": {
+          "type": "string",
+          "description": "执行时间，格式建议 'YYYY-MM-DD HH:MM' 或 'HH:MM'（每天重复）。用户可根据需要自行约定格式。"
+        }
+      },
+      "required": ["content", "time"]
+    }
+  }
+}

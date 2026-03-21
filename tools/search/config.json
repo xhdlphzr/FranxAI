@@ -1,0 +1,22 @@
+{
+  "type": "function",
+  "function": {
+    "name": "search",
+    "description": "使用 DuckDuckGo 搜索互联网信息。当你需要获取实时信息、最新新闻、或查询用户可能不知道的内容时使用此工具。",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "query": {
+          "type": "string",
+          "description": "要搜索的关键词或问题"
+        },
+        "max_results": {
+          "type": "integer",
+          "description": "返回的最大结果数，默认 5 条",
+          "default": 5
+        }
+      },
+      "required": ["query"]
+    }
+  }
+}

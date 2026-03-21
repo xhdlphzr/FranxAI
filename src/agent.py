@@ -102,7 +102,12 @@ class EasyMate:
                 messages=self.messages,
                 tools=self.tools,
                 tool_choice="auto",
-                stream=True
+                stream=True,
+                extra_body={
+                    "thinking": {
+                        "type": "disabled"
+                    }
+                }
             )
 
             # 用于累积完整的响应

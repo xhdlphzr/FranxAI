@@ -71,7 +71,8 @@ class EasyMate:
         self.messages = [{"role": "system", "content": self.settings}]
         self.tools = tools_metadata
 
-    def input(self, msg: str, max_iterations=100) -> str:
+    def input(self, msg: str) -> str:
+        max_iterations=100
         self.messages.append({"role": "user", "content": msg})
         print("AI思考中...")
 

@@ -211,10 +211,10 @@ class EasyMate:
 
     def memory(self):
         """
-        记忆管理：当消息超过阈值时，自动压缩前10条。
+        记忆管理：当消息超过阈值时，自动压缩。
         """
         if len(self.messages) <= self.threshold:
             return
         # 消费摘要生成器，完成压缩（忽略输出）
-        for _ in self.summarize_msg(11):
+        for _ in self.summarize_msg(len(self.messages) // 2 + 1):
             pass

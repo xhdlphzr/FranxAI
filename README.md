@@ -182,7 +182,7 @@ AI：调用 ett 工具处理文档，返回文字摘要。
 
 ## 📄 许可证
 
-[MIT](LICENSE)
+[GPL v3](COPYING)
 
 ---
 

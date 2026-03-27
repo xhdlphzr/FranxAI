@@ -1,18 +1,18 @@
 # 贡献指南
 
-感谢你对 EasyMate 的兴趣！我们欢迎任何形式的贡献，包括新功能、工具插件、文档改进、Bug 报告等。为了让协作更顺畅，请遵循以下流程和规范。
+感谢你对 FranxAI 的兴趣！我们欢迎任何形式的贡献，包括新功能、工具插件、文档改进、Bug 报告等。为了让协作更顺畅，请遵循以下流程和规范。
 
 ## 📦 工具贡献（最常用）
 
-如果你想为 EasyMate 添加一个新工具（例如 `weather`、`calc` 等），请按以下步骤操作：
+如果你想为 FranxAI 添加一个新工具（例如 `weather`、`calc` 等），请按以下步骤操作：
 
 ### 1. Fork 仓库
-- 访问 [EasyMate 仓库](https://github.com/MateUnion/EasyMate)，点击右上角的 **Fork**，将仓库复制到你的 GitHub 账户下。
+- 访问 [FranxAI 仓库](https://github.com/xhdlphzr/FranxAI)，点击右上角的 **Fork**，将仓库复制到你的 GitHub 账户下。
 
 ### 2. 克隆你的 Fork 到本地
 ```bash
-git clone https://github.com/你的用户名/EasyMate.git
-cd EasyMate
+git clone https://github.com/xhdlphzr/FranxAI.git
+cd FranxAI
 ```
 
 ### 3. 创建新分支
@@ -95,9 +95,9 @@ GitHub 会在该提交上同时显示你和伙伴的头像。
 
 ## 🔀 处理冲突
 如果你的 PR 出现了冲突（通常是因为 `main` 分支在你提交期间有了新变化），可以：
-1. 将 EasyMate 官方仓库添加为远程：
+1. 将 FranxAI 官方仓库添加为远程：
    ```bash
-   git remote add upstream https://github.com/MateUnion/EasyMate.git
+   git remote add upstream https://github.com/xhdlphzr/FranxAI.git
    ```
 2. 获取最新代码：
    ```bash
@@ -122,6 +122,6 @@ GitHub 会在该提交上同时显示你和伙伴的头像。
 ---
 
 ## 🎉 感谢
-感谢你愿意为 EasyMate 贡献！你的每一行代码都会让这个项目变得更好。如果遇到任何问题，欢迎在 PR 或 Issue 中提问。
+感谢你愿意为 FranxAI 贡献！你的每一行代码都会让这个项目变得更好。如果遇到任何问题，欢迎在 PR 或 Issue 中提问。
 
 Happy coding!

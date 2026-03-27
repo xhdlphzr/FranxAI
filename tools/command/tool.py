@@ -1,8 +1,8 @@
 # Copyright (C) 2026 xhdlphzr
-# This file is part of EasyMate.
-# EasyMate is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-# EasyMate is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License along with EasyMate.  If not, see <https://www.gnu.org/licenses/>.
+# This file is part of FranxAI.
+# FranxAI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+# FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 执行系统命令工具
@@ -35,7 +35,7 @@ def execute(command: str) -> str:
     # 检测是否包含危险命令模式
     for pattern in dangerous_patterns:
         if pattern in cmd_lower:
-            return ("❌ 错误：禁止执行删除类命令。EasyMate 的安全规则不允许直接删除文件或文件夹。"
+            return ("❌ 错误：禁止执行删除类命令。FranxAI 的安全规则不允许直接删除文件或文件夹。"
                     "如果你需要清理文件，请告诉我用 'move' 操作，我会帮你把文件移动到 'C:\\待删除' 目录。")
 
     try:

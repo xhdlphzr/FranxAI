@@ -75,7 +75,7 @@ class MCPStdioClient:
         params = {
             "protocolVersion": "0.1.0",
             "capabilities": {},
-            "clientInfo": {"name": "EasyMate", "version": "3.0.0"}
+            "clientInfo": {"name": "FranxAI", "version": "3.0.0"}
         }
         result = self._send_request("initialize", params)
         # 发送 initialized 通知

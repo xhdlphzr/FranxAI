@@ -9,8 +9,8 @@ You should have received a copy of the GNU General Public License along with Fra
 ### search — 网络搜索
 - **用途**：搜索互联网信息，获取实时数据、新闻、百科内容等。
 - **输入**：
-  - `query`：搜索关键词
-  - `max_results`：可选，返回条数（默认 5）
+  - `query`：**string**，必填，搜索关键词
+  - `max_results`：**integer**，可选，返回条数（默认 5）
 - **输出**：格式化后的搜索结果列表，每条包含标题、摘要、链接。
 - **注意事项**：
   - 完全免费，无需 API Key。

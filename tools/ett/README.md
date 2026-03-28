@@ -11,9 +11,9 @@ You should have received a copy of the GNU General Public License along with Fra
 - **用途**：使用智谱 GLM-4.6V-Flash 模型分析图片、视频或文件，返回文字描述。可同时分析多个资源（用逗号分隔），支持网络 URL 和本地文件路径。
 
 - **输入**：
-  - `urls`：字符串，必填。单个 URL 或本地路径，多个请用英文逗号分隔（例如 `"a.jpg,b.png"`）。本地文件会自动转为 base64 编码的 data URL 发送。
-  - `prompt`：字符串，必填。要问的问题，如“这张图片里有什么？”或“总结这段视频内容”。
-  - `type`：字符串，可选，默认为 `"image_url"`。可选值 `"image_url"`（图片）、`"video_url"`（视频）、`"file_url"`（文档等）。根据资源类型选择。
+  - `urls`：**string**，必填。单个 URL 或本地路径，多个请用英文逗号分隔（例如 `"a.jpg,b.png"`）。本地文件会自动转为 base64 编码的 data URL 发送。
+  - `prompt`：**string**，必填。要问的问题，如“这张图片里有什么？”或“总结这段视频内容”。
+  - `type`：**string**，可选，默认为 `"image_url"`。可选值 `"image_url"`（图片）、`"video_url"`（视频）、`"file_url"`（文档等）。根据资源类型选择。
 
 - **输出**：成功时返回文字描述，失败时返回错误信息。
 
@@ -34,3 +34,4 @@ You should have received a copy of the GNU General Public License along with Fra
     }
   }
 }
+```

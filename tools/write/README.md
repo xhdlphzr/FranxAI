@@ -16,7 +16,9 @@ You should have received a copy of the GNU General Public License along with Fra
     "mode": "overwrite" 或 "append"  // 默认 "overwrite"
   }
   ```
-  - `mode` 可选：`"overwrite"` 覆盖已有内容，`"append"` 追加到文件末尾。
+  - `path`：**string**，必填，文件的完整路径
+  - `content`：**string**，必填，要写入的内容
+  - `mode`：**string**，可选，默认为"overwrite"，可选值："overwrite"覆盖、"append"追加
 - **输出**：操作成功或失败的提示信息。
 - **注意事项**：
   - 请确保写入的内容是用户明确要求的，不要随意修改文件。

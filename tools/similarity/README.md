@@ -20,8 +20,8 @@ You should have received a copy of the GNU General Public License along with Fra
     ```
 
     参数说明：
-    - `text1`：要比较的第一个字符串
-    - `text2`：要比较的第二个字符串
+    - `text1`：**string**，必填，要比较的第一个字符串
+    - `text2`：**string**，必填，要比较的第二个字符串
 
 - **输出**
     返回一个字符串，格式为 `"XX.XX%"`，表示相似度百分比。如果任一字符串长度小于3字节，返回 `"0.00%"`。

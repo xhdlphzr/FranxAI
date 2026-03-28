@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License along with Fra
     "command": "要执行的完整命令字符串"
   }
   ```
+  - `command`：**string**（必填，需传入完整的系统命令字符串）
 - **输出**：命令的标准输出和标准错误输出。如果命令执行失败，会返回错误码和错误信息。
 - **⚠️ 重要限制 — 删除文件处理**：
   此工具**严禁直接执行任何删除文件或目录的命令**（如 `del`、`rm`、`rmdir`、`shred` 等）。如果用户要求删除文件，你必须：

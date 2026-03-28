@@ -92,6 +92,14 @@ git checkout -b add-技能名
 - **免责声明**（可选）：如果技能涉及特定领域风险，请添加免责声明
 - **主体内容**：清晰的步骤、规则或示例，格式建议使用 Markdown 的标题层级（`##`、`###`、`####`）组织
 - **使用建议**：告诉 AI 或用户如何利用该技能
+- **许可证**：技能文件需采用 **GNU Free Documentation License (GFDL) 1.3** 或更高版本发布。请在文件头部添加版权声明，格式如下：
+  ```markdown
+  <!--
+  Copyright (C) 2026 作者名
+  See the file COPYING for copying conditions.
+  -->
+  ```
+  确保仓库根目录已包含 GFDL 许可证文本（`COPYING` 文件）。
 
 **要求**：
 - 文件编码为 UTF-8。
@@ -104,7 +112,7 @@ git checkout -b add-技能名
 
 ### 6. 提交你的改动
 ```bash
-git add skills/你的技能文件.md
+git add 你的技能文件.md
 git commit -m "添加 [技能名] 技能"
 ```
 如有多人合作，同样可以使用 `Co-authored-by`。
@@ -112,7 +120,7 @@ git commit -m "添加 [技能名] 技能"
 ### 7. 推送到你的 GitHub 仓库（同上）
 
 ### 8. 创建 Pull Request
-- 目标分支选择 **skills**（因为技能文件属于项目根目录下的 `skills/` 文件夹）。
+- 目标分支选择 **skills**
 - 标题示例：`添加科研工作流程技能`
 - 描述中请简要说明技能的用途、适用范围以及使用示例。
 

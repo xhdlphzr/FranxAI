@@ -89,3 +89,6 @@
 - 修复了多轮对话中系统提示过于冗长的问题，现在只注入最相关的知识。
 - 解决了 MCP 工具描述未加入知识库的遗漏，AI 现在能通过检索发现可用工具。
 - 删除 `memory.txt` 相关代码，不再生成或读取该文件。
+
+## [v4.0.1](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.0.1)
+- 将 `skills/` 目录改名为 `knowledge/` 目录，并将原本的 `skills/` 迁移到 `knowledge/skills/`

@@ -103,5 +103,8 @@
 - Moved conversation memory backups from `skills/memories/` to `knowledge/memories/` and excluded that directory from automatic scanning; fixed a bug from v4.0.1.
 - Removed `session_histories` and the batch‑write logic on exit, simplifying the code.
 
-## [v4.3.0](https://github.com/botblock/BotBlock-Bot/releases/tag/v4.3.0)
+## [v4.3.0](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.3.0)
 - Full project internationalization: All comments, logs and internal prompts are fully Englishized
+
+## [v4.4.0](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.4.0)
+- Added type‑based weighting to vector search: tool documents (type='tool') now get full weight 1.0, skills (type='skill') 0.8, and conversation memories (type='conversation') 0.2. This improves retrieval relevance by prioritizing actionable tools over background knowledge and suppressing noisy dialogue history.

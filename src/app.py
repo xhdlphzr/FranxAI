@@ -244,7 +244,6 @@ def get_session():
 def chat():
     data = request.get_json()
     user_message = data.get('message', '').strip()
-    session_id = data.get('session_id', STARTUP_ID)   # Frontend can pass session ID, default to STARTUP_ID | 前端可传递会话ID，默认使用 STARTUP_ID
     if not user_message:
         return jsonify({'error': 'Message cannot be empty | 消息不能为空'}), 400
 
@@ -274,6 +273,7 @@ def chat():
             # Get knowledge_k from agent, default to 1 if not present | 从 agent 获取 knowledge_k，如果不存在则默认 1
             k = getattr(chat_agent, 'knowledge_k', 1)
             relevant = search(user_message, k=k)
+            print("search returned | 搜索返回：", relevant)
             for item in relevant:
                 # Send each knowledge item as a separate 'knowledge' event | 每条知识单独发送一个 knowledge 事件
                 yield f"data: {json.dumps({'type': 'knowledge', 'text': item})}\n\n"

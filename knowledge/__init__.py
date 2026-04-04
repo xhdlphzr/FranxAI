@@ -71,23 +71,16 @@ for item in TOOLS_DIR.iterdir():
     _internal_tools[tool_name] = module.execute
 
 # 2. Collect All Markdown Files (Exclude memories directory) | 收集所有 Markdown 文件（排除 memories 目录）
-def _collect_md_files():
-    """Recursively collect all .md files under knowledge/, exclude the memories directory | 递归收集 knowledge/ 下所有 .md 文件，但排除 memories 目录"""
-    files = []
+def _get_file_state():
+    """Get the status of all current .md files (path -> mtime) | 获取当前所有 .md 文件的状态（路径 -> 修改时间）"""
+    state = {}
+    # 递归遍历 KNOWLEDGE_ROOT 下所有 .md 文件，排除 memories 目录
     for md_file in KNOWLEDGE_ROOT.rglob("*.md"):
         # Skip the memories directory and its subdirectories | 跳过 memories 目录及其子目录
         if MEMORIES_DIR in md_file.parents or md_file.parent == MEMORIES_DIR:
             continue
-        files.append(md_file)
-    return files
-
-def _get_file_state():
-    """Get the status of all current .md files (path -> (mtime, content)) | 获取当前所有 .md 文件的状态（路径 -> (mtime, 内容)）"""
-    state = {}
-    for md_file in _collect_md_files():
         try:
             mtime = md_file.stat().st_mtime
-            # Optional: Store content hash at the same time, but mtime is sufficient for modification detection | 可选：同时存储内容哈希，但 mtime 足够用于检测修改
             state[str(md_file.relative_to(KNOWLEDGE_ROOT))] = mtime
         except Exception as e:
             print(f"⚠️ Failed to get file status {md_file}: {e} | 无法获取文件状态 {md_file}: {e}")
@@ -305,7 +298,8 @@ def search(query: str, k: int = 1, step: int = 1, rtn: list = None):
 
     conn = sqlite3.connect(VECTOR_DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT text, embedding FROM vectors")
+    # Also read the type field | 同时读取 type 字段
+    cursor.execute("SELECT text, embedding, type FROM vectors")
     rows = cursor.fetchall()
     conn.close()
     if not rows:
@@ -314,20 +308,32 @@ def search(query: str, k: int = 1, step: int = 1, rtn: list = None):
     model = _get_model()
     q_emb = model.encode(query)
     scores = []
-    for text, emb_blob in rows:
+    for text, emb_blob, doc_type in rows:
         emb = np.frombuffer(emb_blob, dtype=np.float32)
         dot = np.dot(q_emb, emb)
         norm_q = np.linalg.norm(q_emb)
         norm_d = np.linalg.norm(emb)
         sim = dot / (norm_q * norm_d) if norm_q * norm_d != 0 else 0
-        scores.append((sim, text))
+
+        # Apply type weights: tool=1.0, skill=0.8, conversation=0.2, default=1.0 | 应用类型权重：工具=1.0，技能=0.8，对话=0.2，默认=1.0
+        if doc_type == 'tool':
+            weight = 1.0
+        elif doc_type == 'skill':
+            weight = 0.8
+        elif doc_type == 'conversation':
+            weight = 0.2
+        else:
+            weight = 1.0  # Default for mcp or unknown types | MCP 或未知类型默认 1.0
+
+        final_score = sim * weight
+        scores.append((final_score, text))
     scores.sort(reverse=True, key=lambda x: x[0])
 
     # Deduplicate: select the first result not in rtn | 去重选择第一个未在 rtn 中的结果
     selected = None
-    for sim, text in scores:
+    for score, text in scores:
         if text not in rtn:
-            selected = (sim, text)
+            selected = (score, text)
             break
     if selected is None:
         return rtn
@@ -413,8 +419,8 @@ def cleanup_mcp_clients():
         except:
             pass
 
-print("Built-in tool list:", list(_internal_tools.keys()), " | 内置工具列表:")
-print(f"MCP tool count: {len(_mcp_tools)} | MCP 工具数量: {len(_mcp_tools)}")
+print("Built-in tool list | | 内置工具列表：", list(_internal_tools.keys()))
+print(f"MCP tool count | MCP 工具数量：{len(_mcp_tools)}")
 print("Knowledge base incremental update completed. | 知识库增量更新已完成。")
 
 __all__ = ['tools_metadata', 'tool_functions', 'search', 'cleanup_mcp_clients', 'add_conversation']

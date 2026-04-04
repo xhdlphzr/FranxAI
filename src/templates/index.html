@@ -811,6 +811,9 @@ You should have received a copy of the GNU General Public License along with Fra
         });
 
         async function sendMessage() {
+            // Clear existing knowledge messages before new query | 发送新问题前清除已有的相关知识消息
+            document.querySelectorAll('.message.knowledge').forEach(el => el.remove());
+
             const message = messageInput.value.trim();
             if (!message || isGenerating) return;
 

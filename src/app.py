@@ -14,7 +14,6 @@ import json
 import queue
 import threading
 import time
-import atexit
 import sys
 import io
 import uuid
@@ -25,7 +24,7 @@ from agent import FranxAI
 import markdown
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from knowledge import search
+from knowledge import search, add_conversation
 
 # 创建Flask应用实例
 app = Flask(__name__)
@@ -91,10 +90,6 @@ broadcaster = EventBroadcaster()
 active_tasks = {}
 active_tasks_lock = threading.Lock()
 
-session_histories = {}          # key: session_id, value: list of {"user": str, "ai": str}
-session_lock = threading.Lock()
-CONVERSATIONS_DIR = Path(__file__).parent.parent / "skills" / "memories"
-
 def init_agents():
     global chat_agent, tasks_agent, last_config_mtime
     config = load_config()
@@ -133,31 +128,6 @@ def init_agents():
         threshold=threshold,
         knowledge_k=knowledge_k
     )
-
-def save_session_histories():
-    """
-    退出时将所有未结束会话的每一轮问答单独写入 skills/memories/ 目录
-    """
-    if not session_histories:
-        return
-    # 确保目录存在
-    CONVERSATIONS_DIR.mkdir(parents=True, exist_ok=True)
-    for sid, history in list(session_histories.items()):
-        if not history:
-            continue
-        # 会话级时间戳前缀
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        for idx, turn in enumerate(history):
-            # 文件名：时间戳_会话ID前缀_序号.md
-            filename = f"{timestamp}_{sid[:8]}_{idx+1:03d}.md"
-            filepath = CONVERSATIONS_DIR / filename
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(f"用户：{turn['user']}\n")
-                f.write(f"AI：{turn['ai']}\n")
-        print(f"已保存会话 {sid} 的 {len(history)} 轮问答到 {CONVERSATIONS_DIR}")
-    session_histories.clear()
-
-atexit.register(save_session_histories)
 
 # 定时任务执行函数（支持取消和流式推送）
 def execute_task(task_id, content, cancel_event):
@@ -347,15 +317,9 @@ def chat():
         # 发送流结束信号
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
-        # 将本轮问答存入会话缓存（不立即写入文件，等待退出时统一写入）
+        # 将本轮问答实时存入向量库
         if full_response:
-            with session_lock:
-                if session_id not in session_histories:
-                    session_histories[session_id] = []
-                session_histories[session_id].append({
-                    'user': user_message,
-                    'ai': full_response
-                })
+            add_conversation(user_message, full_response)
 
     return Response(
         stream_with_context(generate()),

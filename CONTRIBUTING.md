@@ -1,189 +1,189 @@
-# 贡献指南
+# Contribution Guide
 
-感谢你对 FranxAI 的兴趣！我们欢迎任何形式的贡献，包括新功能、工具插件、**技能**、文档改进、Bug 报告等。为了让协作更顺畅，请遵循以下流程和规范。
+Thank you for your interest in FranxAI! We welcome all forms of contributions, including new features, tool plugins, skills, documentation improvements, bug reports, and more. Please follow the processes and specifications below to ensure smooth collaboration.
 
 ---
 
-## 📦 工具贡献（最常用）
+## 📦 Tool Contribution (Most Common)
 
-如果你想为 FranxAI 添加一个新工具（例如 `weather`、`calc` 等），请按以下步骤操作：
+If you want to add a new tool to FranxAI (such as `weather`, `calc`, etc.), please follow these steps:
 
-### 1. Fork 仓库
-- 访问 [FranxAI 仓库](https://github.com/xhdlphzr/FranxAI)，点击右上角的 **Fork**，将仓库复制到你的 GitHub 账户下。
+### 1. Fork the Repository
+- Visit the [FranxAI Repository](sslocal://flow/file_open?url=https%3A%2F%2Fgithub.com%2Fxhdlphzr%2FFranxAI&flow_extra=eyJsaW5rX3R5cGUiOiJjb2RlX2ludGVycHJldGVyIn0=) and click the **Fork** button in the upper right corner to copy the repository to your GitHub account.
 
-### 2. 克隆你的 Fork 到本地
+### 2. Clone Your Fork Locally
 ```bash
 git clone https://github.com/xhdlphzr/FranxAI.git
 cd FranxAI
 ```
 
-### 3. 创建新分支
+### 3. Create a New Branch
 ```bash
-git checkout -b add-工具名
+git checkout -b add-tool-name
 ```
-例如 `add-weather`。
+For example: `add-weather`.
 
-### 4. 添加工具文件
-在 `tools/` 目录下创建一个以工具名称命名的文件夹（例如 `tools/weather/`）。  
-该文件夹必须包含以下两个文件：
+### 4. Add Tool Files
+Create a folder named after the tool within the `tools/` directory (e.g., `tools/weather/`).
+This folder must contain the following two files:
 
 #### a. `tool.py`
-- 必须包含一个名为 `execute` 的函数，接收关键字参数，并返回字符串结果。
-- 示例：
+- It must include a function named `execute` that accepts keyword arguments and returns results in string format.
+- Example:
   ```python
   def execute(city: str) -> str:
-      # 实现天气查询逻辑
-      return f"{city} 的天气是晴天，25℃"
+      # Implement weather query logic
+      return f"The weather in {city} is sunny with a temperature of 25°C"
   ```
 
 #### b. `README.md`
-- 用简洁的格式说明工具的用途、输入、输出和注意事项（模仿已有工具）。
-- 示例见 `tools/time/README.md`。
+- Briefly explain the tool's purpose, input parameters, output format and notes following the style of existing tools.
+- Refer to `knowledge/tools/time/README.md` for examples.
 
-### 5. 本地测试
-确保你的工具能正常导入并工作（可以临时修改 `src/main.py` 测试）。  
-运行项目：
+### 5. Local Testing
+Make sure your tool can be imported and run normally (you may modify `src/main.py` temporarily for testing purposes).
+Run the project with the following command:
 ```bash
 python src/main.py
 ```
 
-### 6. 提交你的改动
+### 6. Commit Your Changes
 ```bash
-git add tools/你的工具名/
-git commit -m "添加 [工具名] 工具"
+git add tools/your-tool-name/
+git commit -m "Add [Tool Name] tool"
 ```
-如果此工具有其他人的贡献（例如合作开发），请在提交信息末尾添加 `Co-authored-by`（见下文“共同作者”说明）。
+If other contributors participated in developing this tool, add the `Co-authored-by` statement at the end of the commit message (see the "Co-Author" section below).
 
-### 7. 推送到你的 GitHub 仓库
+### 7. Push to Your GitHub Repository
 ```bash
-git push origin add-工具名
+git push origin add-tool-name
 ```
 
-### 8. 创建 Pull Request
-- 在 GitHub 上打开你的 fork，点击 **Compare & pull request**。
-- 填写清晰的标题和描述，说明你的工具功能、使用示例等。
-- 点击 **Create pull request**。
+### 8. Create a Pull Request
+- Open your forked repository on GitHub and click **Compare & pull request**.
+- Fill in a clear title and description, explaining the tool's functions and usage examples.
+- Click **Create pull request**.
 
-### 9. 等待审查
-维护者会审查你的 PR，可能会提出修改意见。你可以在同一分支上继续推送更新，PR 会自动更新。
+### 9. Wait for Review
+Maintainers will review your pull request and may put forward revision suggestions. You can push updates to the same branch, and the pull request will be updated automatically.
 
 ---
 
-## 🧠 技能贡献
+## 🧑‍💻 Skill Contribution
 
-FranxAI 支持通过 `skills/` 文件夹加载额外的知识、规则或工作流（Markdown 文件）。你可以贡献一个实用的技能，帮助 AI 更好地完成特定领域的任务。
+FranxAI loads additional knowledge, rules and workflows (Markdown files) through the `knowledge/` folder. You can contribute practical skills to help the AI complete tasks in specific fields more effectively.
 
-### 1. Fork 仓库（同上）
+### 1. Fork the Repository (Same as Above)
 
-### 2. 克隆你的 Fork 到本地（同上）
+### 2. Clone Your Fork Locally (Same as Above)
 
-### 3. 创建新分支
+### 3. Create a New Branch
 ```bash
-git checkout -b add-技能名
+git checkout -b add-skill-name
 ```
-例如 `add-research-workflow`。
+For example: `add-research-workflow`.
 
-### 4. 添加技能文件
-在 `skills/` 目录下添加一个 `.md` 文件（在内容的标题中记得标注 `（技能）` ）。  
-该文件应包含以下内容：
+### 4. Add Skill Files
+Add a `.md` file under the `knowledge/skills/` directory (mark **(Skill)** in the title of the document).
+The file needs to include the following content:
 
-- **标题**（使用一级标题，例如 `# 科研工作流程`）
-- **概述**：简要说明技能的作用
-- **免责声明**（可选）：如果技能涉及特定领域风险，请添加免责声明
-- **主体内容**：清晰的步骤、规则或示例，格式建议使用 Markdown 的标题层级（`##`、`###`、`####`）组织
-- **使用建议**：告诉 AI 或用户如何利用该技能
-- **许可证**：技能文件需采用 **GNU Free Documentation License (GFDL) 1.3** 或更高版本发布。请在文件头部添加版权声明，格式如下：
+- **Title** (First-level heading, e.g., `# Academic Research Workflow`)
+- **Overview**: Briefly describe the function of the skill
+- **Disclaimer** (Optional): Add a disclaimer if the skill involves risks in specific fields
+- **Main Content**: Present clear steps, rules or examples, organized with Markdown heading levels (`##`, `###`, `####`)
+- **Usage Guidelines**: Explain how AI or users can use this skill
+- **License**: Skill files must be released under the **GNU Free Documentation License (GFDL) 1.3** or later versions. Add a copyright notice at the top of the file in the following format:
   ```markdown
   <!--
-  Copyright (C) 2026 作者名
+  Copyright (C) 2026 Author Name
   See the file COPYING for copying conditions.
   -->
   ```
-  确保仓库根目录已包含 GFDL 许可证文本（`COPYING` 文件）。
+  Ensure the GFDL license text file (`COPYING`) exists in the root directory of the repository.
 
-**要求**：
-- 文件编码为 UTF-8。
-- 内容应具有实用性，避免过于笼统或重复已有知识。
-- 请确保不包含任何违反法律法规、侵犯他人权益或敏感的内容。
+**Requirements**:
+- The file encoding must be UTF-8.
+- The content must be practical, avoiding vague descriptions or duplication of existing knowledge.
+- The content must not contain any illegal, infringing or sensitive information.
 
-### 5. 本地验证
-你可以在本地运行 FranxAI，观察技能是否被正常加载（启动时控制台会打印已加载的技能文件列表）。  
-如果技能内容正确，AI 在对话中会表现出相应的行为。
+### 5. Local Verification
+Run FranxAI locally to check whether the skill is loaded successfully (the console will print the list of loaded skill files on startup).
+If the skill content is correct, the AI will show corresponding behavioral changes in conversations.
 
-### 6. 提交你的改动
+### 6. Commit Your Changes
 ```bash
-git add 你的技能文件.md
-git commit -m "添加 [技能名] 技能"
+git add your-skill-file.md
+git commit -m "Add [Skill Name] skill"
 ```
-如有多人合作，同样可以使用 `Co-authored-by`。
+Use the `Co-authored-by` tag for collaborative contributions when needed.
 
-### 7. 推送到你的 GitHub 仓库（同上）
+### 7. Push to Your GitHub Repository (Same as Above)
 
-### 8. 创建 Pull Request
-- 目标分支选择 **skills**
-- 标题示例：`添加科研工作流程技能`
-- 描述中请简要说明技能的用途、适用范围以及使用示例。
+### 8. Create a Pull Request
+- Select **skills** as the target branch
+- Example title: `Add academic research workflow skill`
+- Briefly explain the skill's purpose, applicable scope and usage examples in the description.
 
-### 9. 等待审查
-维护者会审查技能内容的合理性、格式规范等。如果有改进建议，会在 PR 中反馈。
+### 9. Wait for Review
+Maintainers will review the rationality and formatting of the skill content, and provide feedback in the pull request if revisions are needed.
 
 ---
 
-## 🧑‍🤝‍🧑 共同作者（Co-authored-by）
-如果你在开发过程中有伙伴一起贡献，或者你想保留他人的贡献记录，请在提交信息中使用以下格式（**必须独占一行，邮箱需为 GitHub 关联邮箱**）：
+## 🤝 Co-Author Specification
+If you collaborate with partners during development or need to record other contributors, use the following format in commit messages (must occupy an independent line, and the email must be bound to your GitHub account):
 
 ```bash
-git commit -m "添加天气工具
+git commit -m "Add weather tool
 
-Co-authored-by: 伙伴用户名 <伙伴邮箱>"
+Co-authored-by: Partner Username <partner-email-address>"
 ```
 
-GitHub 会在该提交上同时显示你和伙伴的头像。
+GitHub will display the avatars of all relevant contributors under this commit.
 
 ---
 
-## 📝 代码风格
-- Python 代码遵循 PEP 8 标准，但不必过于严苛，保持清晰即可。
-- 函数、变量命名应具有描述性。
-- 添加必要的注释，尤其是复杂逻辑。
+## 📝 Code Style
+- Python code follows the PEP 8 standard; strict compliance is not required as long as readability is guaranteed.
+- Use descriptive names for functions and variables.
+- Add necessary comments for complex logic.
 
 ---
 
-## 🧪 测试
-- 如果可能，为你的工具添加简单的测试（未来会引入测试框架）。
-- 目前至少确保在本地运行 `src/main.py` 能正常调用你的工具。
+## 🧪 Testing
+- Add simple test cases for your tool if possible (a formal testing framework will be introduced in the future).
+- Currently, ensure your tool can be called normally by running `src/main.py` locally.
 
 ---
 
-## 🔀 处理冲突
-如果你的 PR 出现了冲突（通常是因为 `main` 分支在你提交期间有了新变化），可以：
-1. 将 FranxAI 官方仓库添加为远程：
+## 🔀 Resolving Merge Conflicts
+If merge conflicts appear in your pull request (usually caused by updates to the `main` branch during your development):
+1. Add the official FranxAI repository as a remote source:
    ```bash
    git remote add upstream https://github.com/xhdlphzr/FranxAI.git
    ```
-2. 获取最新代码：
+2. Fetch the latest code:
    ```bash
    git fetch upstream
    ```
-3. 合并到你的分支：
+3. Merge updates into your branch:
    ```bash
-   git checkout add-工具名
+   git checkout add-tool-name
    git merge upstream/main
    ```
-4. 解决冲突（Git 会提示哪些文件冲突），然后提交并推送。
+4. Resolve conflicts according to Git prompts, then commit and push your changes.
 
-如果你不熟悉冲突解决，可以在 PR 中留言，维护者会协助。
-
----
-
-## 💬 其他贡献
-- **文档改进**：直接修改 `README.md` 或 `CONTRIBUTING.md`，提交 PR。
-- **Bug 报告**：在 Issues 页面创建新 Issue，描述清楚复现步骤和环境。
-- **功能建议**：同样通过 Issues 提出。
+If you are not familiar with conflict resolution, leave a message in the pull request, and maintainers will offer assistance.
 
 ---
 
-## 🎉 感谢
-感谢你愿意为 FranxAI 贡献！你的每一行代码和每一份知识都会让这个项目变得更好。如果遇到任何问题，欢迎在 PR 或 Issue 中提问。
+## 💬 Other Contributions
+- **Documentation Optimization**: Modify `README.md` or `CONTRIBUTING.md` directly and submit a pull request.
+- **Bug Reports**: Create a new Issue with detailed reproduction steps and operating environment information.
+- **Feature Suggestions**: Submit proposals through Issues.
+
+---
+
+## 🎉 Acknowledgments
+Thank you for contributing to FranxAI! Every line of code and every piece of knowledge you provide will make this project better. Feel free to ask questions in pull requests or Issues if you encounter any problems.
 
 Happy coding!

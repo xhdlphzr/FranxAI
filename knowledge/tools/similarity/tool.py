@@ -5,72 +5,72 @@
 # You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-字符串相似度计算工具
-使用滚动哈希算法计算两个字符串的相似度（窗口大小为3字节）
+String Similarity Calculation Tool | 字符串相似度计算工具
+Calculate the similarity of two strings using the rolling hash algorithm (window size 3 bytes) | 使用滚动哈希算法计算两个字符串的相似度（窗口大小为3字节）
 """
 
 def execute(text1: str, text2: str) -> str:
     """
-    计算两个字符串的相似度
+    Calculate the similarity of two strings | 计算两个字符串的相似度
 
     Args:
-        text1: 第一个字符串
-        text2: 第二个字符串
+        text1: The first string | 第一个字符串
+        text2: The second string | 第二个字符串
 
     Returns:
-        相似度百分比，格式为 "XX.XX%"
+        Similarity percentage in the format "XX.XX%" | 相似度百分比，格式为 "XX.XX%"
     """
-    # 基数和窗口大小
+    # Base number and window size | 基数和窗口大小
     base = 131
     window_size = 3
 
     def rolling_hashes(s: str, w: int):
         """
-        计算字符串的滚动哈希值集合
+        Calculate the rolling hash value set of a string | 计算字符串的滚动哈希值集合
 
         Args:
-            s: 输入字符串
-            w: 窗口大小
+            s: Input string | 输入字符串
+            w: Window size | 窗口大小
 
         Returns:
-            哈希值列表
+            List of hash values | 哈希值列表
         """
         if len(s) < w:
             return []
         h = 0
         p = 1
-        # 预计算base的w次方
+        # Precompute base to the power of w | 预计算base的w次方
         for i in range(w):
             p *= base
         res = []
         for i, ch in enumerate(s):
-            # 更新哈希值
+            # Update the hash value | 更新哈希值
             h = h * base + ord(ch)
             if i >= w:
-                # 移除窗口外的字符贡献
+                # Remove the contribution of characters outside the window | 移除窗口外的字符贡献
                 h -= ord(s[i - w]) * p
             if i >= w - 1:
-                # 记录窗口哈希值
+                # Record the window hash value | 记录窗口哈希值
                 res.append(h)
         return res
 
-    # 计算两个字符串的哈希值集合
+    # Calculate the hash value sets of the two strings | 计算两个字符串的哈希值集合
     v1 = rolling_hashes(text1, window_size)
     v2 = rolling_hashes(text2, window_size)
 
-    # 如果任一字符串长度小于窗口大小，返回0%
+    # If the length of either string is less than the window size, return 0% | 如果任一字符串长度小于窗口大小，返回0%
     if not v1 or not v2:
         return "0.00%"
 
-    # 转换为集合，计算公共哈希值
+    # Convert to sets and calculate common hash values | 转换为集合，计算公共哈希值
     set1 = set(v1)
     set2 = set(v2)
     common = set1 & set2
     same = len(common)
 
-    # 计算相似度：2 * 公共元素 / 总元素数
+    # Calculate similarity: 2 * common elements / total number of elements | 计算相似度：2 * 公共元素 / 总元素数
     total = len(v1) + len(v2)
     similarity = 2.0 * same / total if total > 0 else 0.0
 
-    # 返回百分比
+    # Return percentage | 返回百分比
     return f"{similarity*100:.2f}%"

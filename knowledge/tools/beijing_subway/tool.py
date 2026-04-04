@@ -9,14 +9,14 @@ import os
 import heapq
 from geopy.distance import distance
 
-# 获取当前文件所在目录
+# Get current file directory | 获取当前文件所在目录
 BASE_DIR = os.path.dirname(__file__)
 
-# 加载站点数据
+# Load station data | 加载站点数据
 with open(os.path.join(BASE_DIR, 'station.json'), 'r', encoding='utf-8') as f:
     station_data = json.load(f)
 
-# 构建站名到ID的映射
+# Build mapping from station name to ID | 构建站名到ID的映射
 name_to_id = {}
 for sid, info in station_data.items():
     name = info['站点']
@@ -24,7 +24,7 @@ for sid, info in station_data.items():
 
 STATION_SIZE = 409
 
-# 加载邻接矩阵图数据
+# Load adjacency matrix graph data | 加载邻接矩阵图数据
 graph = []
 with open(os.path.join(BASE_DIR, 'graph.txt'), 'r', encoding='utf-8') as f:
     for line in f:
@@ -36,29 +36,29 @@ for i in range(STATION_SIZE):
         if graph[i][j] <= 0:
             graph[i][j] = -1
 
-# 换乘惩罚因子（分钟），可调
-PEAK_PENALTY = 5      # 高峰期换乘惩罚
-OFF_PEAK_PENALTY = 2  # 平峰期换乘惩罚
+# Transfer penalty factor (minutes), adjustable | 换乘惩罚因子（分钟），可调
+PEAK_PENALTY = 5      # Peak hour transfer penalty | 高峰期换乘惩罚
+OFF_PEAK_PENALTY = 2  # Off-peak hour transfer penalty | 平峰期换乘惩罚
 
 def a_star(start_id, end_id, time, graph, peak_penalty, off_peak_penalty):
     """
-    A*算法实现（内部使用，依赖 station_data）
+    A* algorithm implementation (internal use, depends on station_data) | A*算法实现（内部使用，依赖 station_data）
     """
-    # 根据时间判断速度 (m/h) 和惩罚
+    # Judge speed (m/h) and penalty based on time | 根据时间判断速度 (m/h) 和惩罚
     def now_speed(t):
         return 35000 if (420 <= t < 540) or (1020 <= t < 1140) else 40000
 
     def now_punishment(t):
         return peak_penalty if (420 <= t < 540) or (1020 <= t < 1140) else off_peak_penalty
 
-    # 启发式函数（直线距离/速度）
+    # Heuristic function (straight-line distance/speed) | 启发式函数（直线距离/速度）
     def heuristic(idx1, idx2):
         coord1 = (station_data[str(idx1)]['纬度'], station_data[str(idx1)]['经度'])
         coord2 = (station_data[str(idx2)]['纬度'], station_data[str(idx2)]['经度'])
-        dis = distance(coord1, coord2).m
-        return round(dis / 40000 * 60)  # 固定速度 40000 m/h
+        dis = distance(coord1, idx2).m
+        return round(dis / 40000 * 60)  # Fixed speed 40000 m/h | 固定速度 40000 m/h
 
-    # 是否换乘
+    # Check if transfer is required | 是否换乘
     def is_transfer(prev, now, nxt):
         if prev == -1 or nxt == -1:
             return False
@@ -67,7 +67,7 @@ def a_star(start_id, end_id, time, graph, peak_penalty, off_peak_penalty):
         lines_nxt = set(station_data[str(nxt)]['线路'])
         return (lines_prev & lines_now) != (lines_now & lines_nxt)
 
-    # 初始化
+    # Initialization | 初始化
     open_list = []
     heapq.heappush(open_list, (heuristic(start_id, end_id), heuristic(start_id, end_id), start_id))
     close_set = set()
@@ -84,7 +84,7 @@ def a_star(start_id, end_id, time, graph, peak_penalty, off_peak_penalty):
         close_set.add(u)
 
         if u == end_id:
-            # 重构路径
+            # Reconstruct path | 重构路径
             path = []
             cur = u
             while cur != -1:
@@ -97,7 +97,7 @@ def a_star(start_id, end_id, time, graph, peak_penalty, off_peak_penalty):
             w = graph[u][v]
             if w == -1:
                 continue
-            travel_time = round(w / now_speed(g[u]) * 60)  # 分钟
+            travel_time = round(w / now_speed(g[u]) * 60)  # Minutes | 分钟
             if is_transfer(prev[u], u, v):
                 travel_time += now_punishment(g[u])
 
@@ -107,28 +107,28 @@ def a_star(start_id, end_id, time, graph, peak_penalty, off_peak_penalty):
                 prev[v] = u
                 heapq.heappush(open_list, (new_g + heuristic(v, end_id), heuristic(v, end_id), v))
 
-    # 没有路径
+    # No available path | 没有路径
     return None
 
 def execute(start: str, end: str, time: int = None) -> str:
     """
-    查询北京地铁从 start 到 end 的最优路径（按时间最短）。
-    参数：
-        start: 起点站名
-        end: 终点站名
-        time: 出发时间（距离当天 0:00 的分钟数），默认为当前时间
-    返回：
-        换乘方案文本
+    Query the optimal Beijing subway route from start to end (shortest travel time) | 查询北京地铁从 start 到 end 的最优路径（按时间最短）
+    Parameters:
+        start: Starting station name | start: 起点站名
+        end: Destination station name | end: 终点站名
+        time: Departure time (minutes since 00:00 of the day), uses current time by default | time: 出发时间（距离当天 0:00 的分钟数），默认为当前时间
+    Returns:
+        Route plan text | 返回：换乘方案文本
     """
     if start not in name_to_id:
-        return f"未找到起点站：{start}"
+        return f"Starting station not found: {start} | 未找到起点站：{start}"
     if end not in name_to_id:
-        return f"未找到终点站：{end}"
+        return f"Destination station not found: {end} | 未找到终点站：{end}"
 
     start_id = name_to_id[start]
     end_id = name_to_id[end]
 
-    # 若未提供时间，使用当前本地时间
+    # Use current local time if no time provided | 若未提供时间，使用当前本地时间
     if time is None:
         import datetime
         now = datetime.datetime.now()
@@ -136,26 +136,26 @@ def execute(start: str, end: str, time: int = None) -> str:
 
     result = a_star(start_id, end_id, time, graph, PEAK_PENALTY, OFF_PEAK_PENALTY)
     if result is None:
-        return f"未找到从 {start} 到 {end} 的路径。"
+        return f"No route found from {start} to {end} | 未找到从 {start} 到 {end} 的路径。"
 
     total_minutes, travel_minutes, path = result
-    # 格式化输出
+    # Format output | 格式化输出
     lines = []
     current_line = None
     for i, station in enumerate(path):
         if i == 0:
-            lines.append(f"从 {station} 出发")
+            lines.append(f"Depart from {station} | 从 {station} 出发")
         else:
-            # 获取该站所属线路（取第一条线路）
+            # Get the first line of current station | 获取该站所属线路（取第一条线路）
             sid = name_to_id[station]
             station_info = station_data[str(sid)]
-            line = station_info['线路'][0] if station_info['线路'] else '未知线路'
+            line = station_info['线路'][0] if station_info['线路'] else 'Unknown Line | 未知线路'
             if current_line is None:
                 current_line = line
-                lines.append(f"乘坐 {line} 线")
+                lines.append(f"Take {line} Line | 乘坐 {line} 线")
             elif line != current_line:
-                lines.append(f"在 {station} 换乘 {line} 线")
+                lines.append(f"Transfer to {line} Line at {station} | 在 {station} 换乘 {line} 线")
                 current_line = line
-    lines.append(f"到达 {path[-1]}")
-    lines.append(f"全程约 {travel_minutes} 分钟（含换乘时间）")
+    lines.append(f"Arrive at {path[-1]} | 到达 {path[-1]}")
+    lines.append(f"Total travel time: about {travel_minutes} minutes (including transfers) | 全程约 {travel_minutes} 分钟（含换乘时间）")
     return "\n".join(lines)

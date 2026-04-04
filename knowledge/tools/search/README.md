@@ -6,6 +6,17 @@ FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
+### search - Web Search
+- **Purpose**: Search internet information to obtain real-time data, news, encyclopedia content and more.
+- **Input**:
+  - `query`: **string**, required, search keyword
+  - `max_results`: **integer**, optional, number of returned results (default: 5)
+- **Output**: Formatted list of search results; each item contains a title, summary and link.
+- **Notes**:
+  - Completely free, no API Key required.
+  - Real-time search results, consistent with DuckDuckGo used in browsers.
+  - Please use reasonably, avoid sending a large number of requests in a short period of time.
+
 ### search — 网络搜索
 - **用途**：搜索互联网信息，获取实时数据、新闻、百科内容等。
 - **输入**：

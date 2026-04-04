@@ -6,6 +6,12 @@ FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
+### `time` — Get current date and time
+- **Purpose**: Used when you need to know the current date, time, weekday, or calculate time intervals.
+- **Input**: No parameters required.
+- **Output**: Returns a string containing the current local date and time (e.g., `2026-03-14 Saturday 15:30:45`).
+- **Notes**: This tool only reads the system clock and does not modify any content.
+
 ### `time` — 获取当前日期和时间
 - **用途**：当你需要知道当前的日期、时间、星期几，或者计算时间间隔时使用。
 - **输入**：不需要任何参数。

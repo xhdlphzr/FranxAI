@@ -6,6 +6,30 @@ FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
+### `similarity` - Detect String Similarity
+- **Purpose**
+Calculate the similarity between two strings under a fixed sliding window (fixed window size: 3 bytes, based on rolling hash). Suitable for scenarios such as local text duplicate detection and filename comparison.
+
+- **Input**
+```json
+{
+"text1": "First string",
+"text2": "Second string"
+}
+```
+
+Parameter Description:
+- `text1`: **string**, required, the first string to be compared
+- `text2`: **string**, required, the second string to be compared
+
+- **Output**
+Returns a string in the format `"XX.XX%"`, representing the similarity percentage. If the length of either string is less than 3 bytes, it returns `"0.00%"`.
+
+- **Notes**
+- Strings are processed as UTF-8 encoded byte sequences: English characters occupy 1 byte, Chinese characters usually occupy 3 bytes, and the window size is fixed at 3 bytes.
+- The comparison is based on sets of window hash values; the order of windows is ignored, only the consistency of window content matters.
+- Suitable for short text comparison. It can still calculate results for long texts, but may fail to capture long-range patterns.
+
 ### `similarity` — 检测字符串相似度
 
 - **用途**

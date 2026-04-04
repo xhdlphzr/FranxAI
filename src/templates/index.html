@@ -7,12 +7,12 @@ You should have received a copy of the GNU General Public License along with Fra
 -->
 
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FranxAI 聊天助手</title>
-    <!-- KaTeX 在线资源 -->
+    <title>FranxAI Chat Assistant | FranxAI 聊天助手</title>
+    <!-- KaTeX online resources | KaTeX 在线资源 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
@@ -22,7 +22,7 @@ You should have received a copy of the GNU General Public License along with Fra
                 {left: '$', right: '$', display: false}
             ]
         });"></script>
-    <!-- Markdown 解析库 -->
+    <!-- Markdown parser | Markdown 解析库 -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
@@ -127,7 +127,7 @@ You should have received a copy of the GNU General Public License along with Fra
             opacity: 0.7;
             font-style: italic;
         }
-        /* 知识消息样式 */
+        /* Knowledge message styles | 知识消息样式 */
         .message.knowledge {
             background-color: #f0f7ff;
             border-left: 3px solid #1e90ff;
@@ -149,7 +149,7 @@ You should have received a copy of the GNU General Public License along with Fra
             padding: 6px;
             border-radius: 4px;
         }
-        /* 为渲染后的 Markdown 添加段落间距 */
+        /* Add paragraph spacing for rendered Markdown | 为渲染后的 Markdown 添加段落间距 */
         .message p {
             margin: 0.5em 0;
         }
@@ -251,7 +251,7 @@ You should have received a copy of the GNU General Public License along with Fra
             color: green;
         }
 
-        /* MCP 服务器列表样式 */
+        /* MCP server list styles | MCP 服务器列表样式 */
         .mcp-server-item {
             margin: 10px 0;
             padding: 10px;
@@ -286,7 +286,7 @@ You should have received a copy of the GNU General Public License along with Fra
             margin-right: 10px;
         }
 
-        /* 定时任务样式 */
+        /* Scheduled task styles | 定时任务样式 */
         .task-message {
             background-color: #f0f7ff;
             border-left: 3px solid #1e90ff;
@@ -351,76 +351,76 @@ You should have received a copy of the GNU General Public License along with Fra
 <body>
     <div class="container">
         <div class="sidebar">
-            <button class="nav-btn active" data-page="chat">💬 聊天</button>
-            <button class="nav-btn" data-page="config">⚙️ 配置</button>
+            <button class="nav-btn active" data-page="chat">💬 Chat | 聊天</button>
+            <button class="nav-btn" data-page="config">⚙️ Config | 配置</button>
         </div>
 
         <div id="chat-page" class="page active">
             <div class="page-header">
-                <h2>🤖 FranxAI 聊天助手</h2>
+                <h2>🤖 FranxAI Chat Assistant | FranxAI 聊天助手</h2>
             </div>
             <div id="chat-messages" class="chat-messages"></div>
             <div class="chat-input-area">
-                <textarea id="message-input" rows="3" placeholder="输入你的指令... 按 Ctrl+Enter 发送"></textarea>
-                <button id="send-btn">发送</button>
+                <textarea id="message-input" rows="3" placeholder="Enter your command... Press Ctrl+Enter to send | 输入你的指令... 按 Ctrl+Enter 发送"></textarea>
+                <button id="send-btn">Send | 发送</button>
             </div>
             <details id="console-details">
-                <summary>📋 控制台输出</summary>
+                <summary>📋 Console Output | 控制台输出</summary>
                 <pre id="console-output"></pre>
             </details>
         </div>
 
         <div id="config-page" class="page">
             <div class="page-header">
-                <h2>⚙️ 配置</h2>
+                <h2>⚙️ Configuration | 配置</h2>
             </div>
             <form id="config-form">
-                <label>API密钥</label>
+                <label>API Key | API密钥</label>
                 <input type="text" id="api_key" name="api_key">
-                <label>接口地址</label>
+                <label>Base URL | 接口地址</label>
                 <input type="text" id="base_url" name="base_url">
-                <label>模型名称</label>
+                <label>Model Name | 模型名称</label>
                 <input type="text" id="model" name="model">
-                <label>温度</label>
+                <label>Temperature | 温度</label>
                 <input type="number" id="temperature" name="temperature" step="0.1" min="0" max="1" value="0.8">
-                <label>深度思考</label>
+                <label>Deep Thinking | 深度思考</label>
                 <input type="checkbox" id="thinking" name="thinking">
-                <label>最大迭代次数</label>
+                <label>Max Iterations | 最大迭代次数</label>
                 <input type="number" id="max_iterations" name="max_iterations" min="1" max="500" value="100">
-                <label>记忆压缩阈值</label>
+                <label>Memory Compression Threshold | 记忆压缩阈值</label>
                 <input type="number" id="threshold" name="threshold" min="1" max="100" value="20">
-                <label>知识检索数量</label>
+                <label>Knowledge Retrieval Count | 知识检索数量</label>
                 <input type="number" id="knowledge_k" name="knowledge_k" step="1" min="1" max="10" value="1">
-                <label>系统设置</label>
+                <label>System Settings | 系统设置</label>
                 <textarea id="settings" name="settings" rows="6"></textarea>
                 <hr>
-                <h3>📸 ETT（多模态理解）工具配置</h3>
-                <label>API密钥 (ett)</label>
-                <input type="text" id="ett_api_key" name="ett_api_key" placeholder="留空则使用顶层API密钥">
-                <label>接口地址 (ett)</label>
-                <input type="text" id="ett_base_url" name="ett_base_url" placeholder="留空则使用顶层接口地址">
-                <label>模型名称 (ett)</label>
+                <h3>📸 ETT (Multimodal) Tool Configuration | ETT（多模态理解）工具配置</h3>
+                <label>API Key (ett) | API密钥 (ett)</label>
+                <input type="text" id="ett_api_key" name="ett_api_key" placeholder="Leave empty to use top-level API key | 留空则使用顶层API密钥">
+                <label>Base URL (ett) | 接口地址 (ett)</label>
+                <input type="text" id="ett_base_url" name="ett_base_url" placeholder="Leave empty to use top-level base URL | 留空则使用顶层接口地址">
+                <label>Model Name (ett) | 模型名称 (ett)</label>
                 <input type="text" id="ett_model" name="ett_model" value="glm-4.6v-flash">
-                <label>温度 (ett)</label>
+                <label>Temperature (ett) | 温度 (ett)</label>
                 <input type="number" id="ett_temperature" name="ett_temperature" step="0.1" min="0" max="1" value="0.8">
-                <label>深度思考 (ett)</label>
+                <label>Deep Thinking (ett) | 深度思考 (ett)</label>
                 <input type="checkbox" id="ett_thinking" name="ett_thinking">
-                <label>最大迭代次数 (ett)</label>
+                <label>Max Iterations (ett) | 最大迭代次数 (ett)</label>
                 <input type="number" id="ett_max_iterations" name="ett_max_iterations" min="1" max="500" value="100">
-                <label>最大重试次数 (ett)</label>
+                <label>Max Retries (ett) | 最大重试次数 (ett)</label>
                 <input type="number" id="ett_max_retries" name="ett_max_retries" min="1" max="30" value="3">
 
                 <hr>
-                <h3>⏰ 定时任务</h3>
+                <h3>⏰ Scheduled Tasks | 定时任务</h3>
                 <div id="tasks-list"></div>
-                <button type="button" id="add-task" class="btn-secondary">➕ 添加任务</button>
+                <button type="button" id="add-task" class="btn-secondary">➕ Add Task | 添加任务</button>
                 <hr>
 
-                <h3>🌐 MCP 服务器 (stdio)</h3>
+                <h3>🌐 MCP Servers (stdio) | MCP 服务器 (stdio)</h3>
                 <div id="mcp-servers-list"></div>
-                <button type="button" id="add-mcp-server" class="btn-secondary">➕ 添加服务器</button>
+                <button type="button" id="add-mcp-server" class="btn-secondary">➕ Add Server | 添加服务器</button>
 
-                <button type="submit">保存配置</button>
+                <button type="submit">Save Configuration | 保存配置</button>
             </form>
             <div id="config-status"></div>
         </div>
@@ -438,9 +438,9 @@ You should have received a copy of the GNU General Public License along with Fra
         const configForm = document.getElementById('config-form');
         const configStatus = document.getElementById('config-status');
 
-        // ---------- 停止按钮相关 ----------
-        let currentAbortController = null;   // 当前请求的 AbortController
-        let isGenerating = false;            // 是否正在生成中
+        // Stop button related | 停止按钮相关
+        let currentAbortController = null;   // Current request AbortController | 当前请求的 AbortController
+        let isGenerating = false;            // Whether generation is in progress | 是否正在生成中
 
         function escapeHtml(str) {
             return str.replace(/[&<>]/g, function(m) {
@@ -452,13 +452,13 @@ You should have received a copy of the GNU General Public License along with Fra
         }
 
         function setSendButtonToStop() {
-            sendBtn.textContent = '停止';
+            sendBtn.textContent = 'Stop | 停止';
             sendBtn.removeEventListener('click', sendMessage);
             sendBtn.addEventListener('click', stopGeneration);
         }
 
         function setSendButtonToSend() {
-            sendBtn.textContent = '发送';
+            sendBtn.textContent = 'Send | 发送';
             sendBtn.removeEventListener('click', stopGeneration);
             sendBtn.addEventListener('click', sendMessage);
         }
@@ -470,16 +470,16 @@ You should have received a copy of the GNU General Public License along with Fra
             }
             setSendButtonToSend();
             isGenerating = false;
-            addMessage('assistant', '（已停止生成）');
+            addMessage('assistant', '(Stopped generating) | （已停止生成）');
         }
-        // ---------- 停止按钮相关结束 ----------
+        // End stop button related | 停止按钮相关结束
 
         function saveMessagesToLocalStorage() {
             const messages = [];
             document.querySelectorAll('.message').forEach(msgDiv => {
                 const role = msgDiv.classList.contains('user') ? 'user' : 'assistant';
                 if (!msgDiv.classList.contains('temp')) {
-                    // 存储纯文本（原始内容），而不是渲染后的 HTML
+                    // Store plain text (original content), not rendered HTML | 存储纯文本（原始内容），而不是渲染后的 HTML
                     messages.push({ role, content: msgDiv.textContent });
                 }
             });
@@ -491,7 +491,7 @@ You should have received a copy of the GNU General Public License along with Fra
             if (stored) {
                 const messages = JSON.parse(stored);
                 messages.forEach(msg => {
-                    // 用户消息需要解析 Markdown，助手消息直接纯文本（后续由 html 事件覆盖）
+                    // User messages need Markdown parsing, assistant messages are plain text (overwritten by html event later) | 用户消息需要解析 Markdown，助手消息直接纯文本（后续由 html 事件覆盖）
                     if (msg.role === 'user') {
                         addMessage(msg.role, msg.content, false, '', true);
                     } else {
@@ -501,17 +501,17 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         }
 
-        // 添加消息，支持可选 Markdown 解析
+        // Add message, supports optional Markdown parsing | 添加消息，支持可选 Markdown 解析
         function addMessage(role, content, temporary = false, extraClass = '', parseMarkdown = false) {
             const msgDiv = document.createElement('div');
             msgDiv.className = `message ${role} ${extraClass}`;
             if (temporary) msgDiv.classList.add('temp');
 
             if (parseMarkdown && !temporary) {
-                // 解析 Markdown 并转成 HTML
+                // Parse Markdown and convert to HTML | 解析 Markdown 并转成 HTML
                 const html = marked.parse(content);
                 msgDiv.innerHTML = html;
-                // 渲染数学公式
+                // Render math formulas | 渲染数学公式
                 if (window.renderMathInElement) {
                     window.renderMathInElement(msgDiv, {
                         delimiters: [
@@ -547,37 +547,37 @@ You should have received a copy of the GNU General Public License along with Fra
                     chatPage.classList.remove('active');
                     configPage.classList.add('active');
                     loadConfig();
-                    loadTasks();  // 每次切换到配置页时刷新任务列表
+                    loadTasks();  // Refresh task list when switching to config page | 每次切换到配置页时刷新任务列表
                 }
                 navBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
             });
         });
 
-        // ---------- MCP 服务器管理 ----------
-        let mcpServers = [];   // 存储当前 MCP 服务器列表
+        // MCP Server Management | MCP 服务器管理
+        let mcpServers = [];   // Stores current MCP server list | 存储当前 MCP 服务器列表
 
         function renderMCPServers() {
             const container = document.getElementById('mcp-servers-list');
             if (!container) return;
             container.innerHTML = '';
             if (mcpServers.length === 0) {
-                container.innerHTML = '<div>暂无 MCP 服务器配置。</div>';
+                container.innerHTML = '<div>No MCP server configurations. | 暂无 MCP 服务器配置。</div>';
                 return;
             }
             mcpServers.forEach((server, index) => {
                 const div = document.createElement('div');
                 div.className = 'mcp-server-item';
                 div.innerHTML = `
-                    <input type="text" placeholder="名称" value="${escapeHtml(server.name || '')}" data-field="name" data-index="${index}">
-                    <input type="text" placeholder="命令 (如 uvx)" value="${escapeHtml(server.command || '')}" data-field="command" data-index="${index}">
-                    <input type="text" placeholder="参数 (空格分隔)" value="${escapeHtml((server.args || []).join(' '))}" data-field="args" data-index="${index}">
-                    <button type="button" data-index="${index}" class="remove-mcp">删除</button>
+                    <input type="text" placeholder="Name | 名称" value="${escapeHtml(server.name || '')}" data-field="name" data-index="${index}">
+                    <input type="text" placeholder="Command (e.g., uvx) | 命令 (如 uvx)" value="${escapeHtml(server.command || '')}" data-field="command" data-index="${index}">
+                    <input type="text" placeholder="Arguments (space separated) | 参数 (空格分隔)" value="${escapeHtml((server.args || []).join(' '))}" data-field="args" data-index="${index}">
+                    <button type="button" data-index="${index}" class="remove-mcp">Delete | 删除</button>
                 `;
                 container.appendChild(div);
             });
 
-            // 绑定输入变化事件
+            // Bind input change events | 绑定输入变化事件
             document.querySelectorAll('.mcp-server-item input').forEach(input => {
                 input.addEventListener('change', (e) => {
                     const idx = parseInt(e.target.dataset.index);
@@ -590,7 +590,7 @@ You should have received a copy of the GNU General Public License along with Fra
                     }
                 });
             });
-            // 绑定删除按钮
+            // Bind delete buttons | 绑定删除按钮
             document.querySelectorAll('.remove-mcp').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const idx = parseInt(btn.dataset.index);
@@ -602,7 +602,7 @@ You should have received a copy of the GNU General Public License along with Fra
 
         function addMCPServer() {
             mcpServers.push({
-                name: "新服务器",
+                name: "New Server | 新服务器",
                 command: "uvx",
                 args: ["windows-mcp"]
             });
@@ -611,8 +611,8 @@ You should have received a copy of the GNU General Public License along with Fra
 
         document.getElementById('add-mcp-server')?.addEventListener('click', addMCPServer);
 
-        // 定时任务管理
-        let tasks = {};  // 存储当前任务 { "HH:MM": "命令内容" }
+        // Scheduled task management | 定时任务管理
+        let tasks = {};  // Stores current tasks { "HH:MM": "command content" } | 存储当前任务 { "HH:MM": "命令内容" }
 
         function renderTasks() {
             const container = document.getElementById('tasks-list');
@@ -620,7 +620,7 @@ You should have received a copy of the GNU General Public License along with Fra
             container.innerHTML = '';
             const entries = Object.entries(tasks);
             if (entries.length === 0) {
-                container.innerHTML = '<div>暂无定时任务。</div>';
+                container.innerHTML = '<div>No scheduled tasks. | 暂无定时任务。</div>';
                 return;
             }
             for (const [time, content] of entries) {
@@ -631,15 +631,15 @@ You should have received a copy of the GNU General Public License along with Fra
                         <span class="task-time">${escapeHtml(time)}</span>
                         <span class="task-content">${escapeHtml(content)}</span>
                     </div>
-                    <button data-time="${escapeHtml(time)}" class="delete-task">删除</button>
+                    <button data-time="${escapeHtml(time)}" class="delete-task">Delete | 删除</button>
                 `;
                 container.appendChild(div);
             }
-            // 绑定删除按钮事件
+            // Bind delete button events | 绑定删除按钮事件
             document.querySelectorAll('.delete-task').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
                     const time = btn.dataset.time;
-                    if (confirm(`确定要删除任务 "${time}" 吗？`)) {
+                    if (confirm(`Are you sure you want to delete task "${time}"? | 确定要删除任务 "${time}" 吗？`)) {
                         await deleteTask(time);
                         await loadTasks();
                     }
@@ -652,14 +652,14 @@ You should have received a copy of the GNU General Public License along with Fra
                 const resp = await fetch('/tasks');
                 const data = await resp.json();
                 if (data.error) {
-                    console.error('加载任务失败:', data.error);
+                    console.error('Failed to load tasks | 加载任务失败:', data.error);
                     tasks = {};
                 } else {
                     tasks = data;
                 }
                 renderTasks();
             } catch (err) {
-                console.error('加载任务失败:', err);
+                console.error('Failed to load tasks | 加载任务失败:', err);
                 tasks = {};
                 renderTasks();
             }
@@ -676,11 +676,11 @@ You should have received a copy of the GNU General Public License along with Fra
                 if (result.status === 'success') {
                     return true;
                 } else {
-                    alert('添加失败: ' + (result.error || '未知错误'));
+                    alert('Add failed | 添加失败: ' + (result.error || 'Unknown error | 未知错误'));
                     return false;
                 }
             } catch (err) {
-                alert('网络错误: ' + err.message);
+                alert('Network error | 网络错误: ' + err.message);
                 return false;
             }
         }
@@ -696,23 +696,23 @@ You should have received a copy of the GNU General Public License along with Fra
                 if (result.status === 'success') {
                     return true;
                 } else {
-                    alert('删除失败: ' + (result.error || '未知错误'));
+                    alert('Delete failed | 删除失败: ' + (result.error || 'Unknown error | 未知错误'));
                     return false;
                 }
             } catch (err) {
-                alert('网络错误: ' + err.message);
+                alert('Network error | 网络错误: ' + err.message);
                 return false;
             }
         }
 
         document.getElementById('add-task')?.addEventListener('click', async () => {
-            const time = prompt('请输入执行时间（格式 HH:MM，例如 14:30）：');
+            const time = prompt('Please enter execution time (format HH:MM, e.g., 14:30): | 请输入执行时间（格式 HH:MM，例如 14:30）：');
             if (!time) return;
             if (!/^\d{2}:\d{2}$/.test(time)) {
-                alert('时间格式错误，请使用 HH:MM 格式，例如 14:30');
+                alert('Invalid time format, please use HH:MM, e.g., 14:30 | 时间格式错误，请使用 HH:MM 格式，例如 14:30');
                 return;
             }
-            const content = prompt('请输入要执行的命令或任务内容：');
+            const content = prompt('Please enter the command or task content to execute: | 请输入要执行的命令或任务内容：');
             if (!content) return;
             const success = await addTask(time, content);
             if (success) {
@@ -720,13 +720,13 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         });
 
-        // ---------- 加载与保存配置 ----------
+        // Load and save configuration | 加载与保存配置
         async function loadConfig() {
             try {
                 const resp = await fetch('/config');
                 const config = await resp.json();
                 if (config.error) {
-                    configStatus.innerText = '加载配置失败: ' + config.error;
+                    configStatus.innerText = 'Failed to load config | 加载配置失败: ' + config.error;
                 } else {
                     document.getElementById('api_key').value = config.api_key || '';
                     document.getElementById('base_url').value = config.base_url || '';
@@ -738,7 +738,7 @@ You should have received a copy of the GNU General Public License along with Fra
                     document.getElementById('threshold').value = config.threshold ?? 20;
                     document.getElementById('knowledge_k').value = config.knowledge_k ?? 1;
 
-                    // ETT 工具配置
+                    // ETT tool configuration | ETT 工具配置
                     const ett = config.tools?.ett || {};
                     document.getElementById('ett_api_key').value = ett.api_key || '';
                     document.getElementById('ett_base_url').value = ett.base_url || '';
@@ -748,20 +748,20 @@ You should have received a copy of the GNU General Public License along with Fra
                     document.getElementById('ett_max_iterations').value = ett.max_iterations ?? 100;
                     document.getElementById('ett_max_retries').value = ett.max_retries ?? 3;
 
-                    // MCP 服务器列表
+                    // MCP server list | MCP 服务器列表
                     mcpServers = config.mcp_servers || [];
                     renderMCPServers();
 
                     configStatus.innerText = '';
                 }
             } catch (err) {
-                configStatus.innerText = '加载配置失败: ' + err.message;
+                configStatus.innerText = 'Failed to load config | 加载配置失败: ' + err.message;
             }
         }
 
         configForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            // 构建新配置
+            // Build new configuration | 构建新配置
             const newConfig = {
                 api_key: document.getElementById('api_key').value,
                 base_url: document.getElementById('base_url').value,
@@ -786,7 +786,7 @@ You should have received a copy of the GNU General Public License along with Fra
                 mcp_servers: mcpServers
             };
             try {
-                // 获取当前完整配置（保留其他未编辑的字段）
+                // Get current full configuration (keep other unedited fields) | 获取当前完整配置（保留其他未编辑的字段）
                 const currentResp = await fetch('/config');
                 const currentConfig = await currentResp.json();
                 const mergedConfig = {
@@ -801,12 +801,12 @@ You should have received a copy of the GNU General Public License along with Fra
                 });
                 const result = await saveResp.json();
                 if (result.status === 'success') {
-                    configStatus.innerText = '配置已保存，已生效！';
+                    configStatus.innerText = 'Configuration saved and activated! | 配置已保存，已生效！';
                 } else {
-                    configStatus.innerText = '保存失败: ' + result.error;
+                    configStatus.innerText = 'Save failed | 保存失败: ' + result.error;
                 }
             } catch (err) {
-                configStatus.innerText = '保存失败: ' + err.message;
+                configStatus.innerText = 'Save failed | 保存失败: ' + err.message;
             }
         });
 
@@ -817,16 +817,16 @@ You should have received a copy of the GNU General Public License along with Fra
             isGenerating = true;
             messageInput.value = '';
 
-            // 创建 AbortController
+            // Create AbortController | 创建 AbortController
             currentAbortController = new AbortController();
             const signal = currentAbortController.signal;
 
-            // 将发送按钮变为停止按钮
+            // Change send button to stop button | 将发送按钮变为停止按钮
             setSendButtonToStop();
 
-            // 用户消息：启用 Markdown 解析
+            // User message: enable Markdown parsing | 用户消息：启用 Markdown 解析
             addMessage('user', message, false, '', true);
-            const assistantMsgDiv = addMessage('assistant', '思考中...', true);
+            const assistantMsgDiv = addMessage('assistant', 'Thinking... | 思考中...', true);
             consoleOutput.textContent = '';
             consoleDetails.open = true;
 
@@ -871,7 +871,7 @@ You should have received a copy of the GNU General Public License along with Fra
                                 } else if (data.type === 'html') {
                                     assistantMsgDiv.innerHTML = data.html;
                                     assistantMsgDiv.classList.remove('temp');
-                                    // 渲染数学公式
+                                    // Render math formulas | 渲染数学公式
                                     if (window.renderMathInElement) {
                                         window.renderMathInElement(assistantMsgDiv, {
                                             delimiters: [
@@ -882,11 +882,11 @@ You should have received a copy of the GNU General Public License along with Fra
                                     }
                                     saveMessagesToLocalStorage();
                                 } else if (data.type === 'knowledge') {
-                                    // 显示检索到的知识片段
+                                    // Display retrieved knowledge snippet | 显示检索到的知识片段
                                     const knowledgeDiv = document.createElement('div');
                                     knowledgeDiv.className = 'message knowledge';
                                     knowledgeDiv.innerHTML = `
-                                        <div class="knowledge-label">📚 相关知识</div>
+                                        <div class="knowledge-label">📚 Related Knowledge | 相关知识</div>
                                         <div class="knowledge-content">${escapeHtml(data.text)}</div>
                                     `;
                                     chatMessages.appendChild(knowledgeDiv);
@@ -894,18 +894,18 @@ You should have received a copy of the GNU General Public License along with Fra
                                 } else if (data.type === 'done') {
                                     break;
                                 } else if (data.type === 'error') {
-                                    updateMessage(assistantMsgDiv, '错误: ' + data.text);
+                                    updateMessage(assistantMsgDiv, 'Error | 错误: ' + data.text);
                                     break;
                                 }
                             } catch (e) {
-                                console.error('解析数据失败:', e);
+                                console.error('Failed to parse data | 解析数据失败:', e);
                             }
                         }
                     }
                 }
             } catch (err) {
                 if (err.name !== 'AbortError') {
-                    updateMessage(assistantMsgDiv, '网络错误: ' + err.message);
+                    updateMessage(assistantMsgDiv, 'Network error | 网络错误: ' + err.message);
                 }
             } finally {
                 setSendButtonToSend();
@@ -914,7 +914,7 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         }
 
-        // 初始化按钮状态
+        // Initialize button state | 初始化按钮状态
         setSendButtonToSend();
 
         messageInput.addEventListener('keydown', (e) => {
@@ -924,8 +924,8 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         });
 
-        // SSE 接收定时任务实时消息
-        const taskMessages = {};  // 存储每个任务的消息元素，key = task_id
+        // SSE receiving scheduled task real-time messages | SSE 接收定时任务实时消息
+        const taskMessages = {};  // Store task message elements, key = task_id | 存储每个任务的消息元素，key = task_id
 
         const eventSource = new EventSource('/events');
         eventSource.addEventListener('task_start', (e) => {
@@ -936,14 +936,14 @@ You should have received a copy of the GNU General Public License along with Fra
             msgDiv.id = `task-${task_id}`;
             msgDiv.innerHTML = `
                 <div>${escapeHtml(message)}</div>
-                <div class="task-status">执行中...</div>
-                <button class="stop-task-btn" data-task-id="${task_id}">停止</button>
+                <div class="task-status">Executing... | 执行中...</div>
+                <button class="stop-task-btn" data-task-id="${task_id}">Stop | 停止</button>
             `;
             chatMessages.appendChild(msgDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
             taskMessages[task_id] = msgDiv;
 
-            // 绑定停止按钮
+            // Bind stop button | 绑定停止按钮
             const stopBtn = msgDiv.querySelector('.stop-task-btn');
             if (stopBtn) {
                 stopBtn.onclick = () => stopTask(task_id);
@@ -972,8 +972,8 @@ You should have received a copy of the GNU General Public License along with Fra
             const msgDiv = taskMessages[task_id];
             if (msgDiv) {
                 msgDiv.innerHTML = `
-                    <div>✅ 定时任务完成</div>
-                    <div class="task-result">${escapeHtml(result || '（无返回内容）')}</div>
+                    <div>✅ Scheduled task completed | 定时任务完成</div>
+                    <div class="task-result">${escapeHtml(result || '(No content returned) | （无返回内容）')}</div>
                 `;
                 delete taskMessages[task_id];
             }
@@ -985,8 +985,8 @@ You should have received a copy of the GNU General Public License along with Fra
             const msgDiv = taskMessages[task_id];
             if (msgDiv) {
                 msgDiv.innerHTML = `
-                    <div>❌ 定时任务失败</div>
-                    <div class="task-result">错误: ${escapeHtml(error)}</div>
+                    <div>❌ Scheduled task failed | 定时任务失败</div>
+                    <div class="task-result">Error | 错误: ${escapeHtml(error)}</div>
                 `;
                 delete taskMessages[task_id];
             }
@@ -997,7 +997,7 @@ You should have received a copy of the GNU General Public License along with Fra
             const { task_id } = data;
             const msgDiv = taskMessages[task_id];
             if (msgDiv) {
-                msgDiv.innerHTML = `<div>⏸️ 定时任务已取消</div>`;
+                msgDiv.innerHTML = `<div>⏸️ Scheduled task cancelled | 定时任务已取消</div>`;
                 delete taskMessages[task_id];
             }
         });
@@ -1007,10 +1007,10 @@ You should have received a copy of the GNU General Public License along with Fra
                 const resp = await fetch(`/cancel_task/${taskId}`, { method: 'POST' });
                 const result = await resp.json();
                 if (result.status !== 'cancelling') {
-                    alert('停止失败: ' + (result.error || '未知错误'));
+                    alert('Stop failed | 停止失败: ' + (result.error || 'Unknown error | 未知错误'));
                 }
             } catch (err) {
-                alert('停止失败: ' + err.message);
+                alert('Stop failed | 停止失败: ' + err.message);
             }
         }
 
@@ -1026,14 +1026,14 @@ You should have received a copy of the GNU General Public License along with Fra
                     localStorage.setItem('startup_id', currentId);
                 }
             } catch (err) {
-                console.error('获取会话失败', err);
+                console.error('Failed to get session | 获取会话失败', err);
             }
         }
 
         checkSessionAndClear().then(() => {
             loadMessagesFromLocalStorage();
             loadConfig();
-            loadTasks();  // 初始加载任务列表
+            loadTasks();  // Initial load of task list | 初始加载任务列表
         });
     </script>
 </body>

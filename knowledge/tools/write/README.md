@@ -6,6 +6,24 @@ FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
+### `write` — Write or append file content
+- **Purpose**: Used when the user requests creating new files, writing content to existing files, or modifying files.
+- **Input**:
+  ```json
+  {
+    "path": "Full path of the file",
+    "content": "Content to write",
+    "mode": "overwrite" or "append"  // Default: "overwrite"
+  }
+  ```
+  - `path`: **string**, required, full path of the file
+  - `content`: **string**, required, content to be written
+  - `mode`: **string**, optional, default is "overwrite". Available values: "overwrite" for replacement, "append" for adding content
+- **Output**: Prompt message indicating whether the operation succeeded or failed.
+- **Notes**:
+  - Ensure the written content is explicitly requested by the user; do not modify files arbitrarily.
+  - If the directory where the file is located does not exist, the tool will automatically create the directory (permissions required).
+
 ### `write` — 写入或追加文件内容
 - **用途**：当用户要求创建新文件、向现有文件中写入内容、修改文件时使用。
 - **输入**：

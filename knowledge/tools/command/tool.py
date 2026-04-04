@@ -5,26 +5,26 @@
 # You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-执行系统命令工具
-允许AI执行系统命令，但禁止执行删除类操作以保证安全
+Execute System Command Tool | 执行系统命令工具
+Allows AI to execute system commands, delete operations are prohibited for security | 允许AI执行系统命令，但禁止执行删除类操作以保证安全
 """
 
 import subprocess
 
 def execute(command: str) -> str:
     """
-    执行系统命令
+    Execute system command | 执行系统命令
 
     Args:
-        command: 要执行的命令字符串
+        command: Command string to execute | 要执行的命令字符串
 
     Returns:
-        命令执行结果或错误信息
+        Command execution result or error message | 命令执行结果或错误信息
     """
-    # 将命令转换为小写进行安全检测
+    # Convert command to lowercase for security check | 将命令转换为小写进行安全检测
     cmd_lower = command.lower()
 
-    # 定义危险命令模式列表
+    # Define dangerous command pattern list | 定义危险命令模式列表
     dangerous_patterns = [
         "rm ", "del ", "rmdir ", "rd ", "erase ", "shred ", "unlink ",
         "remove-item", "ri ", "rmdir /s", "rd /s", "remove-item -recurse",
@@ -32,25 +32,25 @@ def execute(command: str) -> str:
         " && rmdir", " && del", " | rmdir", " | del"
     ]
 
-    # 检测是否包含危险命令模式
+    # Check if it contains dangerous command patterns | 检测是否包含危险命令模式
     for pattern in dangerous_patterns:
         if pattern in cmd_lower:
-            return ("❌ 错误：禁止执行删除类命令。FranxAI 的安全规则不允许直接删除文件或文件夹。"
-                    "如果你需要清理文件，请告诉我用 'move' 操作，我会帮你把文件移动到 'C:\\待删除' 目录。")
+            return ("❌ Error: Deletion commands are prohibited. FranxAI security rules do not allow direct deletion of files or folders. | ❌ 错误：禁止执行删除类命令。FranxAI 的安全规则不允许直接删除文件或文件夹。"
+                    "If you need to clean up files, please tell me to use 'move' operation, I will help you move files to 'C:\\ToBeDeleted' directory. | 如果你需要清理文件，请告诉我用 'move' 操作，我会帮你把文件移动到 'C:\\待删除' 目录。")
 
     try:
-        # 执行命令，捕获输出和错误
+        # Execute command, capture output and errors | 执行命令，捕获输出和错误
         result = subprocess.run(command, shell=True, capture_output=True, timeout=30)
         stdout = result.stdout.decode('utf-8', errors='replace')
         stderr = result.stderr.decode('utf-8', errors='replace')
         output = stdout + stderr
 
-        # 如果命令返回非零退出码，在输出中添加错误信息
+        # If command returns non-zero exit code, add error message to output | 如果命令返回非零退出码，在输出中添加错误信息
         if result.returncode != 0:
-            output = f"命令返回非零退出码 {result.returncode}\n{output}"
-        # 如果没有输出，返回成功消息
-        return output.strip() or "命令执行成功（无输出）"
+            output = f"Command returned non-zero exit code {result.returncode}\n{output} | 命令返回非零退出码 {result.returncode}\n{output}"
+        # If no output, return success message | 如果没有输出，返回成功消息
+        return output.strip() or "Command executed successfully (no output) | 命令执行成功（无输出）"
     except subprocess.TimeoutExpired:
-        return "错误：命令执行超时"
+        return "Error: Command execution timed out | 错误：命令执行超时"
     except Exception as e:
-        return f"执行失败：{e}"
+        return f"Execution failed: {e} | 执行失败：{e}"

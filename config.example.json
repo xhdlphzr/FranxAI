@@ -7,7 +7,7 @@
     "max_iterations": 100,
     "threshold": 20,
     "knowledge_k": 3,
-    "settings": "你是一个有用的AI助手。",
+    "settings": "You are a helpful AI assistant. 你是一个有用的AI助手。",
     "tools": {
         "ett": {
             "api_key": "your-zhipu-api-key",

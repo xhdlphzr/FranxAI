@@ -5,6 +5,11 @@ import time
 import sys
 from typing import List, Dict, Any
 
+"""
+MCP Module - Core Implementation of MCP Server | MCP模块 - MCP服务器核心实现
+Provides the MCPStdioClient class to interface with external MCP servers | 提供MCPStdioClient类，以便使用外部MCP服务器
+"""
+
 class MCPStdioClient:
     def __init__(self, command: str, args: List[str] = None):
         self.command = command
@@ -17,6 +22,7 @@ class MCPStdioClient:
         self._initialized = False
 
     def start(self):
+        # Start the subprocess and set up pipes | 启动子进程并设置管道
         self.process = subprocess.Popen(
             [self.command] + self.args,
             stdin=subprocess.PIPE,
@@ -36,6 +42,7 @@ class MCPStdioClient:
         self._reader_thread.start()
 
     def _read_responses(self):
+        # Read JSON-RPC responses from stdout | 从 stdout 读取 JSON-RPC 响应
         for line in self.process.stdout:
             if line.strip():
                 try:
@@ -43,9 +50,10 @@ class MCPStdioClient:
                     with self._lock:
                         self._responses[data["id"]] = data
                 except Exception as e:
-                    sys.stderr.write(f"解析 MCP 响应失败: {e}, 行: {line}")
+                    sys.stderr.write(f"Failed to parse MCP response: {e}, line: {line} | 解析 MCP 响应失败: {e}, 行: {line}")
 
     def _send_request(self, method: str, params: Any = None) -> Any:
+        # Send a JSON-RPC request and wait for response | 发送 JSON-RPC 请求并等待响应
         self._request_id += 1
         req_id = self._request_id
         payload = {"jsonrpc": "2.0", "method": method, "id": req_id}
@@ -63,7 +71,7 @@ class MCPStdioClient:
             time.sleep(0.01)
 
     def _send_notification(self, method: str, params: Any = None):
-        """发送通知（无需响应）"""
+        # Send a JSON-RPC notification (no response) | 发送 JSON-RPC 通知（无需响应）
         payload = {"jsonrpc": "2.0", "method": method}
         if params is not None:
             payload["params"] = params
@@ -71,14 +79,14 @@ class MCPStdioClient:
         self.process.stdin.flush()
 
     def initialize(self):
-        """执行 MCP 初始化握手"""
+        # Perform MCP initialization handshake | 执行 MCP 初始化握手
         params = {
             "protocolVersion": "0.1.0",
             "capabilities": {},
             "clientInfo": {"name": "FranxAI", "version": "3.0.0"}
         }
         result = self._send_request("initialize", params)
-        # 发送 initialized 通知
+        # Send initialized notification | 发送 initialized 通知
         self._send_notification("notifications/initialized")
         self._initialized = True
         return result
@@ -87,17 +95,17 @@ class MCPStdioClient:
         if not self._initialized:
             self.initialize()
         result = self._send_request("tools/list")
-        # 处理返回格式：可能直接是数组，也可能是 {"tools": [...]}
+        # Handle response format: could be array or {"tools": [...]} | 处理返回格式：可能为数组或 {"tools": [...]}
         if isinstance(result, dict) and "tools" in result:
             return result["tools"]
         if isinstance(result, list):
             return result
-        raise ValueError(f"Unexpected tools/list response: {result}")
+        raise ValueError(f"Unexpected tools/list response: {result} | 意外的 tools/list 响应: {result}")
 
     def call_tool(self, name: str, arguments: Dict[str, Any]) -> str:
         if not self._initialized:
             self.initialize()
-        # ---- 参数预处理：将字符串形式的列表/字典转为实际对象 ----
+        # Parameter preprocessing: convert string-formatted lists/dicts to actual objects | 参数预处理：将字符串形式的列表/字典转为实际对象
         processed = {}
         for key, value in arguments.items():
             if isinstance(value, str):
@@ -109,7 +117,7 @@ class MCPStdioClient:
                 except:
                     pass
             processed[key] = value
-        # ---- 预处理结束 ----
+        # End preprocessing | 预处理结束
         result = self._send_request("tools/call", {"name": name, "arguments": processed})
         if isinstance(result, str):
             return result

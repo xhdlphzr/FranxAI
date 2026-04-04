@@ -5,8 +5,8 @@
 # You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Flask Web应用模块
-提供Web界面和API接口，支持实时聊天、配置管理和定时任务执行
+Flask Web Application Module | Flask Web应用模块
+Provides web interface and API endpoints, supporting real-time chat, configuration management, and scheduled task execution | 提供Web界面和API接口，支持实时聊天、配置管理和定时任务执行
 """
 
 import os
@@ -26,39 +26,39 @@ import markdown
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from knowledge import search, add_conversation
 
-# 创建Flask应用实例
+# Create Flask application instance | 创建Flask应用实例
 app = Flask(__name__)
 app.secret_key = 'FranxAI'
 
-# 启动时的时间戳，用于会话验证
+# Startup timestamp for session validation | 启动时的时间戳，用于会话验证
 STARTUP_ID = str(int(time.time()))
 
 def load_config():
     """
-    加载配置文件
+    Load configuration file | 加载配置文件
 
     Returns:
-        配置字典
+        config dict | 配置字典
     """
     with open("./config.json", 'r', encoding='utf-8') as f:
         return json.load(f)
 
 def save_config(config):
     """
-    保存配置文件
+    Save configuration file | 保存配置文件
 
     Args:
-        config: 要保存的配置字典
+        config: config dict to save | 要保存的配置字典
     """
     with open("./config.json", 'w', encoding='utf-8') as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
 
-# 全局变量：聊天智能体和任务智能体
+# Global variables: chat agent and task agent | 全局变量：聊天智能体和任务智能体
 chat_agent = None
-chat_agent_lock = threading.Lock()  # 用于线程安全的锁
+chat_agent_lock = threading.Lock()  # Thread safety lock | 用于线程安全的锁
 tasks_agent = None
 
-# 定时任务 SSE 广播器
+# Scheduled task SSE broadcaster | 定时任务 SSE 广播器
 class EventBroadcaster:
     def __init__(self):
         self.connections = []
@@ -86,7 +86,7 @@ class EventBroadcaster:
 
 broadcaster = EventBroadcaster()
 
-# 存储正在执行的任务取消事件
+# Store cancellation events for running tasks | 存储正在执行的任务取消事件
 active_tasks = {}
 active_tasks_lock = threading.Lock()
 
@@ -103,7 +103,7 @@ def init_agents():
     
     settings = config.get("settings", "你是一个有用的AI助手。")
     
-    # 聊天智能体
+    # Chat agent | 聊天智能体
     chat_agent = FranxAI(
         key=config["api_key"],
         url=config["base_url"],
@@ -116,7 +116,7 @@ def init_agents():
         knowledge_k=knowledge_k
     )
     
-    # 任务智能体
+    # Task agent | 任务智能体
     tasks_agent = FranxAI(
         key=config["api_key"],
         url=config["base_url"],
@@ -129,19 +129,19 @@ def init_agents():
         knowledge_k=knowledge_k
     )
 
-# 定时任务执行函数（支持取消和流式推送）
+# Scheduled task execution function (supports cancellation and streaming) | 定时任务执行函数（支持取消和流式推送）
 def execute_task(task_id, content, cancel_event):
-    """执行单个定时任务，并将过程实时推送到 SSE"""
-    # 发送开始事件
+    """Execute a single scheduled task and push the process to SSE | 执行单个定时任务，并将过程实时推送到 SSE"""
+    # Send start event | 发送开始事件
     broadcaster.broadcast('task_start', {
         'task_id': task_id,
         'content': content,
-        'message': f"⏰ 执行定时任务: {content}"
+        'message': f"⏰ Executing scheduled task: {content} | ⏰ 执行定时任务: {content}"
     })
 
     try:
         result_parts = []
-        # 迭代生成器，实时推送每个 chunk
+        # Iterate generator, push each chunk in real time | 迭代生成器，实时推送每个 chunk
         for chunk in tasks_agent.input(content):
             if cancel_event.is_set():
                 broadcaster.broadcast('task_cancel', {'task_id': task_id})
@@ -152,7 +152,7 @@ def execute_task(task_id, content, cancel_event):
                 'chunk': chunk
             })
         full_result = ''.join(result_parts)
-        # 发送完成事件
+        # Send completion event | 发送完成事件
         broadcaster.broadcast('task_done', {
             'task_id': task_id,
             'result': full_result
@@ -169,18 +169,18 @@ def execute_task(task_id, content, cancel_event):
 
 def run_tasks():
     """
-    定时任务执行器
-    每隔10秒检查一次tasks.json，执行当前时间对应的任务
-    文件格式：{"HH:MM": "命令内容"}
+    Scheduled task executor | 定时任务执行器
+    Checks tasks.json every 10 seconds and executes tasks matching the current time | 每隔10秒检查一次tasks.json，执行当前时间对应的任务
+    File format: {"HH:MM": "command content"} | 文件格式：{"HH:MM": "命令内容"}
     """
-    # 初始化执行记录集合和上次执行日期
+    # Initialize execution record set and last execution date | 初始化执行记录集合和上次执行日期
     if not hasattr(run_tasks, "_executed"):
         run_tasks._executed = set()
     if not hasattr(run_tasks, "_last_date"):
         run_tasks._last_date = None
 
     while True:
-        # 检查任务文件是否存在
+        # Check if task file exists | 检查任务文件是否存在
         if os.path.exists("./tasks.json"):
             try:
                 with open("./tasks.json", 'r', encoding='utf-8') as f:
@@ -188,55 +188,55 @@ def run_tasks():
             except:
                 pass
             else:
-                # 获取当前时间
+                # Get current time | 获取当前时间
                 now = datetime.now()
                 current_time = now.strftime("%H:%M")
                 today = now.strftime("%Y-%m-%d")
 
-                # 如果是新的一天，重置执行记录
+                # If it's a new day, reset execution record | 如果是新的一天，重置执行记录
                 if today != run_tasks._last_date:
                     run_tasks._executed.clear()
                     run_tasks._last_date = today
 
-                # 遍历所有任务（键为时间，值为命令）
+                # Iterate over all tasks (key is time, value is command) | 遍历所有任务（键为时间，值为命令）
                 for time_str, content in tasks.items():
                     if time_str == current_time and time_str not in run_tasks._executed:
-                        # 生成唯一任务ID
+                        # Generate unique task ID | 生成唯一任务ID
                         task_id = str(uuid.uuid4())
                         cancel_event = threading.Event()
                         with active_tasks_lock:
                             active_tasks[task_id] = cancel_event
-                        # 启动执行线程
+                        # Start execution thread | 启动执行线程
                         thread = threading.Thread(target=execute_task, args=(task_id, content, cancel_event))
                         thread.daemon = True
                         thread.start()
                         run_tasks._executed.add(time_str)
-        # 睡眠10秒后再次检查
+        # Sleep 10 seconds before next check | 睡眠10秒后再次检查
         time.sleep(10)
 
-# 启动定时任务线程
+# Start scheduled task thread | 启动定时任务线程
 run_tasks_thread = threading.Thread(target=run_tasks, daemon=True)
 run_tasks_thread.start()
 
 @app.route('/')
 def index():
     """
-    根路径路由
-    返回Web聊天界面模板
+    Root route | 根路径路由
+    Returns web chat interface template | 返回Web聊天界面模板
 
     Returns:
-        渲染后的HTML页面
+        Rendered HTML page | 渲染后的HTML页面
     """
     return render_template('index.html')
 
 @app.route('/session', methods=['GET'])
 def get_session():
     """
-    获取会话ID
-    用于前端验证会话是否有效
+    Get session ID | 获取会话ID
+    For frontend to validate session validity | 用于前端验证会话是否有效
 
     Returns:
-        包含startup_id的JSON响应
+        JSON response containing startup_id | 包含startup_id的JSON响应
     """
     return jsonify({'startup_id': STARTUP_ID})
 
@@ -244,50 +244,50 @@ def get_session():
 def chat():
     data = request.get_json()
     user_message = data.get('message', '').strip()
-    session_id = data.get('session_id', STARTUP_ID)   # 前端可传递会话ID，默认使用 STARTUP_ID
+    session_id = data.get('session_id', STARTUP_ID)   # Frontend can pass session ID, default to STARTUP_ID | 前端可传递会话ID，默认使用 STARTUP_ID
     if not user_message:
-        return jsonify({'error': '消息不能为空'}), 400
+        return jsonify({'error': 'Message cannot be empty | 消息不能为空'}), 400
 
     def generate():
-        # 保存原始标准输出
+        # Save original stdout | 保存原始标准输出
         old_stdout = sys.stdout
-        # 用于兼容原逻辑的缓冲区（实际不再发送，仅用于写入）
+        # Buffer for compatibility (not actually sent) | 用于兼容原逻辑的缓冲区（实际不再发送，仅用于写入）
         sio = io.StringIO()
-        # 引入队列用于实时日志
+        # Queue for real-time logs | 引入队列用于实时日志
         log_q = queue.Queue()
 
-        # 自定义输出流：每个 print 同时写入原缓冲区和实时队列
+        # Custom output stream: each print writes to both original buffer and real-time queue | 自定义输出流：每个 print 同时写入原缓冲区和实时队列
         class QueueStream(io.TextIOBase):
             def write(self, s):
                 if s:
                     log_q.put(s)
                 return sio.write(s)
 
-        # 重定向标准输出到自定义流
+        # Redirect stdout to custom stream | 重定向标准输出到自定义流
         sys.stdout = QueueStream()
 
-        # 累积完整回复
+        # Accumulate full response | 累积完整回复
         full_response = ""
 
-        # ---------- 检索知识并发送到前端 ----------
+        # Retrieve knowledge and send to frontend | 检索知识并发送到前端
         try:
-            # 从 agent 获取 knowledge_k，如果不存在则默认 1
+            # Get knowledge_k from agent, default to 1 if not present | 从 agent 获取 knowledge_k，如果不存在则默认 1
             k = getattr(chat_agent, 'knowledge_k', 1)
             relevant = search(user_message, k=k)
             for item in relevant:
-                # 每条知识单独发送一个 knowledge 事件
+                # Send each knowledge item as a separate 'knowledge' event | 每条知识单独发送一个 knowledge 事件
                 yield f"data: {json.dumps({'type': 'knowledge', 'text': item})}\n\n"
         except Exception as e:
-            # 检索失败不影响主流程，仅打印日志
-            print(f"知识检索失败: {e}")
+            # Retrieval failure does not affect main flow, only print log | 检索失败不影响主流程，仅打印日志
+            print(f"Knowledge retrieval failed | 知识检索失败: {e}")
 
         try:
             with chat_agent_lock:
-                # 流式输出 AI 回复（原有逻辑）
+                # Stream AI reply (original logic) | 流式输出 AI 回复（原有逻辑）
                 for chunk in chat_agent.input(user_message):
                     full_response += chunk
                     yield f"data: {json.dumps({'type': 'content', 'text': chunk})}\n\n"
-                    # 每次输出回复后，立即将队列中的日志实时发送
+                    # After each reply, send any queued logs immediately | 每次输出回复后，立即将队列中的日志实时发送
                     while True:
                         try:
                             line = log_q.get_nowait()
@@ -295,29 +295,29 @@ def chat():
                                 yield f"data: {json.dumps({'type': 'log', 'text': line})}\n\n"
                         except queue.Empty:
                             break
-                # 记忆压缩（原有逻辑）
+                # Memory compression (original logic) | 记忆压缩（原有逻辑）
                 chat_agent.memory()
         except Exception as e:
-            # 错误处理
+            # Error handling | 错误处理
             yield f"data: {json.dumps({'type': 'error', 'text': str(e)})}\n\n"
         finally:
-            # 恢复原始标准输出
+            # Restore original stdout | 恢复原始标准输出
             sys.stdout = old_stdout
 
-        # 完整消息渲染为 HTML（后端渲染）
+        # Render full message as HTML (backend rendering) | 完整消息渲染为 HTML（后端渲染）
         if full_response:
             try:
-                # 使用 markdown 库将 Markdown 转为 HTML
+                # Convert Markdown to HTML using markdown library | 使用 markdown 库将 Markdown 转为 HTML
                 html = markdown.markdown(full_response)
                 yield f"data: {json.dumps({'type': 'html', 'html': html})}\n\n"
             except Exception as e:
-                # 渲染失败，发送错误但不中断流
-                yield f"data: {json.dumps({'type': 'error', 'text': f'Markdown渲染失败: {str(e)}'})}\n\n"
+                # Rendering failed, send error but don't interrupt stream | 渲染失败，发送错误但不中断流
+                yield f"data: {json.dumps({'type': 'error', 'text': f'Markdown rendering failed | Markdown渲染失败: {str(e)}'})}\n\n"
 
-        # 发送流结束信号
+        # Send stream end signal | 发送流结束信号
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
-        # 将本轮问答实时存入向量库
+        # Store the current Q&A pair into the vector database in real time | 将本轮问答实时存入向量库
         if full_response:
             add_conversation(user_message, full_response)
 
@@ -333,11 +333,11 @@ def chat():
 @app.route('/config', methods=['GET'])
 def get_config():
     """
-    获取配置接口
-    返回当前配置（不包含API密钥等敏感信息）
+    Get configuration interface | 获取配置接口
+    Returns current configuration (excluding sensitive info like API keys) | 返回当前配置（不包含API密钥等敏感信息）
 
     Returns:
-        配置字典的JSON响应
+        JSON response of config dict | 配置字典的JSON响应
     """
     try:
         with open("./config.json", 'r', encoding='utf-8') as f:
@@ -349,37 +349,37 @@ def get_config():
 @app.route('/config', methods=['POST'])
 def update_config():
     """
-    更新配置接口
-    保存配置并重新初始化智能体
+    Update configuration interface | 更新配置接口
+    Save configuration and reinitialize agents | 保存配置并重新初始化智能体
 
     Returns:
-        操作状态或错误信息的JSON响应
+        JSON response of operation status or error message | 操作状态或错误信息的JSON响应
     """
     data = request.get_json()
     required = ['api_key', 'base_url', 'model']
-    # 检查必需字段是否存在
+    # Check required fields exist | 检查必需字段是否存在
     for field in required:
         if field not in data:
-            return jsonify({'error': f'缺少字段: {field}'}), 400
+            return jsonify({'error': f'Missing field: {field} | 缺少字段: {field}'}), 400
     try:
-        # 保存配置文件
+        # Save configuration file | 保存配置文件
         with open("./config.json", 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        # 重新初始化智能体
+        # Reinitialize agents | 重新初始化智能体
         init_agents()
         return jsonify({'status': 'success'})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
-# 定时任务管理接口
+# Scheduled task management API | 定时任务管理接口
 @app.route('/tasks', methods=['GET', 'POST'])
 def tasks_api():
     """
-    定时任务管理接口
-    - GET: 返回所有任务
-    - POST: 支持添加或删除任务，通过 action 参数区分
-        action=add: 添加任务，需提供 time 和 content
-        action=delete: 删除任务，需提供 time
+    Scheduled task management API | 定时任务管理接口
+    - GET: return all tasks | GET: 返回所有任务
+    - POST: add or delete tasks, distinguished by action parameter | POST: 支持添加或删除任务，通过 action 参数区分
+        action=add: add task, requires time and content | action=add: 添加任务，需提供 time 和 content
+        action=delete: delete task, requires time | action=delete: 删除任务，需提供 time
     """
     if request.method == 'GET':
         try:
@@ -399,7 +399,7 @@ def tasks_api():
             time_str = data.get('time')
             content = data.get('content')
             if not time_str or not content:
-                return jsonify({'error': '缺少 time 或 content 字段'}), 400
+                return jsonify({'error': 'Missing time or content field | 缺少 time 或 content 字段'}), 400
             try:
                 if os.path.exists("./tasks.json"):
                     with open("./tasks.json", 'r', encoding='utf-8') as f:
@@ -416,10 +416,10 @@ def tasks_api():
         elif action == 'delete':
             time_str = data.get('time')
             if not time_str:
-                return jsonify({'error': '缺少 time 字段'}), 400
+                return jsonify({'error': 'Missing time field | 缺少 time 字段'}), 400
             try:
                 if not os.path.exists("./tasks.json"):
-                    return jsonify({'error': '任务文件不存在'}), 404
+                    return jsonify({'error': 'Task file does not exist | 任务文件不存在'}), 404
                 with open("./tasks.json", 'r', encoding='utf-8') as f:
                     tasks = json.load(f)
                 if time_str in tasks:
@@ -428,16 +428,16 @@ def tasks_api():
                         json.dump(tasks, f, indent=2, ensure_ascii=False)
                     return jsonify({'status': 'success'})
                 else:
-                    return jsonify({'error': '任务不存在'}), 404
+                    return jsonify({'error': 'Task does not exist | 任务不存在'}), 404
             except Exception as e:
                 return jsonify({'error': str(e)}), 500
         else:
-            return jsonify({'error': '未知的 action'}), 400
+            return jsonify({'error': 'Unknown action | 未知的 action'}), 400
 
-# SSE 事件流
+# SSE event stream | SSE 事件流
 @app.route('/events')
 def events():
-    """Server-Sent Events 端点，用于推送定时任务实时状态"""
+    """Server-Sent Events endpoint for pushing scheduled task real-time status | Server-Sent Events 端点，用于推送定时任务实时状态"""
     def generate():
         q = broadcaster.subscribe()
         try:
@@ -459,19 +459,19 @@ def events():
         }
     )
 
-# 取消任务接口
+# Cancel task API | 取消任务接口
 @app.route('/cancel_task/<task_id>', methods=['POST'])
 def cancel_task(task_id):
-    """取消正在执行的任务"""
+    """Cancel a running task | 取消正在执行的任务"""
     with active_tasks_lock:
         if task_id in active_tasks:
             active_tasks[task_id].set()
             return jsonify({'status': 'cancelling'})
         else:
-            return jsonify({'error': '任务不存在或已结束'}), 404
+            return jsonify({'error': 'Task does not exist or has already ended | 任务不存在或已结束'}), 404
 
 if __name__ == '__main__':
-    # 初始化智能体
+    # Initialize agents | 初始化智能体
     init_agents()
-    # 启动Web服务（127.0.0.1:5000，关闭debug模式以避免生产环境风险）
+    # Start web service (127.0.0.1:5000, debug=False to avoid production risks) | 启动Web服务（127.0.0.1:5000，关闭debug模式以避免生产环境风险）
     app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)

@@ -6,6 +6,36 @@ FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRA
 You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
+### ett — Multimodal Understanding (Everything to Text)
+
+- **Purpose**: Analyze images, videos or files with the Zhipu GLM-4.6V-Flash model and return text descriptions. Multiple resources can be analyzed at the same time (separated by commas), supporting web URLs and local file paths.
+
+- **Input**:
+  - `urls`: **string**, required. A single URL or local path; separate multiple items with English commas (e.g., `"a.jpg,b.png"`). Local files will be automatically converted to base64-encoded data URLs for transmission.
+  - `prompt`: **string**, required. The question to ask, such as "What is in this image?" or "Summarize this video content".
+  - `type`: **string**, optional, default value `"image_url"`. Available options: `"image_url"` (image), `"video_url"` (video), `"file_url"` (documents and other files). Select according to the resource type.
+
+- **Output**: Returns text description on success, error message on failure.
+
+- **Configuration**: This tool relies on the Zhipu API. In the `config.json` file at the project root, you can configure independent API parameters for the `ett` tool (under `tools.ett`). If not configured, it will automatically use the top-level `api_key`, `base_url` and other parameters. Example:
+
+```json
+{
+  "api_key": "your-chat-api-key",
+  "base_url": "https://open.bigmodel.cn/api/paas/v4",
+  "model": "glm-4.7-flash",
+  "tools": {
+    "ett": {
+      "api_key": "your-ett-api-key",
+      "base_url": "https://open.bigmodel.cn/api/paas/v4",
+      "model": "glm-4.6v-flash",
+      "temperature": 0.8,
+      "thinking": false
+    }
+  }
+}
+```
+
 ### ett — 多模态理解（Everything to Text）
 
 - **用途**：使用智谱 GLM-4.6V-Flash 模型分析图片、视频或文件，返回文字描述。可同时分析多个资源（用逗号分隔），支持网络 URL 和本地文件路径。

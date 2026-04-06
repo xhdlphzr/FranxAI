@@ -1,25 +1,34 @@
 # FranxAI 🤖
 
-**Let AI work like a partner – simple, safe, low cost.**
+**Let AI work for you like a partner – simple, secure, low cost.**  
+**Now you can control the AI on your computer directly from your phone – no public IP, no port forwarding, one‑click secure remote access.**
 
-FranxAI is a lightweight AI agent framework that enables AI to read files, execute commands, search the web, understand multimodal content, and truly control the world through the MCP protocol. **Now it also features an "Echo of Thought" vector knowledge base: all tool descriptions, skill files, and even conversation history are automatically vectorized and persistently stored. For every query, the AI uses **hybrid retrieval (vector semantics + keyword matching)** to precisely locate the most relevant knowledge fragments and inject them into the system prompt, enabling long-term memory, cross-session recall, and dynamic knowledge enhancement. From "Words to Worlds", now let every echo nourish thought.**
+FranxAI is a lightweight AI agent framework that enables AI to read files, execute commands, search the web, understand multimodal content, and truly interact with the world through the MCP protocol.  
+**Now it also features:**
+- 🌐 **One‑click intranet penetration**: integrated Cloudflare Tunnel – start it and get a public URL, access from your phone or tablet anytime, anywhere.
+- 🔐 **Military‑grade security authentication**: RSA public‑key encryption + JWT short‑lived tokens, supports “refresh‑to‑re‑login” mode, completely eliminating long‑term token leakage risks.
+- 📱 **Perfect mobile adaptation**: bottom liquid‑glass dock, breathing dot animation, touch optimisation – same experience on phone and desktop.
+- 🧠 **Echoes of Thoughts knowledge base**: all tool descriptions, skill files, and conversation histories are automatically vectorised, using hybrid search (vector semantics + keyword matching) for long‑term memory and cross‑session recall.
+
+**From now on, AI can not only go “From Words to Worlds”, but also “let every echo become the nourishment of thought”.**
 
 ---
 
 ## ✨ Core Features
 
-- 🛠️ **Rich built‑in tools**: `time`, `read`, `write`, `command`, `search`, `similarity`, `ett` (multimodal understanding), `beijing_subway` (Beijing subway route planning), etc. Easily extensible.
-- 🌐 **MCP protocol support**: Integrate any stdio‑based MCP server with simple configuration (command + args). The AI automatically learns to use all its tools.
-- 🧠 **Intelligent memory**: Automatically compresses conversation history and stores complete dialogues into `knowledge/memories/`, which are reloaded on next startup for cross‑session knowledge retrieval.
-- ⏰ **Scheduled tasks**: Background thread runs daily repeated tasks; the AI executes instructions at specified times.
-- 📚 **Skill system**: All Markdown files under `knowledge/` are automatically merged into the system prompt, injecting domain knowledge, rules, or workflows.
-- 🔒 **Safety first**: The `command` tool prohibits direct file deletion; suggests moving instead. High‑risk operations can be configured for approval.
-- 🕸️ **Free web search**: Built‑in DuckDuckGo search – no API key required.
-- 📊 **Text similarity**: Rolling‑hash based similarity calculation for strings.
-- 🖼️ **Multimodal understanding**: Supports images, videos, documents (Word, Excel, PDF). The AI truly sees the world.
-- ⚙️ **Minimal configuration**: Single `config.json` for API key, model, system prompt.
-- 📦 **Lightweight dependencies**: Only Python standard library + `openai` SDK (compatible with local Ollama and various cloud APIs).
-- 💻 **Cross‑platform**: Path handling via `pathlib` works on Windows, Linux, macOS.
+- 📱 **Zero‑configuration remote access**: integrated Cloudflare Tunnel – one‑click public URL, no public IP or router settings needed. Access FranxAI on your computer directly from your phone/tablet.
+- 🔐 **Military‑grade security authentication**: RSA asymmetric encryption + JWT short‑lived tokens, supports “refresh‑to‑re‑login” (token stored only in memory, cleared on page refresh), completely prevents long‑term control after token leakage.
+- 🧠 **Intelligent memory & hybrid search**: conversation history automatically stored in vector database, combined with FTS5 keyword search for precise cross‑session recall.
+- 🛠️ **Rich built‑in tools**: `time`, `read`, `write`, `command`, `search`, `similarity`, `ett` (multimodal understanding), `beijing_subway`, etc., extensible.
+- 🌐 **MCP protocol support**: integrate any stdio MCP server with a simple configuration – AI automatically learns to use all its tools.
+- ⏰ **Scheduled tasks**: runs in background thread, supports daily recurring tasks – AI executes commands at specified times.
+- 📚 **Skill system**: Markdown files in `knowledge/` are automatically merged into the system prompt, giving AI extra knowledge, rules, or workflows.
+- 🔒 **Security first**: `command` tool prohibits direct file deletion, suggests moving instead; high‑risk operations can require approval.
+- 🕸️ **Free web search**: DuckDuckGo integration, no API key needed.
+- 🖼️ **Multimodal understanding**: analyse images, videos, documents (Word, Excel, PDF, etc.).
+- ⚙️ **Minimal configuration**: one `config.json` handles all settings.
+- 📦 **Lightweight dependencies**: only Python standard library + `openai` SDK.
+- 💻 **Cross‑platform**: Windows / Linux / macOS.
 
 ---
 
@@ -31,29 +40,53 @@ git clone https://github.com/xhdlphzr/FranxAI.git
 cd FranxAI
 ```
 
-### 2. Create virtual environment and install dependencies
-Windows users: double‑click `start.bat`; macOS users: double‑click `start.sh`.
+### 2. Install dependencies
+Windows users double‑click `start.bat`, macOS users double‑click `start.sh` – virtual environment and dependencies will be set up automatically.
 
-### 3. Configuration
-Copy `config.example.json` to `config.json` and edit.
+### 3. Configure
+Copy `config.example.json` and rename it to `config.json`, then modify according to your needs (see configuration section below).
 
-Available fields in `config.json`:
+### 4. Run
+Windows users double‑click `run.bat`, macOS users double‑click `run.sh`.  
+After startup, the terminal will display a public URL (e.g. `https://xxxx.trycloudflare.com`). **Open that link on your phone browser** – the first time you will be guided to set a password, then log in and control the AI on your computer from your phone.
+
+> 💡 **Security tip**: JWT tokens are valid for only 1 hour and are stored only in browser memory – they are lost on page refresh. Do not use remote access on public computers.
+
+### 5. Use
+Type your question in the chat box – the AI will automatically call tools to help you. The mobile experience is identical to the desktop version, with touch, swipe, and voice input support (via the phone’s own input methods).
+
+---
+
+## ⚠️ Disclaimer
+
+The Cloudflare Tunnel remote access feature provided by FranxAI is offered as a technical convenience. Users assume all risks associated with network exposure, device loss, password leakage, third‑party attacks, or any other cause that may lead to damage to devices, data, or personal safety. Before use, ensure that:
+- You set a strong password and change it regularly;
+- You enable remote access only on trusted networks and devices;
+- You understand and accept that any networked service may have unknown security vulnerabilities.
+
+The project authors and contributors accept no liability for any direct or indirect losses arising from the use of this software. **By using this software, you indicate that you have read and agreed to this disclaimer.**
+
+---
+
+## ⚙️ Configuration
+
+In `config.json`, you can adjust the following parameters:
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
 | `api_key` | string | - | API key (required). For Ollama, any value works. |
-| `base_url` | string | - | API base URL (required). e.g. `http://localhost:11434/v1` for Ollama, `https://open.bigmodel.cn/api/paas/v4` for GLM. |
-| `model` | string | - | Model name (required). Recommended: `glm-4.7-flash`, `qwen2.5:7b`. |
-| `settings` | string | `"You are a helpful AI assistant. 你是一个有用的AI助手。"` | System prompt to set AI role/behavior. |
-| `temperature` | float | `0.8` | Randomness (0‑1). Lower = more deterministic. |
-| `thinking` | bool | `false` | Enable deep‑thinking mode (GLM only). Slower but outputs reasoning. |
+| `base_url` | string | - | API base URL (required). For Ollama: `http://localhost:11434/v1`, for GLM: `https://open.bigmodel.cn/api/paas/v4`. |
+| `model` | string | - | Model name (required). Recommended: `glm-4.7-flash`, `qwen2.5:7b`, etc. |
+| `settings` | string | `"You are a helpful AI assistant. 你是一个有用的AI助手。"` | System prompt defining AI’s role or behaviour. |
+| `temperature` | float | `0.8` | Randomness, range 0–1. Lower = more deterministic, higher = more creative. |
+| `thinking` | bool | `false` | Enable deep thinking mode (GLM models only). The model outputs reasoning steps but responds slightly slower. |
 | `max_iterations` | int | `100` | Max tool call iterations to prevent infinite loops. |
-| `threshold` | int | `20` | When message count exceeds this, compress the earliest 10 into a summary. |
-| `knowledge_k` | int | `5` | Number of knowledge fragments retrieved per conversation. Larger values inject more context but consume more tokens. |
-| `mcp_servers` | list | `[]` | MCP server configurations, each with `name`, `command`, `args` (optional). Example: `[{"name": "windows-mcp", "command": "uvx", "args": ["windows-mcp"]}]`. |
+| `threshold` | int | `20` | Message count threshold for history compression. When exceeded, the oldest 10 messages are summarised. |
+| `knowledge_k` | int | `5` | Number of knowledge snippets retrieved per conversation for knowledge‑augmented prompts. Larger values inject more system prompt but may bring more relevant info. |
+| `mcp_servers` | list | `[]` | List of MCP server configurations, each with `name`, `command`, `args` (optional). Example: `[{"name": "windows-mcp", "command": "uvx", "args": ["windows-mcp"]}]`. |
 
-**Independent ETT (multimodal) configuration (optional)**  
-You can specify separate parameters for `ett` under the `tools` field:
+**Multimodal tool independent configuration (optional)**  
+Inside the `tools` field, you can specify separate parameters for `ett` (multimodal understanding). If not set, the top‑level configuration is used:
 
 ```json
 {
@@ -70,9 +103,9 @@ You can specify separate parameters for `ett` under the `tools` field:
 }
 ```
 
-> ⚠️ **Note**: The `ett` tool currently only supports Zhipu GLM series models (e.g. `glm-4.6v-flash`). Make sure to configure the correct API key and model.
+> ⚠️ **Note**: The multimodal tool `ett` currently only supports GLM series models (e.g. `glm-4.6v-flash`). Ensure you have configured the correct API key and model name.
 
-**Example configuration (Zhipu GLM + Windows‑MCP)**:
+**Example configuration (using GLM + Windows‑MCP)**:
 ```json
 {
     "api_key": "your-zhipu-api-key",
@@ -105,14 +138,9 @@ You can specify separate parameters for `ett` under the `tools` field:
 }
 ```
 
-> 💡 **Tip**: After saving configuration changes, they take effect in the next conversation – no need to restart.
+> 💡 **Tip**: After saving configuration changes, they take effect in the next conversation – no need to restart the service.
 
 > 💡 **Model recommendation**: Use `glm-4.7-flash` for conversation and `glm-4.6v-flash` for vision tasks.
-
-### 4. Run
-Windows: double‑click `run.bat`; macOS: double‑click `run.sh`. Press `Ctrl+C` to exit.
-
-Ask a question, and the AI will use tools to help you.
 
 ---
 
@@ -121,7 +149,7 @@ Ask a question, and the AI will use tools to help you.
 | Tool | Purpose | Security / Notes |
 |------|---------|------------------|
 | `time` | Current date/time | Read‑only, safe |
-| `read` | Read file content | Read‑only |
+| `read` | Read file content | Read‑only, returns file content |
 | `write` | Write/append to file | Auto‑creates parent directories; overwrite/append options |
 | `command` | Execute system command | ❌ Direct deletion blocked; suggests moving instead. Supports timeout. |
 | `search` | Web search (DuckDuckGo) | Free, no API key. Returns title, snippet, URL. |
@@ -172,7 +200,7 @@ To control remote hardware via SSH, add a configuration like:
 
 ## 🧠 Skill System
 
-FranxAI loads Markdown files from `knowledge/skills/` and merges them into the system prompt. You can write `.md` files to inject domain knowledge, behavior rules, workflows, etc., customizing the AI's behavior.
+FranxAI loads Markdown files from `knowledge/skills/` and merges them into the system prompt. You can write `.md` files to inject domain knowledge, behavior rules, workflows, etc., customising the AI's behaviour.
 
 **Usage**:
 1. Create `skills/` under `knowledge/` if not exists.
@@ -259,4 +287,5 @@ Issues and Pull Requests are welcome! Please keep code clear and update relevant
 
 - All friends who use and support FranxAI
 - [xhdlphzr](https://github.com/xhdlphzr) – a busy coder
-- [zhiziwj](https://github.com/zhiziwj) – provided a suggestion that, while not implemented, was valuable; also impleme
+- [zhiziwj](https://github.com/zhiziwj) – provided a valuable suggestion (though not implemented) and also implemented a feature
+- [humanity687](https://github.com/humanity687) – raised several constructive issues, all of which have been studied and fixed

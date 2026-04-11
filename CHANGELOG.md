@@ -163,4 +163,7 @@
 - Fixed partial response save issue.
 
 ## [v4.8.1](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.8.1)
-- Changed README.md
+- Changed `README.md`
+
+## [v4.8.2](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.8.2)
+- Changed `USER_GUIDE` in `src/agent.py`

@@ -163,4 +163,7 @@
 - 修复了部分回复内容保存问题。
 
 ## [v4.8.1](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.8.1)
-- 更改了README.md
+- 更改了 `README.md`
+
+## [v4.8.2](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.8.2)
+- 更改了 `src/agent.py` 内的 `USER_GUIDE`

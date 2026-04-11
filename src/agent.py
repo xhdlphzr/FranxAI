@@ -12,6 +12,7 @@ Provides the FranxAI class, responsible for interacting with AI models, tool cal
 import json
 import sys
 import atexit
+import uuid
 from pathlib import Path
 from openai import OpenAI
 
@@ -426,15 +427,49 @@ class FranxAI:
                     func_name = "tools"
                     arguments = new_arguments
 
-                # Get the tool function | 获取工具函数
-                func = self.tool_functions.get(func_name)
-
-                if func:
-                    result = func(**arguments)
-                    print(f"Using tool {func_name} with arguments {arguments}, result: \"{result}\" | 使用工具 {func_name}，参数 {arguments}，调用结果 “{result}”")
+                # Determine the actual tool name (for confirmation check) | 确定实际的工具名（用于确认检查）
+                actual_tool_name = None
+                if func_name == "tools":
+                    # Extract tool_name from arguments (when wrapped) | 从参数中提取 tool_name（当包装时）
+                    actual_tool_name = arguments.get("tool_name")
                 else:
-                    result = f"Error: unknown tool {func_name} | 错误：未知工具 {func_name}"
-                    print(result)
+                    actual_tool_name = func_name
+
+                # Check if this tool requires confirmation (write or command) | 检查该工具是否需要确认（write 或 command）
+                if actual_tool_name in ("write", "command"):
+                    # Generate a unique confirmation ID | 生成唯一的确认ID
+                    confirm_id = str(uuid.uuid4())
+                    # Yield a confirmation request event and wait for user decision | 发送确认请求事件并等待用户决策
+                    # The external code should call generator.send(True) or generator.send(False) | 外部代码应调用 generator.send(True) 或 generator.send(False)
+                    approved = yield {
+                        "type": "confirmation_required",
+                        "tool_name": actual_tool_name,
+                        "arguments": arguments,
+                        "tool_call_id": tool_call["id"],
+                        "confirm_id": confirm_id
+                    }
+                    if approved:
+                        # Execute the tool | 执行工具
+                        func = self.tool_functions.get(func_name)
+                        if func:
+                            result = func(**arguments)
+                            print(f"Using tool {func_name} with arguments {arguments}, result: \"{result}\" | 使用工具 {func_name}，参数 {arguments}，调用结果 “{result}”")
+                        else:
+                            result = f"Error: unknown tool {func_name} | 错误：未知工具 {func_name}"
+                            print(result)
+                    else:
+                        # User rejected | 用户拒绝
+                        result = f"Tool '{actual_tool_name}' execution was rejected by the user. | 用户拒绝了工具 '{actual_tool_name}' 的执行。"
+                        print(result)
+                else:
+                    # Normal execution (no confirmation needed) | 正常执行（无需确认）
+                    func = self.tool_functions.get(func_name)
+                    if func:
+                        result = func(**arguments)
+                        print(f"Using tool {func_name} with arguments {arguments}, result: \"{result}\" | 使用工具 {func_name}，参数 {arguments}，调用结果 “{result}”")
+                    else:
+                        result = f"Error: unknown tool {func_name} | 错误：未知工具 {func_name}"
+                        print(result)
 
                 # Add tool execution result to both current API messages and persistent history | 将工具执行结果同时加入当前 API 消息列表和持久化历史
                 tool_message = {

@@ -129,7 +129,9 @@ You should have received a copy of the GNU General Public License along with Fra
             align-self: flex-start;
             border-bottom-left-radius: 0.25rem;
             color: #0f172a;
-            display: block;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
         .typing-dot {
             display: inline-block;
@@ -164,6 +166,98 @@ You should have received a copy of the GNU General Public License along with Fra
             background: #fff7e6;
             padding: 0.5rem;
             border-radius: 0.5rem;
+        }
+
+        /* Internal collapsible blocks inside assistant messages | 助手消息内部的可折叠块 */
+        .assistant-block {
+            width: 100%;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.5rem;
+        }
+        .assistant-block:first-of-type {
+            border-top: none;
+            padding-top: 0;
+        }
+        .block-header {
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #1e40af;
+            font-style: italic;
+        }
+        .block-header .toggle-icon {
+            font-size: 0.75rem;
+            transition: transform 0.2s;
+            display: inline-block;
+        }
+        .block-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+            background: transparent;
+            margin-top: 0;
+            padding: 0;
+        }
+        .block-content.show {
+            max-height: 600px;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0 0 1rem;
+            overflow-y: auto;
+        }
+        .knowledge-item {
+            margin-bottom: 0.75rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.5rem;
+        }
+        .knowledge-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .knowledge-summary {
+            font-weight: 500;
+            color: #1e40af;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .knowledge-full {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+            font-size: 0.85rem;
+            margin-top: 0;
+            padding: 0;
+        }
+        .knowledge-full.show {
+            max-height: 400px;
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: #ffffff;
+            border-radius: 0.5rem;
+            overflow-y: auto;
+        }
+        .tool-params {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+            background: transparent;
+            margin-top: 0;
+            padding: 0;
+        }
+        .tool-params.show {
+            max-height: 300px;
+            margin-top: 0.5rem;
+            padding: 0.5rem 0 0 1rem;
+            overflow-y: auto;
+        }
+        .tool-param {
+            font-family: monospace;
+            font-size: 0.85rem;
+            margin: 0.25rem 0;
         }
 
         /* Table styles for Markdown tables | Markdown 表格样式 */
@@ -235,65 +329,6 @@ You should have received a copy of the GNU General Public License along with Fra
         }
         .chat-input-area button:hover {
             background: #2563eb;
-        }
-
-        /* Console with smooth animation (max-height transition) | 控制台平滑动画（max-height 过渡） */
-        .console-wrapper {
-            margin: 0 1rem 0 1rem;
-            background: #f8fafc;
-            border-radius: 1rem;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        details.console-details {
-            display: block;
-        }
-        details.console-details summary {
-            padding: 0.7rem 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            background: #f1f5f9;
-            user-select: none;
-            list-style: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        details.console-details summary::-webkit-details-marker {
-            display: none;
-        }
-        details.console-details summary::before {
-            content: "▶";
-            font-size: 0.75rem;
-            transition: transform 0.2s;
-            display: inline-block;
-        }
-        details.console-details[open] summary::before {
-            transform: rotate(90deg);
-        }
-        .console-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        details.console-details[open] .console-content {
-            max-height: 300px;
-        }
-        .console-inner {
-            overflow: hidden;
-        }
-        #console-output {
-            padding: 0.75rem;
-            /* CJK-compatible monospace font stack | 兼容中文的等宽字体栈 */
-            font-family: 'SF Mono', 'Menlo', 'Consolas', 'Noto Sans Mono CJK SC', 'Microsoft YaHei', 'PingFang SC', monospace;
-            font-size: 0.75rem;
-            background: #0f172a;
-            color: #e2e8f0;
-            white-space: pre-wrap;
-            max-height: 200px;
-            overflow-y: auto;
-            border-top: 1px solid #334155;
         }
 
         /* Configuration form | 配置表单 */
@@ -399,173 +434,6 @@ You should have received a copy of the GNU General Public License along with Fra
             transform: scale(0.96);
         }
 
-        /* Knowledge panel | 知识面板 */
-        .knowledge-panel {
-            margin: 0.5rem 1rem 0.5rem 1rem;
-            background: #f8fafc;
-            border-radius: 1rem;
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .knowledge-header {
-            padding: 0.7rem 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            background: #f1f5f9;
-            user-select: none;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            color: #007aff;
-        }
-        .knowledge-header::before {
-            font-size: 1rem;
-        }
-        .knowledge-header::after {
-            content: "▶";
-            margin-left: auto;
-            font-size: 0.75rem;
-            transition: transform 0.2s;
-        }
-        .knowledge-panel.open .knowledge-header::after {
-            transform: rotate(90deg);
-        }
-        .knowledge-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-        .knowledge-panel.open .knowledge-content {
-            max-height: 600px;
-        }
-        .knowledge-inner {
-            padding: 0.75rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        .knowledge-item {
-            border-bottom: 1px solid #eef2f6;
-            padding-bottom: 0.75rem;
-        }
-        .knowledge-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        .knowledge-item-summary {
-            font-weight: 500;
-            color: #007aff;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .knowledge-item-summary:hover {
-            opacity: 0.7;
-        }
-        .knowledge-item-full {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.25s ease-out;
-            background: #f8fafc;
-            margin-top: 0.5rem;
-            border-radius: 0.5rem;
-            font-size: 0.85rem;
-            white-space: pre-wrap;
-        }
-        .knowledge-item-full.show {
-            max-height: 500px;
-            padding: 0.75rem;
-            overflow-y: auto;
-        }
-
-        /* Knowledge panel Markdown styles | 知识面板 Markdown 样式 */
-        .knowledge-item-full h1,
-        .knowledge-item-full h2,
-        .knowledge-item-full h3,
-        .knowledge-item-full h4,
-        .knowledge-item-full h5,
-        .knowledge-item-full h6 {
-            margin: 0.5rem 0 0.3rem;
-            font-weight: 600;
-            line-height: 1.3;
-        }
-        .knowledge-item-full h1 { font-size: 1.15rem; }
-        .knowledge-item-full h2 { font-size: 1.05rem; }
-        .knowledge-item-full h3 { font-size: 1rem; }
-        .knowledge-item-full p {
-            margin: 0.35rem 0;
-            line-height: 1.5;
-        }
-        .knowledge-item-full ul,
-        .knowledge-item-full ol {
-            margin: 0.35rem 0;
-            padding-left: 1.5rem;
-        }
-        .knowledge-item-full li {
-            margin: 0.15rem 0;
-        }
-        .knowledge-item-full code {
-            background: #eef2f6;
-            padding: 0.15rem 0.35rem;
-            border-radius: 0.25rem;
-            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-            font-size: 0.82em;
-        }
-        .knowledge-item-full pre {
-            background: #0f172a;
-            color: #e2e8f0;
-            padding: 0.6rem;
-            border-radius: 0.5rem;
-            overflow-x: auto;
-            margin: 0.5rem 0;
-        }
-        .knowledge-item-full pre code {
-            background: none;
-            padding: 0;
-            color: inherit;
-            font-size: 0.8rem;
-        }
-        .knowledge-item-full blockquote {
-            border-left: 3px solid #94a3b8;
-            margin: 0.5rem 0;
-            padding: 0.25rem 0.75rem;
-            color: #475569;
-            background: #f1f5f9;
-            border-radius: 0 0.25rem 0.25rem 0;
-        }
-        .knowledge-item-full table {
-            border-collapse: collapse;
-            width: 100%;
-            margin: 0.5rem 0;
-            font-size: 0.85rem;
-            white-space: normal;
-        }
-        .knowledge-item-full th,
-        .knowledge-item-full td {
-            border: 1px solid #cbd5e1;
-            padding: 5px 8px;
-            text-align: left;
-        }
-        .knowledge-item-full th {
-            background: #f1f5f9;
-            font-weight: 600;
-        }
-        .knowledge-item-full hr {
-            border: none;
-            border-top: 1px solid #e2e8f0;
-            margin: 0.5rem 0;
-        }
-        .knowledge-item-full img {
-            max-width: 100%;
-            border-radius: 0.5rem;
-        }
-        .knowledge-item-full a {
-            color: #2563eb;
-            text-decoration: underline;
-        }
-
         /* Mobile optimization | 移动端优化 */
         @media (max-width: 640px) {
             .message {
@@ -612,16 +480,6 @@ You should have received a copy of the GNU General Public License along with Fra
                 <div class="chat-input-area">
                     <textarea id="message-input" rows="2" placeholder="Enter your command... Ctrl+Enter to send | 输入指令... Ctrl+Enter 发送"></textarea>
                     <button id="send-btn">Send | 发送</button>
-                </div>
-                <div class="console-wrapper">
-                    <details class="console-details" id="console-details">
-                        <summary>📋 Console Output | 控制台输出</summary>
-                        <div class="console-content">
-                            <div class="console-inner">
-                                <pre id="console-output"></pre>
-                            </div>
-                        </div>
-                    </details>
                 </div>
             </div>
             <!-- Config page | 配置页面 -->
@@ -711,8 +569,6 @@ You should have received a copy of the GNU General Public License along with Fra
     const chatMessages = document.getElementById('chat-messages');
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
-    const consoleOutput = document.getElementById('console-output');
-    const consoleDetails = document.getElementById('console-details');
     const configForm = document.getElementById('config-form');
     const configStatus = document.getElementById('config-status');
     const pagesInner = document.getElementById('pagesInner');
@@ -725,6 +581,8 @@ You should have received a copy of the GNU General Public License along with Fra
     let currentUserMessage = '';          // Current user message | 当前用户消息
     let currentPartialText = '';          // Accumulated partial assistant response | 已累积的部分回复内容
     let currentAssistantMsgDiv = null;    // Temporary assistant message element | 临时助手消息元素
+    let currentKnowledgeItems = [];        // Store knowledge items for this reply | 存储本轮回复的知识条目
+    let currentKnowledgeBlock = null;      // Knowledge block element inside the assistant message | 知识块元素
 
     // Helper: escape HTML | 辅助函数：转义HTML
     function escapeHtml(str) {
@@ -757,26 +615,283 @@ You should have received a copy of the GNU General Public License along with Fra
         });
     }
 
-    // Helper: render Markdown content into a div with breathing dot | 辅助函数：将 Markdown 内容渲染到 div 并追加呼吸小球
+    // Helper: render Markdown content into the content container with breathing dot | 辅助函数：将 Markdown 内容渲染到内容容器并追加呼吸小球
     function renderStreamingMarkdown(msgDiv, rawText) {
         msgDiv._rawText = rawText;
+        let contentContainer = msgDiv.querySelector('.assistant-content');
+        if (!contentContainer) {
+            contentContainer = document.createElement('div');
+            contentContainer.className = 'assistant-content';
+            msgDiv.appendChild(contentContainer);
+        }
         try {
             const html = marked.parse(rawText);
-            msgDiv.innerHTML = html;
+            contentContainer.innerHTML = html;
         } catch(e) {
-            msgDiv.textContent = rawText;
+            contentContainer.textContent = rawText;
         }
-        // Insert dot into the last block element's end so it stays inline | 将小球插入最后一个块元素末尾，使其保持行内
+        wrapTables(contentContainer);
+        // Breathing dot at the end of content | 呼吸小球放在内容末尾
+        const existingDot = contentContainer.querySelector('.typing-dot');
+        if (existingDot) existingDot.remove();
         const dot = document.createElement('span');
         dot.className = 'typing-dot';
-        const lastChild = msgDiv.lastElementChild;
+        const lastChild = contentContainer.lastElementChild;
         if (lastChild) {
             lastChild.appendChild(dot);
         } else {
-            msgDiv.appendChild(dot);
+            contentContainer.appendChild(dot);
         }
-        wrapTables(msgDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Helper: add or update knowledge block inside assistant message | 在助手消息中添加或更新知识块
+    function updateKnowledgeBlock(msgDiv, knowledgeItems) {
+        if (!knowledgeItems.length) {
+            if (currentKnowledgeBlock) currentKnowledgeBlock.remove();
+            currentKnowledgeBlock = null;
+            return;
+        }
+        // Create knowledge block if not exists | 如果不存在则创建
+        if (!currentKnowledgeBlock) {
+            currentKnowledgeBlock = document.createElement('div');
+            currentKnowledgeBlock.className = 'assistant-block knowledge-block';
+            const header = document.createElement('div');
+            header.className = 'block-header';
+            const icon = document.createElement('span');
+            icon.className = 'toggle-icon';
+            icon.textContent = '▶';
+            header.appendChild(icon);
+            header.appendChild(document.createTextNode(`📚 Related Knowledge | 相关知识 (${knowledgeItems.length})`));
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'block-content';
+            const inner = document.createElement('div');
+            inner.style.display = 'flex';
+            inner.style.flexDirection = 'column';
+            inner.style.gap = '0.75rem';
+            contentDiv.appendChild(inner);
+            currentKnowledgeBlock.appendChild(header);
+            currentKnowledgeBlock.appendChild(contentDiv);
+            header.addEventListener('click', () => {
+                const isOpen = contentDiv.classList.contains('show');
+                if (isOpen) {
+                    contentDiv.classList.remove('show');
+                    icon.textContent = '▶';
+                } else {
+                    contentDiv.classList.add('show');
+                    icon.textContent = '▼';
+                }
+            });
+            // Insert at the beginning of assistant message | 插入到消息开头
+            msgDiv.insertBefore(currentKnowledgeBlock, msgDiv.firstChild);
+        }
+        // Update inner items | 更新内部条目
+        const inner = currentKnowledgeBlock.querySelector('.block-content > div');
+        inner.innerHTML = '';
+        knowledgeItems.forEach((text) => {
+            let summary = '';
+            const titleMatch = text.match(/^###\s+(.+)$/m);
+            if (titleMatch) summary = titleMatch[1];
+            else summary = text.substring(0, 50) + (text.length > 50 ? '…' : '');
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'knowledge-item';
+            const sumDiv = document.createElement('div');
+            sumDiv.className = 'knowledge-summary';
+            sumDiv.innerHTML = `📄 ${escapeHtml(summary)} <span style="font-size:0.7rem;">▼</span>`;
+            const fullDiv = document.createElement('div');
+            fullDiv.className = 'knowledge-full';
+            try {
+                const html = marked.parse(text);
+                fullDiv.innerHTML = html;
+                wrapTables(fullDiv);
+                if (window.renderMathInElement) {
+                    window.renderMathInElement(fullDiv, {
+                        delimiters: [
+                            {left: '$$', right: '$$', display: true},
+                            {left: '$', right: '$', display: false}
+                        ]
+                    });
+                }
+            } catch(e) {
+                fullDiv.textContent = text;
+            }
+            sumDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                fullDiv.classList.toggle('show');
+                const iconSpan = sumDiv.querySelector('span');
+                if (fullDiv.classList.contains('show')) {
+                    iconSpan.textContent = '▼';
+                } else {
+                    iconSpan.textContent = '▶';
+                }
+            });
+            itemDiv.appendChild(sumDiv);
+            itemDiv.appendChild(fullDiv);
+            inner.appendChild(itemDiv);
+        });
+        // Update header count | 更新头部计数
+        const header = currentKnowledgeBlock.querySelector('.block-header');
+        header.lastChild.textContent = `📚 Related Knowledge | 相关知识 (${knowledgeItems.length})`;
+    }
+
+    // Helper: add a tool call block inside assistant message | 在助手消息中添加工具调用块
+    function addToolCallBlock(msgDiv, logText) {
+        // Only process logs that contain "Using tool" (real tool calls) | 仅处理包含 "Using tool" 的日志（真正的工具调用）
+        if (!logText.includes('Using tool')) {
+            return;
+        }
+        
+        let toolName = null;
+        let argsObj = null;
+        let resultText = null;   // Store tool result | 存储工具结果
+        
+        // Extract the outer tool name (e.g., "time", "read", "tools") | 提取外层工具名（如 "time", "read", "tools"）
+        const outerMatch = logText.match(/Using tool ([\w\/\-]+)/i);
+        const outerTool = outerMatch ? outerMatch[1] : null;
+        
+        if (!outerTool) {
+            return;
+        }
+        
+        // Extract result content (everything after "result:") | 提取结果内容（"result:" 之后的所有内容）
+        const resultMatch = logText.match(/result:\s*(.*)$/s);
+        if (resultMatch) {
+            let rawResult = resultMatch[1].trim();
+            // Remove the Chinese part after "|" if present | 如果存在 "|"，只保留前面的英文结果
+            if (rawResult.includes('|')) {
+                rawResult = rawResult.split('|')[0].trim();
+            }
+            // Remove surrounding quotes if present | 去除首尾可能存在的引号
+            if (rawResult.startsWith('"') && rawResult.endsWith('"')) {
+                rawResult = rawResult.slice(1, -1);
+            }
+            resultText = rawResult;
+        }
+        
+        // If the outer tool is "tools", we need to extract the real tool name from the arguments | 如果外层工具是 "tools"，则需要从参数中提取真实的工具名
+        if (outerTool === 'tools') {
+            // Look for "tool_name": "xxx" pattern in the log | 在日志中查找 "tool_name": "xxx" 模式
+            const toolNameMatch = logText.match(/\"tool_name\":\s*\"([^\"]+)\"/);
+            if (toolNameMatch) {
+                toolName = toolNameMatch[1];
+            } else {
+                // Fallback: try to find tool_name after "arguments" | 后备：尝试在 "arguments" 后寻找 tool_name
+                const altMatch = logText.match(/tool_name['\"]?\s*:\s*['\"]?([\w\/\-]+)['\"]?/);
+                if (altMatch) toolName = altMatch[1];
+            }
+            // Also try to extract the arguments for the inner tool | 同时尝试提取内层工具的参数
+            const argsMatch = logText.match(/arguments (.*?), result:/s);
+            if (argsMatch) {
+                try {
+                    let argsStr = argsMatch[1].trim();
+                    // Remove surrounding quotes if any | 去除可能包裹的引号
+                    if (argsStr.startsWith('"') && argsStr.endsWith('"')) {
+                        argsStr = argsStr.slice(1, -1);
+                    }
+                    const parsedArgs = JSON.parse(argsStr);
+                    // The inner arguments are under the "arguments" key of the outer tools call | 内层参数在外层 tools 调用的 "arguments" 键下
+                    if (parsedArgs && typeof parsedArgs === 'object' && parsedArgs.arguments) {
+                        argsObj = parsedArgs.arguments;
+                    } else {
+                        argsObj = parsedArgs;
+                    }
+                } catch(e) {}
+            }
+        } else {
+            // Direct tool call (not wrapped) | 直接工具调用（非包装）
+            toolName = outerTool;
+            // Extract arguments for display | 提取参数用于显示
+            const argsMatch = logText.match(/arguments (.*?), result:/s);
+            if (argsMatch) {
+                try {
+                    let argsStr = argsMatch[1].trim();
+                    if (argsStr.startsWith('"') && argsStr.endsWith('"')) {
+                        argsStr = argsStr.slice(1, -1);
+                    }
+                    argsObj = JSON.parse(argsStr);
+                } catch(e) {}
+            }
+        }
+        
+        // If we still don't have a tool name, ignore this log | 如果没有工具名，忽略此日志
+        if (!toolName) {
+            return;
+        }
+        
+        // Create block container | 创建块容器
+        const blockDiv = document.createElement('div');
+        blockDiv.className = 'assistant-block tool-call-block';
+        const header = document.createElement('div');
+        header.className = 'block-header';
+        const icon = document.createElement('span');
+        icon.className = 'toggle-icon';
+        icon.textContent = '▶';
+        header.appendChild(icon);
+        header.appendChild(document.createTextNode(`Using ${toolName}... | 调用${toolName}中...`));
+        const paramsDiv = document.createElement('div');
+        paramsDiv.className = 'tool-params';
+        
+        // Display parameters (if any) | 显示参数（如果有）
+        if (argsObj && typeof argsObj === 'object' && Object.keys(argsObj).length > 0) {
+            for (const [key, value] of Object.entries(argsObj)) {
+                const paramLine = document.createElement('div');
+                paramLine.className = 'tool-param';
+                let valStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                paramLine.textContent = `${key}: ${valStr}`;
+                paramsDiv.appendChild(paramLine);
+            }
+        } else {
+            const fallback = document.createElement('div');
+            fallback.className = 'tool-param';
+            fallback.textContent = 'No parameters | 无参数';
+            paramsDiv.appendChild(fallback);
+        }
+        
+        // Display tool result (if any) with Markdown rendering | 显示工具结果（如果有）并支持 Markdown 渲染
+        if (resultText && resultText !== 'null' && resultText !== '') {
+            const resultLabel = document.createElement('div');
+            resultLabel.className = 'tool-param';
+            resultLabel.style.fontWeight = 'bold';
+            resultLabel.style.marginTop = '0.5rem';
+            resultLabel.textContent = 'Result | 结果:';
+            paramsDiv.appendChild(resultLabel);
+            
+            const resultContent = document.createElement('div');
+            resultContent.className = 'tool-param';
+            resultContent.style.padding = '0.25rem 0';
+            try {
+                // Render result as Markdown | 将结果渲染为 Markdown
+                const html = marked.parse(resultText);
+                resultContent.innerHTML = html;
+                // Wrap tables for horizontal scrolling | 为表格添加横向滚动容器
+                if (typeof wrapTables === 'function') {
+                    wrapTables(resultContent);
+                }
+            } catch(e) {
+                resultContent.textContent = resultText;
+            }
+            paramsDiv.appendChild(resultContent);
+        }
+        
+        blockDiv.appendChild(header);
+        blockDiv.appendChild(paramsDiv);
+        header.addEventListener('click', () => {
+            const isOpen = paramsDiv.classList.contains('show');
+            if (isOpen) {
+                paramsDiv.classList.remove('show');
+                icon.textContent = '▶';
+            } else {
+                paramsDiv.classList.add('show');
+                icon.textContent = '▼';
+            }
+        });
+        // Insert after the knowledge block (if exists) or at the beginning | 插入到知识块之后或开头
+        if (currentKnowledgeBlock) {
+            currentKnowledgeBlock.insertAdjacentElement('afterend', blockDiv);
+        } else {
+            msgDiv.insertBefore(blockDiv, msgDiv.firstChild);
+        }
+        return blockDiv;
     }
 
     // Page sliding switch | 页面滑动切换
@@ -812,7 +927,6 @@ You should have received a copy of the GNU General Public License along with Fra
                     } else if (msgDiv._textNode) {
                         messages.push({ role, content: msgDiv._textNode.textContent });
                     } else {
-                        // if _textNode does not exist, use the whole textContent (including breathing dot) | 对于已经完成的消息（没有 _textNode），直接取 textContent 即可（小球已被移除）
                         messages.push({ role, content: msgDiv.textContent });
                     }
                 } else {
@@ -846,8 +960,12 @@ You should have received a copy of the GNU General Public License along with Fra
         if (temporary) msgDiv.classList.add('temp');
 
         if (role === 'assistant' && temporary) {
-            // Real-time Markdown rendering with breathing dot | 实时 Markdown 渲染 + 呼吸小球
-            renderStreamingMarkdown(msgDiv, content);
+            // 临时助手消息：创建空的内容容器，稍后流式填充
+            msgDiv._rawText = '';
+            const contentContainer = document.createElement('div');
+            contentContainer.className = 'assistant-content';
+            msgDiv.appendChild(contentContainer);
+            renderStreamingMarkdown(msgDiv, content); // initial "Thinking..."
         } else if (parseMarkdown && !temporary) {
             if (role === 'user') {
                 // User messages: sanitize first to prevent XSS, then parse Markdown | 用户消息：先转义防 XSS，再解析 Markdown
@@ -876,8 +994,26 @@ You should have received a copy of the GNU General Public License along with Fra
     // Update message content (for assistant temporary messages, update the text node) | 更新助手临时消息的文本节点内容
     function updateMessage(msgDiv, content) {
         msgDiv._rawText = content;
-        if (msgDiv._textNode) {
-            msgDiv._textNode.textContent = content;
+        const contentContainer = msgDiv.querySelector('.assistant-content');
+        if (contentContainer) {
+            try {
+                const html = marked.parse(content);
+                contentContainer.innerHTML = html;
+                wrapTables(contentContainer);
+                // Ensure breathing dot at end | 确保末尾有呼吸小球
+                let dot = contentContainer.querySelector('.typing-dot');
+                if (!dot) {
+                    dot = document.createElement('span');
+                    dot.className = 'typing-dot';
+                } else {
+                    dot.remove();
+                }
+                const lastChild = contentContainer.lastElementChild;
+                if (lastChild) lastChild.appendChild(dot);
+                else contentContainer.appendChild(dot);
+            } catch(e) {
+                contentContainer.textContent = content;
+            }
         } else {
             msgDiv.textContent = content;
         }
@@ -890,7 +1026,6 @@ You should have received a copy of the GNU General Public License along with Fra
     function removeTypingDot(msgDiv) {
         const dot = msgDiv.querySelector('.typing-dot');
         if (dot) dot.remove();
-        delete msgDiv._textNode;
     }
 
     // Send/Stop button logic | 发送/停止按钮逻辑
@@ -929,11 +1064,14 @@ You should have received a copy of the GNU General Public License along with Fra
             if (currentAssistantMsgDiv) {
                 const stopText = currentPartialText + '\n\n(Stopped generating) | （已停止生成）';
                 currentAssistantMsgDiv._rawText = stopText;
-                try {
-                    currentAssistantMsgDiv.innerHTML = marked.parse(stopText);
-                    wrapTables(currentAssistantMsgDiv);
-                } catch(e) {
-                    currentAssistantMsgDiv.textContent = stopText;
+                const contentContainer = currentAssistantMsgDiv.querySelector('.assistant-content');
+                if (contentContainer) {
+                    try {
+                        contentContainer.innerHTML = marked.parse(stopText);
+                        wrapTables(contentContainer);
+                    } catch(e) {
+                        contentContainer.textContent = stopText;
+                    }
                 }
                 removeTypingDot(currentAssistantMsgDiv);
                 // Mark as not temporary so it will be saved to localStorage | 标记为非临时，以便保存到本地存储
@@ -952,102 +1090,19 @@ You should have received a copy of the GNU General Public License along with Fra
         currentUserMessage = '';
         currentPartialText = '';
         currentAssistantMsgDiv = null;
+        currentKnowledgeItems = [];
+        currentKnowledgeBlock = null;
     }
     setSendButtonToSend();
 
     // Send message to AI | 发送消息给AI
-    function renderKnowledgePanel(container, knowledgeList, targetMsgDiv) {
-        if (!knowledgeList || knowledgeList.length === 0) return null;
-        const oldPanel = container.querySelector('.knowledge-panel');
-        if (oldPanel) oldPanel.remove();
-
-        const panel = document.createElement('div');
-        panel.className = 'knowledge-panel';
-        const count = knowledgeList.length;
-        panel.innerHTML = `
-            <div class="knowledge-header">📚 Related Knowledge | 相关知识 (${count})</div>
-            <div class="knowledge-content">
-                <div class="knowledge-inner"></div>
-            </div>
-        `;
-        const header = panel.querySelector('.knowledge-header');
-        const inner = panel.querySelector('.knowledge-inner');
-
-        // Add click toggle animation | 添加点击切换动画
-        header.addEventListener('click', () => {
-            const isOpen = panel.classList.contains('open');
-            if (isOpen) {
-                panel.classList.remove('open');
-            } else {
-                panel.classList.add('open');
-            }
-        });
-
-        knowledgeList.forEach((text) => {
-            let summary = '';
-            const titleMatch = text.match(/^###\s+(.+)$/m);
-            if (titleMatch) summary = titleMatch[1];
-            else summary = text.substring(0, 50) + (text.length > 50 ? '…' : '');
-
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'knowledge-item';
-
-            // Summary: keep as plain text | 摘要部分：保持纯文本
-            const summaryDiv = document.createElement('div');
-            summaryDiv.className = 'knowledge-item-summary';
-            summaryDiv.innerHTML = `📄 ${escapeHtml(summary)} <span style="font-size:0.7rem;">▼</span>`;
-
-            // Full content: use Markdown + KaTeX rendering | 全文部分：使用 Markdown + KaTeX 渲染
-            const fullDiv = document.createElement('div');
-            fullDiv.className = 'knowledge-item-full';
-            try {
-                const html = marked.parse(text);
-                fullDiv.innerHTML = html;
-                wrapTables(fullDiv);
-                if (window.renderMathInElement) {
-                    window.renderMathInElement(fullDiv, {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false}
-                        ]
-                    });
-                }
-            } catch (e) {
-                // Markdown parsing failed, fallback to plain text | Markdown 解析失败时回退到纯文本
-                fullDiv.textContent = text;
-            }
-
-            summaryDiv.addEventListener('click', (e) => {
-                e.stopPropagation();
-                fullDiv.classList.toggle('show');
-            });
-
-            itemDiv.appendChild(summaryDiv);
-            itemDiv.appendChild(fullDiv);
-            inner.appendChild(itemDiv);
-        });
-
-        if (targetMsgDiv && targetMsgDiv.parentNode === container) {
-            targetMsgDiv.insertAdjacentElement('afterend', panel);
-        } else {
-            container.appendChild(panel);
-        }
-        container.scrollTop = container.scrollHeight;
-        return panel;
-    }
-    // Send message to AI | 发送消息给AI
-    let currentKnowledgePanel = null;
-    let currentKnowledgeList = [];   // Store knowledge items for this reply | 存储本轮回复的知识条目
-
     async function sendMessage() {
-        // Clear previous knowledge panel and list | 清除上一轮的知识面板和列表
-        if (currentKnowledgePanel && currentKnowledgePanel.parentNode) {
-            currentKnowledgePanel.remove();
-            currentKnowledgePanel = null;
+        // Reset knowledge items and block | 重置知识条目和块
+        currentKnowledgeItems = [];
+        if (currentKnowledgeBlock) {
+            currentKnowledgeBlock.remove();
+            currentKnowledgeBlock = null;
         }
-        currentKnowledgeList = [];
-        // Remove any legacy .knowledge messages (old style) | 移除旧的独立知识消息
-        document.querySelectorAll('.message.knowledge').forEach(el => el.remove());
 
         const message = messageInput.value.trim();
         if (!message || isGenerating) return;
@@ -1065,8 +1120,6 @@ You should have received a copy of the GNU General Public License along with Fra
         addMessage('user', message, false, '', true);
         const assistantMsgDiv = addMessage('assistant', 'Thinking... | 思考中...', true, '', false);
         currentAssistantMsgDiv = assistantMsgDiv;   // Store reference for stop handler | 存储引用供停止处理使用
-        consoleOutput.textContent = '';
-        // Do NOT auto-open console | 不自动打开控制台
 
         let fullText = '';
         let receivedHtml = false;   // Flag to know if final HTML arrived | 标记是否收到最终HTML
@@ -1095,14 +1148,19 @@ You should have received a copy of the GNU General Public License along with Fra
                                 renderStreamingMarkdown(assistantMsgDiv, fullText);
                                 assistantMsgDiv.classList.remove('temp');
                             } else if (data.type === 'log') {
-                                consoleOutput.textContent += data.text;
-                                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+                                // 工具调用：在助手消息中添加工具块
+                                addToolCallBlock(assistantMsgDiv, data.text);
                             } else if (data.type === 'html') {
                                 receivedHtml = true;
                                 // Final HTML rendering - remove dot and set HTML content | 最终HTML渲染 -移除点并设置HTML内容
                                 removeTypingDot(assistantMsgDiv);
-                                assistantMsgDiv.innerHTML = data.html;
-                                wrapTables(assistantMsgDiv);
+                                const contentContainer = assistantMsgDiv.querySelector('.assistant-content');
+                                if (contentContainer) {
+                                    contentContainer.innerHTML = data.html;
+                                    wrapTables(contentContainer);
+                                } else {
+                                    assistantMsgDiv.innerHTML = data.html;
+                                }
                                 assistantMsgDiv.classList.remove('temp');
                                 if (window.renderMathInElement) {
                                     window.renderMathInElement(assistantMsgDiv, {
@@ -1113,14 +1171,11 @@ You should have received a copy of the GNU General Public License along with Fra
                                     });
                                 }
                                 saveMessagesToLocalStorage();
-
-                                // After final HTML, render knowledge panel if any | 最终HTML渲染后，显示知识面板
-                                if (currentKnowledgeList.length > 0) {
-                                    currentKnowledgePanel = renderKnowledgePanel(chatMessages, currentKnowledgeList, assistantMsgDiv);
-                                }
+                                // Knowledge panel already rendered in real-time, no need to re-render | 知识面板已实时渲染，无需再次渲染
                             } else if (data.type === 'knowledge') {
-                                // Collect knowledge, do not display immediately | 收集知识，暂不显示
-                                currentKnowledgeList.push(data.text);
+                                // Collect and render knowledge panel immediately | 收集知识并立即渲染面板
+                                currentKnowledgeItems.push(data.text);
+                                updateKnowledgeBlock(assistantMsgDiv, currentKnowledgeItems);
                             } else if (data.type === 'error') {
                                 updateMessage(assistantMsgDiv, 'Error | 错误: ' + data.text);
                                 removeTypingDot(assistantMsgDiv);
@@ -1144,9 +1199,6 @@ You should have received a copy of the GNU General Public License along with Fra
                         ]
                     });
                 }
-                if (currentKnowledgeList.length > 0) {
-                    currentKnowledgePanel = renderKnowledgePanel(chatMessages, currentKnowledgeList, assistantMsgDiv);
-                }
                 saveMessagesToLocalStorage();
             } else if (assistantMsgDiv.querySelector('.typing-dot')) {
                 // Safety: remove dot if still present after html event | 安全兜底：html 事件后仍有小球则移除
@@ -1166,6 +1218,8 @@ You should have received a copy of the GNU General Public License along with Fra
             currentUserMessage = '';
             currentPartialText = '';
             currentAssistantMsgDiv = null;
+            currentKnowledgeItems = [];
+            currentKnowledgeBlock = null;
         }
     }
     messageInput.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') sendMessage(); });

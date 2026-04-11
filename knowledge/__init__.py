@@ -17,6 +17,7 @@ import time
 import threading
 import re
 from pathlib import Path
+from datetime import datetime
 from sentence_transformers import SentenceTransformer
 
 # Add project root directory to sys.path for importing src.mcps | 添加项目根目录到 sys.path 以便导入 src.mcps
@@ -468,9 +469,8 @@ def add_conversation(user_msg: str, ai_msg: str):
     """
     text = f"User | 用户: {user_msg}\nAI: {ai_msg}"
     # Generate backup file name with timestamp and hash | 生成带时间戳和哈希的备份文件名
-    timestamp = int(time.time())
-    file_hash = hash(text) & 0xFFFFFFFF
-    backup_filename = f"{timestamp}_{file_hash}.md"
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    backup_filename = f"{timestamp}.md"
     backup_path = MEMORIES_DIR / backup_filename
     # Insert into vector library using backup file path as source | 使用备份文件路径作为 source 插入向量库
     source = str(backup_path.relative_to(KNOWLEDGE_ROOT))

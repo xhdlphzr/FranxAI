@@ -195,6 +195,10 @@ broadcaster = EventBroadcaster()
 active_tasks = {}
 active_tasks_lock = threading.Lock()
 
+# Global dict for pending confirmations (used by /chat and /api/confirm_tool) | 全局待确认字典（用于 /chat 和 /api/confirm_tool）
+_pending_confirmations = {}
+_pending_lock = threading.Lock()
+
 def init_agents():
     global chat_agent, tasks_agent, last_config_mtime
     config = load_config()
@@ -434,6 +438,44 @@ def save_partial():
 
     return jsonify({'status': 'ok'})
 
+# Tool confirmation API | 工具确认 API
+@app.route('/api/confirm_tool', methods=['POST'])
+@login_required
+def confirm_tool():
+    """
+    Receive user's decision for a pending tool confirmation and resume the agent generator.
+    | 接收用户对等待中的工具确认的决策，并恢复智能体生成器。
+    """
+    data = request.get_json()
+    confirm_id = data.get('confirm_id')
+    approved = data.get('approved', False)
+
+    if not confirm_id:
+        return jsonify({'error': 'Missing confirm_id'}), 400
+
+    with _pending_lock:
+        if confirm_id not in _pending_confirmations:
+            return jsonify({'error': 'Invalid or expired confirm_id'}), 404
+        # Retrieve the pending info | 获取待确认信息
+        pending = _pending_confirmations.pop(confirm_id)
+        generator = pending['generator']
+        event = pending['event']
+        result_holder = pending['result']
+
+    # Send the user's decision back to the generator | 将用户决策发送回生成器
+    try:
+        # Resume the generator with the approval status | 使用批准状态恢复生成器
+        generator.send(approved)
+    except StopIteration:
+        # Generator finished (should not happen) | 生成器已结束（不应发生）
+        pass
+    finally:
+        # Signal that the response has been set | 通知等待线程已收到结果
+        result_holder['done'] = True
+        event.set()
+
+    return jsonify({'status': 'ok'})
+
 # Frontend routes | 前端路由
 @app.route('/login')
 def login_page():
@@ -480,7 +522,7 @@ def chat():
         old_stdout = sys.stdout
         # Buffer for compatibility (not actually sent) | 用于兼容原逻辑的缓冲区（实际不再发送，仅用于写入）
         sio = io.StringIO()
-        # Queue for real-time logs | 引入队列用于实时日志
+        # Queue for real-time logs (from print statements) | 实时日志队列（来自 print 语句）
         log_q = queue.Queue()
 
         # Custom output stream: each print writes to both original buffer and real-time queue | 自定义输出流：每个 print 同时写入原缓冲区和实时队列
@@ -493,7 +535,7 @@ def chat():
         # Redirect stdout to custom stream | 重定向标准输出到自定义流
         sys.stdout = QueueStream()
 
-        # Accumulate full response | 累积完整回复
+        # Accumulate full response (for final HTML) | 累积完整回复（用于最终 HTML）
         full_response = ""
 
         # Retrieve knowledge and send to frontend | 检索知识并发送到前端
@@ -508,28 +550,67 @@ def chat():
             # Retrieval failure does not affect main flow, only print log | 检索失败不影响主流程，仅打印日志
             print(f"Knowledge retrieval failed | 知识检索失败: {e}")
 
-        try:
-            with chat_agent_lock:
-                # Stream AI reply (original logic) | 流式输出 AI 回复
-                for chunk in chat_agent.input(user_message):
-                    full_response += chunk
-                    yield f"data: {json.dumps({'type': 'content', 'text': chunk})}\n\n"
-                    # After each reply, send any queued logs immediately | 每次输出回复后，立即将队列中的日志实时发送
-                    while True:
-                        try:
-                            line = log_q.get_nowait()
-                            if line:
-                                yield f"data: {json.dumps({'type': 'log', 'text': line})}\n\n"
-                        except queue.Empty:
-                            break
-                # Memory compression (original logic) | 记忆压缩
-                chat_agent.memory()
-        except Exception as e:
-            # Error handling | 错误处理
-            yield f"data: {json.dumps({'type': 'error', 'text': str(e)})}\n\n"
-        finally:
-            # Restore original stdout | 恢复原始标准输出
-            sys.stdout = old_stdout
+        # Get the generator from agent (this yields text and confirmation requests) | 获取智能体的生成器（yield 文本和确认请求）
+        agent_gen = chat_agent.input(user_message)
+        gen_exhausted = False
+
+        while not gen_exhausted:
+            # Drain log queue (print output) | 排空日志队列
+            while True:
+                try:
+                    line = log_q.get_nowait()
+                    if line:
+                        yield f"data: {json.dumps({'type': 'log', 'text': line})}\n\n"
+                except queue.Empty:
+                    break
+
+            try:
+                # Get next item from agent generator | 从智能体生成器获取下一个项目
+                item = next(agent_gen)
+            except StopIteration:
+                # Generator finished | 生成器结束
+                gen_exhausted = True
+                break
+
+            # Handle different types of items | 处理不同类型的项目
+            if isinstance(item, str):
+                # Normal text chunk | 普通文本块
+                full_response += item
+                yield f"data: {json.dumps({'type': 'content', 'text': item})}\n\n"
+            elif isinstance(item, dict) and item.get('type') == 'confirmation_required':
+                # Confirmation request | 确认请求
+                confirm_id = item['confirm_id']
+                # Create an event and result holder to wait for user decision | 创建事件和结果容器以等待用户决策
+                event = threading.Event()
+                result_holder = {'done': False}
+                # Store in global dict | 存储到全局字典
+                with _pending_lock:
+                    _pending_confirmations[confirm_id] = {
+                        'generator': agent_gen,
+                        'event': event,
+                        'result': result_holder,
+                        'tool_name': item['tool_name'],
+                        'arguments': item['arguments']
+                    }
+                # Send confirmation request to frontend | 发送确认请求到前端
+                yield f"data: {json.dumps(item)}\n\n"
+                # Wait for the confirmation API to set the result | 等待确认 API 设置结果
+                # Note: This blocks the current thread until the user responds via /api/confirm_tool | 注意：这会阻塞当前线程，直到用户通过 /api/confirm_tool 响应
+                event.wait()
+                # After waiting, the generator already received .send(approved) and continues | 等待结束后，生成器已经通过 .send(approved) 继续执行
+                continue  # Go back to the loop to get next items after confirmation | 回到循环，获取确认后的后续项目
+            else:
+                # Unknown item type, ignore | 未知类型，忽略
+                print(f"Unknown item from agent generator: {item}")
+
+        # Final drain of logs | 最后排空日志
+        while True:
+            try:
+                line = log_q.get_nowait()
+                if line:
+                    yield f"data: {json.dumps({'type': 'log', 'text': line})}\n\n"
+            except queue.Empty:
+                break
 
         # Render full message as HTML (backend rendering) | 完整消息渲染为 HTML（后端渲染）
         if full_response:
@@ -544,9 +625,12 @@ def chat():
         # Send stream end signal | 发送流结束信号
         yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
-        # Store the current Q&A pair into the vector database in real time | 将本轮问答实时存入向量库
+        # Store the current Q&A pair into the vector database | 将本轮问答实时存入向量库
         if full_response:
             add_conversation(user_message, full_response)
+
+        # Restore original stdout | 恢复原始标准输出
+        sys.stdout = old_stdout
 
     return Response(
         stream_with_context(generate()),

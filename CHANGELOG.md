@@ -171,3 +171,8 @@
 ## [v4.8.3](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.8.3)
 - Fixed `src/templates/index.html` math formula rendering issue.
 - Fixed animation priority bug.
+
+## [v4.9.0](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.9.0)
+- Changed the order of tools and messages to be sorted by time.
+- Added confirmation feature for the `command` and `write` tools.
+- Fixed some known issues.

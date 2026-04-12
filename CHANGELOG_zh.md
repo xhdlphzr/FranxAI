@@ -171,3 +171,8 @@
 ## [v4.8.3](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.8.3)
 - 修复了 `src/templates/index.html` 中的数学公式渲染问题。
 - 修复动画优先bug。
+
+## [v4.9.0](https://github.com/xhdlphzr/FranxAI/releases/tag/v4.9.0)
+- 更改了工具和消息的顺序，按照时间排序。
+- 增加了 `command` 和 `write` 工具的确认功能。
+- 修复了一些已知问题。

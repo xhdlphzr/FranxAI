@@ -321,8 +321,6 @@ class FranxAI:
         - When the model needs to call a tool, execute the tool synchronously and print the tool call info to stdout (can be redirected) | - 当模型需要调用工具时，同步执行工具，并将工具调用信息打印到 stdout（可被重定向）
         - Loop until no tool calls remain | - 循环处理直到无工具调用
         """
-        print("AI is thinking... | AI思考中...")
-
         # 1. Persist the current user message | 1. 将当前用户消息持久化
         self.messages.append({"role": "user", "content": msg})
 
@@ -418,7 +416,6 @@ class FranxAI:
 
                 # If the model directly called a built-in tool name (e.g., time, read), automatically convert to tools call | 如果模型直接调用了内置工具名（如 time、read），自动转换为 tools 调用
                 if func_name != "tools" and "/" not in func_name:
-                    print(f"⚠️ The model directly called {func_name}, automatically converting to tools call | ⚠️ 模型直接调用了 {func_name}，已自动转换为 tools 调用")
                     # Construct new arguments: tool_name is the original function name, arguments are the original parameters | 构造新的 arguments：tool_name 为原函数名，arguments 为原参数
                     new_arguments = {"tool_name": func_name, "arguments": arguments}
                     # Update tool_call object | 更新 tool_call 对象
@@ -427,7 +424,7 @@ class FranxAI:
                     func_name = "tools"
                     arguments = new_arguments
 
-                # Determine the actual tool name (for confirmation check) | 确定实际的工具名（用于确认检查）
+                # Determine the actual tool name | 确定实际的工具名
                 actual_tool_name = None
                 if func_name == "tools":
                     # Extract tool_name from arguments (when wrapped) | 从参数中提取 tool_name（当包装时）
@@ -435,46 +432,58 @@ class FranxAI:
                 else:
                     actual_tool_name = func_name
 
-                # Check if this tool requires confirmation (write or command) | 检查该工具是否需要确认（write 或 command）
+                # 1. Send tool_call event first (shows "Using xxx...") | 1. 先发送工具调用事件（显示“Using xxx...”）
+                call_id = tool_call["id"]
+                yield {
+                    "type": "tool_call",
+                    "call_id": call_id,
+                    "tool_name": actual_tool_name,
+                    "arguments": arguments,
+                    "result": None # No result yet | 暂无结果
+                }
+
+                result = None
+                # 2. Check if confirmation is needed | 2. 检查是否需要确认
                 if actual_tool_name in ("write", "command"):
                     # Generate a unique confirmation ID | 生成唯一的确认ID
                     confirm_id = str(uuid.uuid4())
-                    # Yield a confirmation request event and wait for user decision | 发送确认请求事件并等待用户决策
-                    # The external code should call generator.send(True) or generator.send(False) | 外部代码应调用 generator.send(True) 或 generator.send(False)
+                    # 3. Send confirmation request event | 3. 发送确认请求事件
                     approved = yield {
                         "type": "confirmation_required",
+                        "confirm_id": confirm_id,
+                        "call_id": call_id,
                         "tool_name": actual_tool_name,
-                        "arguments": arguments,
-                        "tool_call_id": tool_call["id"],
-                        "confirm_id": confirm_id
+                        "arguments": arguments
                     }
                     if approved:
                         # Execute the tool | 执行工具
                         func = self.tool_functions.get(func_name)
                         if func:
                             result = func(**arguments)
-                            print(f"Using tool {func_name} with arguments {arguments}, result: \"{result}\" | 使用工具 {func_name}，参数 {arguments}，调用结果 “{result}”")
                         else:
                             result = f"Error: unknown tool {func_name} | 错误：未知工具 {func_name}"
-                            print(result)
                     else:
                         # User rejected | 用户拒绝
                         result = f"Tool '{actual_tool_name}' execution was rejected by the user. | 用户拒绝了工具 '{actual_tool_name}' 的执行。"
-                        print(result)
                 else:
                     # Normal execution (no confirmation needed) | 正常执行（无需确认）
                     func = self.tool_functions.get(func_name)
                     if func:
                         result = func(**arguments)
-                        print(f"Using tool {func_name} with arguments {arguments}, result: \"{result}\" | 使用工具 {func_name}，参数 {arguments}，调用结果 “{result}”")
                     else:
                         result = f"Error: unknown tool {func_name} | 错误：未知工具 {func_name}"
-                        print(result)
+
+                # 4. Send tool result event (updates UI) | 4. 发送工具结果事件（更新界面）
+                yield {
+                    "type": "tool_result",
+                    "call_id": call_id,
+                    "result": str(result) if result is not None else "No result | 无结果"
+                }
 
                 # Add tool execution result to both current API messages and persistent history | 将工具执行结果同时加入当前 API 消息列表和持久化历史
                 tool_message = {
                     "role": "tool",
-                    "tool_call_id": tool_call["id"],
+                    "tool_call_id": call_id,
                     "content": str(result)
                 }
                 current_api_messages.append(tool_message)
@@ -489,7 +498,6 @@ class FranxAI:
         """
         Summarize conversation content for memory management, yielding the summary incrementally | 总结对话内容，用于记忆管理，流式输出摘要
         """
-        print("AI is summarizing... | AI概括中...")
         to_summarize = self.messages[1:idx]
         to_summarize.append({"role": "user", "content": SUMMARIZE_GUIDE})
         stream = self.client.chat.completions.create(

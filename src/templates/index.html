@@ -33,7 +33,7 @@ You should have received a copy of the GNU General Public License along with Fra
         }
 
         body {
-            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: system-ui;
             background: #f5f7fb;
             color: #1e293b;
             height: 100vh;
@@ -117,6 +117,7 @@ You should have received a copy of the GNU General Public License along with Fra
             word-wrap: break-word;
             white-space: pre-wrap;
             font-size: 0.95rem;
+            font-family: inherit; /* 继承 body 字体 */
         }
         .message.user {
             background: #e6f0ff;
@@ -161,7 +162,7 @@ You should have received a copy of the GNU General Public License along with Fra
             color: #b45309;
         }
         .knowledge-content {
-            font-family: monospace;
+            font-family: system-ui;
             font-size: 0.8rem;
             background: #fff7e6;
             padding: 0.5rem;
@@ -255,9 +256,62 @@ You should have received a copy of the GNU General Public License along with Fra
             overflow-y: auto;
         }
         .tool-param {
-            font-family: monospace;
+            font-family: system-ui;
             font-size: 0.85rem;
             margin: 0.25rem 0;
+        }
+
+        /* Confirmation block styles | 确认块样式 */
+        .confirm-block {
+            width: 100%;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .confirm-block:first-of-type {
+            border-top: none;
+            padding-top: 0;
+            margin-top: 0;
+        }
+        .confirm-header {
+            font-weight: 500;
+            color: #1e40af;
+            margin-bottom: 0.5rem;
+        }
+        .confirm-params {
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-family: system-ui;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+        }
+        .confirm-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .confirm-buttons button {
+            padding: 0.3rem 1rem;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            font-weight: 500;
+            transition: 0.1s;
+        }
+        .confirm-approve {
+            background: #16a34a;
+            color: white;
+        }
+        .confirm-approve:hover {
+            background: #15803d;
+        }
+        .confirm-reject {
+            background: #dc2626;
+            color: white;
+        }
+        .confirm-reject:hover {
+            background: #b91c1c;
         }
 
         /* Table styles for Markdown tables | Markdown 表格样式 */
@@ -384,7 +438,7 @@ You should have received a copy of the GNU General Public License along with Fra
             align-items: center;
         }
         .task-time {
-            font-family: monospace;
+            font-family: system-ui;
             background: #e2e8f0;
             padding: 0.2rem 0.5rem;
             border-radius: 1rem;
@@ -618,7 +672,7 @@ You should have received a copy of the GNU General Public License along with Fra
     // Helper: render Markdown content into the content container with breathing dot | 辅助函数：将 Markdown 内容渲染到内容容器并追加呼吸小球
     function renderStreamingMarkdown(msgDiv, rawText) {
         msgDiv._rawText = rawText;
-        let contentContainer = msgDiv.querySelector('.assistant-content');
+        let contentContainer = msgDiv.querySelector('.assistant-content:last-of-type');
         if (!contentContainer) {
             contentContainer = document.createElement('div');
             contentContainer.className = 'assistant-content';
@@ -734,109 +788,44 @@ You should have received a copy of the GNU General Public License along with Fra
         header.lastChild.textContent = `📚 Related Knowledge | 相关知识 (${knowledgeItems.length})`;
     }
 
-    // Helper: add a tool call block inside assistant message | 在助手消息中添加工具调用块
-    function addToolCallBlock(msgDiv, logText) {
-        // Only process logs that contain "Using tool" (real tool calls) | 仅处理包含 "Using tool" 的日志（真正的工具调用）
-        if (!logText.includes('Using tool')) {
-            return;
-        }
-        
-        let toolName = null;
-        let argsObj = null;
-        let resultText = null;   // Store tool result | 存储工具结果
-        
-        // Extract the outer tool name (e.g., "time", "read", "tools") | 提取外层工具名（如 "time", "read", "tools"）
-        const outerMatch = logText.match(/Using tool ([\w\/\-]+)/i);
-        const outerTool = outerMatch ? outerMatch[1] : null;
-        
-        if (!outerTool) {
-            return;
-        }
-        
-        // Extract result content (everything after "result:") | 提取结果内容（"result:" 之后的所有内容）
-        const resultMatch = logText.match(/result:\s*(.*)$/s);
-        if (resultMatch) {
-            let rawResult = resultMatch[1].trim();
-            // Remove the Chinese part after "|" if present | 如果存在 "|"，只保留前面的英文结果
-            if (rawResult.includes('|')) {
-                rawResult = rawResult.split('|')[0].trim();
-            }
-            // Remove surrounding quotes if present | 去除首尾可能存在的引号
-            if (rawResult.startsWith('"') && rawResult.endsWith('"')) {
-                rawResult = rawResult.slice(1, -1);
-            }
-            resultText = rawResult;
-        }
-        
-        // If the outer tool is "tools", we need to extract the real tool name from the arguments | 如果外层工具是 "tools"，则需要从参数中提取真实的工具名
-        if (outerTool === 'tools') {
-            // Look for "tool_name": "xxx" pattern in the log | 在日志中查找 "tool_name": "xxx" 模式
-            const toolNameMatch = logText.match(/\"tool_name\":\s*\"([^\"]+)\"/);
-            if (toolNameMatch) {
-                toolName = toolNameMatch[1];
-            } else {
-                // Fallback: try to find tool_name after "arguments" | 后备：尝试在 "arguments" 后寻找 tool_name
-                const altMatch = logText.match(/tool_name['\"]?\s*:\s*['\"]?([\w\/\-]+)['\"]?/);
-                if (altMatch) toolName = altMatch[1];
-            }
-            // Also try to extract the arguments for the inner tool | 同时尝试提取内层工具的参数
-            const argsMatch = logText.match(/arguments (.*?), result:/s);
-            if (argsMatch) {
-                try {
-                    let argsStr = argsMatch[1].trim();
-                    // Remove surrounding quotes if any | 去除可能包裹的引号
-                    if (argsStr.startsWith('"') && argsStr.endsWith('"')) {
-                        argsStr = argsStr.slice(1, -1);
-                    }
-                    const parsedArgs = JSON.parse(argsStr);
-                    // The inner arguments are under the "arguments" key of the outer tools call | 内层参数在外层 tools 调用的 "arguments" 键下
-                    if (parsedArgs && typeof parsedArgs === 'object' && parsedArgs.arguments) {
-                        argsObj = parsedArgs.arguments;
-                    } else {
-                        argsObj = parsedArgs;
-                    }
-                } catch(e) {}
-            }
-        } else {
-            // Direct tool call (not wrapped) | 直接工具调用（非包装）
-            toolName = outerTool;
-            // Extract arguments for display | 提取参数用于显示
-            const argsMatch = logText.match(/arguments (.*?), result:/s);
-            if (argsMatch) {
-                try {
-                    let argsStr = argsMatch[1].trim();
-                    if (argsStr.startsWith('"') && argsStr.endsWith('"')) {
-                        argsStr = argsStr.slice(1, -1);
-                    }
-                    argsObj = JSON.parse(argsStr);
-                } catch(e) {}
+    // Helper: add a tool call block from structured data | 辅助函数：从结构化数据添加工具调用块
+    function addToolCallBlockStructured(msgDiv, callId, toolName, argumentsObj, resultText) {
+        // Unpack the real parameters | 解包真实参数
+        let params = argumentsObj;
+        if (params && typeof params === 'object') {
+            if ('arguments' in params && params.arguments && typeof params.arguments === 'object') {
+                params = params.arguments;
             }
         }
-        
-        // If we still don't have a tool name, ignore this log | 如果没有工具名，忽略此日志
-        if (!toolName) {
-            return;
+        if (!params || typeof params !== 'object') params = {};
+
+        // Ensure toolName is a string | 确保 toolName 是字符串
+        if (typeof toolName !== 'string') {
+            toolName = String(toolName);
         }
-        
-        // Create block container | 创建块容器
+
         const blockDiv = document.createElement('div');
         blockDiv.className = 'assistant-block tool-call-block';
+        blockDiv.dataset.callId = callId; // Set ID for later update | 设置 ID 以便后续更新
+        
         const header = document.createElement('div');
         header.className = 'block-header';
+        header.dataset.toolName = toolName; // Store tool name | 存储工具名
         const icon = document.createElement('span');
         icon.className = 'toggle-icon';
         icon.textContent = '▶';
         header.appendChild(icon);
         header.appendChild(document.createTextNode(`Using ${toolName}... | 调用${toolName}中...`));
+        
         const paramsDiv = document.createElement('div');
         paramsDiv.className = 'tool-params';
         
-        // Display parameters (if any) | 显示参数（如果有）
-        if (argsObj && typeof argsObj === 'object' && Object.keys(argsObj).length > 0) {
-            for (const [key, value] of Object.entries(argsObj)) {
+        // Display parameters | 显示参数
+        if (Object.keys(params).length > 0) {
+            for (const [key, value] of Object.entries(params)) {
                 const paramLine = document.createElement('div');
                 paramLine.className = 'tool-param';
-                let valStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                let valStr = typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value);
                 paramLine.textContent = `${key}: ${valStr}`;
                 paramsDiv.appendChild(paramLine);
             }
@@ -847,31 +836,28 @@ You should have received a copy of the GNU General Public License along with Fra
             paramsDiv.appendChild(fallback);
         }
         
-        // Display tool result (if any) with Markdown rendering | 显示工具结果（如果有）并支持 Markdown 渲染
+        // Result area | 结果区域
+        const resultLabel = document.createElement('div');
+        resultLabel.className = 'tool-param';
+        resultLabel.style.fontWeight = 'bold';
+        resultLabel.style.marginTop = '0.5rem';
+        resultLabel.textContent = 'Result | 结果:';
+        paramsDiv.appendChild(resultLabel);
+        
+        const resultContent = document.createElement('div');
+        resultContent.className = 'tool-param';
+        resultContent.style.padding = '0.25rem 0';
+
         if (resultText && resultText !== 'null' && resultText !== '') {
-            const resultLabel = document.createElement('div');
-            resultLabel.className = 'tool-param';
-            resultLabel.style.fontWeight = 'bold';
-            resultLabel.style.marginTop = '0.5rem';
-            resultLabel.textContent = 'Result | 结果:';
-            paramsDiv.appendChild(resultLabel);
-            
-            const resultContent = document.createElement('div');
-            resultContent.className = 'tool-param';
-            resultContent.style.padding = '0.25rem 0';
-            try {
-                // Render result as Markdown | 将结果渲染为 Markdown
-                const html = marked.parse(resultText);
-                resultContent.innerHTML = html;
-                // Wrap tables for horizontal scrolling | 为表格添加横向滚动容器
-                if (typeof wrapTables === 'function') {
-                    wrapTables(resultContent);
-                }
-            } catch(e) {
-                resultContent.textContent = resultText;
-            }
-            paramsDiv.appendChild(resultContent);
+            resultContent.textContent = resultText;
+            // If result is provided, it means the tool has finished | 如果提供了结果，说明工具已结束
+            header.lastChild.textContent = `Used ${toolName} | 已调用${toolName}`;
+        } else {
+            // Show pending status if no result yet | 如果暂无结果则显示执行中状态
+            resultContent.textContent = 'Executing... | 执行中...';
+            resultContent.classList.add('tool-result-pending'); // Add class for easy replacement | 添加 class 以便替换
         }
+        paramsDiv.appendChild(resultContent);
         
         blockDiv.appendChild(header);
         blockDiv.appendChild(paramsDiv);
@@ -885,12 +871,130 @@ You should have received a copy of the GNU General Public License along with Fra
                 icon.textContent = '▼';
             }
         });
-        // Insert after the knowledge block (if exists) or at the beginning | 插入到知识块之后或开头
-        if (currentKnowledgeBlock) {
-            currentKnowledgeBlock.insertAdjacentElement('afterend', blockDiv);
-        } else {
-            msgDiv.insertBefore(blockDiv, msgDiv.firstChild);
+        
+        // Insert logic: Always insert before the content container to maintain order | 插入逻辑：始终插入到内容容器之前以保持顺序
+        msgDiv.appendChild(blockDiv);
+        
+        return blockDiv;
+    }
+
+    // Helper: update tool call block with result | 辅助函数：使用结果更新工具调用块
+    function updateToolCallResult(msgDiv, callId, resultText) {
+        const blockDiv = msgDiv.querySelector(`.tool-call-block[data-call-id="${callId}"]`);
+        if (!blockDiv) return;
+        
+        // Update header text to "Used" | 更新标题文本为 "Used"
+        const header = blockDiv.querySelector('.block-header');
+        if (header) {
+            const toolName = header.dataset.toolName;
+            header.lastChild.textContent = `Used ${toolName} | 已调用${toolName}`;
         }
+        
+        // Update result content | 更新结果内容
+        const pendingResult = blockDiv.querySelector('.tool-result-pending');
+        if (pendingResult) {
+            pendingResult.textContent = resultText;
+            pendingResult.classList.remove('tool-result-pending');
+        } else {
+            // Fallback: if pending class was removed, update directly | 后备：如果 pending class 被移除，直接更新
+            const resultContent = blockDiv.querySelectorAll('.tool-param')[1]; // Rough fallback | 粗略后备
+            if (resultContent) resultContent.textContent = resultText;
+        }
+    }
+
+    // Helper: add a confirmation block for write/command tools | 在助手消息中添加确认块用于 write/command 工具
+    function addConfirmationBlock(msgDiv, confirmId, toolName, argumentsObj) {        
+        // Extract actual parameters – compatible with both direct and wrapped formats | 提取实际参数 – 兼容直接格式和包装格式
+        let params = argumentsObj;
+        if (params && typeof params === 'object') {
+            // If the object has an "arguments" field (wrapped by tools), unwrap it | 如果对象包含 "arguments" 字段（被 tools 包装），则解包
+            if ('arguments' in params && params.arguments && typeof params.arguments === 'object') {
+                params = params.arguments;
+            }
+            // Also handle the case where tool_name is present but arguments is separate | 也处理 tool_name 存在但 arguments 独立的情况
+            if ('tool_name' in params && 'arguments' in params) {
+                params = params.arguments;
+            }
+        }
+        if (!params || typeof params !== 'object') params = {};
+        
+        const blockDiv = document.createElement('div');
+        blockDiv.className = 'confirm-block';
+        blockDiv.dataset.confirmId = confirmId;
+        
+        const header = document.createElement('div');
+        header.className = 'confirm-header';
+        header.textContent = `🔐 Confirm ${toolName} | 确认执行 ${toolName}`;
+        blockDiv.appendChild(header);
+        
+        const paramsDiv = document.createElement('div');
+        paramsDiv.className = 'confirm-params';
+        let displayParams = '';
+        
+        if (toolName === 'write') {
+            const path = params.path || '';
+            const mode = params.mode || 'overwrite';
+            const content = params.content || '';
+            // Use code block for content; keep original characters (no extra escaping) | 使用代码块显示内容，不额外转义，保留原始字符
+            displayParams = `path: ${path}\nmode: ${mode}\n\nContent:\n\`\`\`\n${content}\n\`\`\``;
+        } else if (toolName === 'command') {
+            const command = params.command || '';
+            displayParams = `\`\`\`\n${command}\n\`\`\``;
+        } else {
+            // Fallback: show all params as JSON | 后备：将所有参数显示为 JSON
+            displayParams = JSON.stringify(params, null, 2);
+        }
+        
+        // Render Markdown for code block (safe, does not corrupt Chinese) | 为代码块渲染 Markdown（安全，不会损坏中文）
+        try {
+            paramsDiv.innerHTML = marked.parse(displayParams);
+        } catch(e) {
+            paramsDiv.textContent = displayParams;
+        }
+        blockDiv.appendChild(paramsDiv);
+        
+        const buttonsDiv = document.createElement('div');
+        buttonsDiv.className = 'confirm-buttons';
+        const approveBtn = document.createElement('button');
+        approveBtn.className = 'confirm-approve';
+        approveBtn.textContent = '✓ Approve | 同意';
+        const rejectBtn = document.createElement('button');
+        rejectBtn.className = 'confirm-reject';
+        rejectBtn.textContent = '✗ Reject | 拒绝';
+        buttonsDiv.appendChild(approveBtn);
+        buttonsDiv.appendChild(rejectBtn);
+        blockDiv.appendChild(buttonsDiv);
+        
+        // Handle button clicks | 处理按钮点击
+        approveBtn.addEventListener('click', async () => {
+            try {
+                await fetchWithAuth('/api/confirm_tool', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confirm_id: confirmId, approved: true })
+                });
+                blockDiv.remove();
+            } catch(err) {
+                console.error('Failed to send approval | 发送同意失败', err);
+            }
+        });
+        rejectBtn.addEventListener('click', async () => {
+            try {
+                await fetchWithAuth('/api/confirm_tool', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ confirm_id: confirmId, approved: false })
+                });
+                blockDiv.innerHTML = '<div class="confirm-header">❌ Tool execution rejected | 工具执行已拒绝</div>';
+            } catch(err) {
+                console.error('Failed to send rejection | 发送拒绝失败', err);
+            }
+        });
+        
+        // Append to the end to maintain timeline order | 追加到末尾以保持时间线顺序
+        msgDiv.appendChild(blockDiv);
+        
+        blockDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         return blockDiv;
     }
 
@@ -1024,8 +1128,11 @@ You should have received a copy of the GNU General Public License along with Fra
 
     // Remove breathing dot from a message | 移除消息中的呼吸小球
     function removeTypingDot(msgDiv) {
-        const dot = msgDiv.querySelector('.typing-dot');
-        if (dot) dot.remove();
+        const lastContainer = msgDiv.querySelector('.assistant-content:last-of-type');
+        if (lastContainer) {
+            const dot = lastContainer.querySelector('.typing-dot');
+            if (dot) dot.remove();
+        }
     }
 
     // Send/Stop button logic | 发送/停止按钮逻辑
@@ -1147,20 +1254,21 @@ You should have received a copy of the GNU General Public License along with Fra
                                 // Real-time Markdown rendering during streaming | 流式输出时实时 Markdown 渲染
                                 renderStreamingMarkdown(assistantMsgDiv, fullText);
                                 assistantMsgDiv.classList.remove('temp');
-                            } else if (data.type === 'log') {
-                                // 工具调用：在助手消息中添加工具块
-                                addToolCallBlock(assistantMsgDiv, data.text);
+                            } else if (data.type === 'tool_call') {
+                                removeTypingDot(assistantMsgDiv);
+                                // New structured tool call event | 新的结构化工具调用事件
+                                addToolCallBlockStructured(assistantMsgDiv, data.call_id, data.tool_name, data.arguments, data.result);
+                                const newContainer = document.createElement('div');
+                                newContainer.className = 'assistant-content';
+                                assistantMsgDiv.appendChild(newContainer);
+                                fullText = ''; 
+                            } else if (data.type === 'tool_result') {
+                                // Update existing tool call block with result | 使用结果更新现有的工具调用块
+                                updateToolCallResult(assistantMsgDiv, data.call_id, data.result);
                             } else if (data.type === 'html') {
                                 receivedHtml = true;
                                 // Final HTML rendering - remove dot and set HTML content | 最终HTML渲染 -移除点并设置HTML内容
                                 removeTypingDot(assistantMsgDiv);
-                                const contentContainer = assistantMsgDiv.querySelector('.assistant-content');
-                                if (contentContainer) {
-                                    contentContainer.innerHTML = data.html;
-                                    wrapTables(contentContainer);
-                                } else {
-                                    assistantMsgDiv.innerHTML = data.html;
-                                }
                                 assistantMsgDiv.classList.remove('temp');
                                 if (window.renderMathInElement) {
                                     window.renderMathInElement(assistantMsgDiv, {
@@ -1176,6 +1284,9 @@ You should have received a copy of the GNU General Public License along with Fra
                                 // Collect and render knowledge panel immediately | 收集知识并立即渲染面板
                                 currentKnowledgeItems.push(data.text);
                                 updateKnowledgeBlock(assistantMsgDiv, currentKnowledgeItems);
+                            } else if (data.type === 'confirmation_required') {
+                                // 收到确认请求，创建确认块
+                                addConfirmationBlock(assistantMsgDiv, data.confirm_id, data.tool_name, data.arguments);
                             } else if (data.type === 'error') {
                                 updateMessage(assistantMsgDiv, 'Error | 错误: ' + data.text);
                                 removeTypingDot(assistantMsgDiv);
@@ -1185,22 +1296,7 @@ You should have received a copy of the GNU General Public License along with Fra
                 }
             }
 
-            // If no html event was received, finalize frontend-rendered Markdown | 如果未收到 HTML 事件，完成前端 Markdown 渲染
-            if (!receivedHtml) {
-                if (assistantMsgDiv.querySelector('.typing-dot')) {
-                    removeTypingDot(assistantMsgDiv);
-                }
-                // Final KaTeX render for streamed Markdown content | 对流式渲染的 Markdown 内容进行最终 KaTeX 渲染
-                if (window.renderMathInElement) {
-                    window.renderMathInElement(assistantMsgDiv, {
-                        delimiters: [
-                            {left: '$$', right: '$$', display: true},
-                            {left: '$', right: '$', display: false}
-                        ]
-                    });
-                }
-                saveMessagesToLocalStorage();
-            } else if (assistantMsgDiv.querySelector('.typing-dot')) {
+            if (assistantMsgDiv.querySelector('.typing-dot')) {
                 // Safety: remove dot if still present after html event | 安全兜底：html 事件后仍有小球则移除
                 removeTypingDot(assistantMsgDiv);
                 saveMessagesToLocalStorage();
@@ -1448,17 +1544,115 @@ You should have received a copy of the GNU General Public License along with Fra
             if (data.messages && data.messages.length > 0) {
                 // Clear current chat display | 清空当前聊天显示
                 chatMessages.innerHTML = '';
-                // Re-render all messages from server (skip system and tool roles) | 重新渲染服务器返回的所有消息（跳过 system 和 tool 角色）
+
+                // 1. Pre-process messages: Construct timeline chunks | 1. 预处理消息：构建时间轴块
+                // We reconstruct the timeline to handle Text -> Tool -> Text sequences correctly.
+                // 我们重建时间轴以正确处理 文本 -> 工具 -> 文本 的序列。
+                let mergedMessages = [];
+                let lastAssistantMsg = null;
+
                 data.messages.forEach(msg => {
-                    if (msg.role === 'user') {
-                        addMessage('user', msg.content, false, '', true);
-                    } else if (msg.role === 'assistant') {
-                        // Assistant messages: enable Markdown parsing | 助手消息：启用 Markdown 解析
-                        addMessage('assistant', msg.content, false, '', true);
+                    if (msg.role === 'assistant') {
+                        // If no active assistant message, create one | 如果没有活动的助手消息，创建一个
+                        if (!lastAssistantMsg) {
+                            lastAssistantMsg = { role: 'assistant', chunks: [] };
+                        }
+                        
+                        // Add text chunk if present | 如果存在文本内容，添加文本块
+                        if (msg.content) {
+                            lastAssistantMsg.chunks.push({ type: 'text', content: msg.content });
+                        }
+                        // Add tool calls chunk if present | 如果存在工具调用，添加工具块
+                        if (msg.tool_calls) {
+                            lastAssistantMsg.chunks.push({ type: 'tool_calls', calls: msg.tool_calls });
+                        }
+                    } else if (msg.role === 'tool' && lastAssistantMsg) {
+                        // Attach result to the corresponding tool in the last chunk | 将结果附加到最后一个块中对应的工具
+                        // Look for the last tool_calls chunk to attach results | 查找最后一个 tool_calls 块来附加结果
+                        for (let i = lastAssistantMsg.chunks.length - 1; i >= 0; i--) {
+                            if (lastAssistantMsg.chunks[i].type === 'tool_calls') {
+                                const chunk = lastAssistantMsg.chunks[i];
+                                // Find the matching call in this chunk | 在此块中找到匹配的调用
+                                const call = chunk.calls.find(c => c.id === msg.tool_call_id);
+                                if (call) {
+                                    call.result = msg.content; // Store result in the call object | 将结果存储在调用对象中
+                                }
+                                break; // Assume result matches the most recent tool block | 假设结果匹配最近的工具块
+                            }
+                        }
+                    } else {
+                        // User message or other roles, push previous assistant if exists | 用户消息或其他角色，如果存在之前的助手消息则推送
+                        if (lastAssistantMsg) {
+                            mergedMessages.push(lastAssistantMsg);
+                            lastAssistantMsg = null;
+                        }
+                        mergedMessages.push(msg);
                     }
-                    // ignore system and tool | 忽略 system 和 tool
                 });
-                // Update local storage to keep in sync | 更新本地存储以保持同步
+                // Push the last pending assistant message | 推送最后一条待处理的助手消息
+                if (lastAssistantMsg) {
+                    mergedMessages.push(lastAssistantMsg);
+                }
+
+                // 2. Render merged messages | 2. 渲染合并后的消息
+                mergedMessages.forEach(msg => {
+                    if (msg.role === 'user') {
+                        addMessage('user', msg.content);
+                    } else if (msg.role === 'assistant') {
+                        // Create the main assistant bubble | 创建主助手气泡
+                        const msgDiv = document.createElement('div');
+                        msgDiv.className = 'message assistant';
+                        
+                        // Render chunks in order | 按顺序渲染块
+                        msg.chunks.forEach(chunk => {
+                            if (chunk.type === 'text') {
+                                const contentContainer = document.createElement('div');
+                                contentContainer.className = 'assistant-content';
+                                if (chunk.content) {
+                                    try {
+                                        contentContainer.innerHTML = marked.parse(chunk.content);
+                                        wrapTables(contentContainer);
+                                    } catch(e) {
+                                        contentContainer.textContent = chunk.content;
+                                    }
+                                }
+                                msgDiv.appendChild(contentContainer);
+                            } else if (chunk.type === 'tool_calls') {
+                                // Render tools in this chunk | 渲染此块中的工具
+                                chunk.calls.forEach(tc => {
+                                    const callId = tc.id;
+                                    let toolName = tc.function.name;
+                                    let params = {};
+                                    try { params = JSON.parse(tc.function.arguments); } catch(e) {}
+
+                                    // Unwrap 'tools' parameters | 解包 'tools' 参数
+                                    let actualName = toolName;
+                                    let actualParams = params;
+                                    if (toolName === 'tools' && params.tool_name) {
+                                        actualName = params.tool_name;
+                                        if (params.arguments) actualParams = params.arguments;
+                                    }
+
+                                    const resultContent = tc.result;
+                                    
+                                    // Add tool block using the helper function | 使用辅助函数添加工具块
+                                    // This function appends the block to the end of msgDiv | 此函数将块追加到 msgDiv 末尾
+                                    addToolCallBlockStructured(msgDiv, callId, actualName, actualParams, resultContent || 'No result | 无结果');
+                                });
+                            }
+                        });
+
+                        // Math rendering for the whole bubble | 为整个气泡渲染数学公式
+                        if (window.renderMathInElement) {
+                            window.renderMathInElement(msgDiv, {
+                                delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]
+                            });
+                        }
+                        
+                        chatMessages.appendChild(msgDiv);
+                    }
+                });
+
                 saveMessagesToLocalStorage();
                 return true;
             }

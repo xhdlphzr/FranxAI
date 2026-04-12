@@ -443,8 +443,7 @@ def save_partial():
 @login_required
 def confirm_tool():
     """
-    Receive user's decision for a pending tool confirmation and resume the agent generator.
-    | 接收用户对等待中的工具确认的决策，并恢复智能体生成器。
+    Receive user's decision for a pending tool confirmation and resume the agent generator. | 接收用户对等待中的工具确认的决策，并恢复智能体生成器。
     """
     data = request.get_json()
     confirm_id = data.get('confirm_id')
@@ -458,21 +457,9 @@ def confirm_tool():
             return jsonify({'error': 'Invalid or expired confirm_id'}), 404
         # Retrieve the pending info | 获取待确认信息
         pending = _pending_confirmations.pop(confirm_id)
-        generator = pending['generator']
-        event = pending['event']
-        result_holder = pending['result']
 
-    # Send the user's decision back to the generator | 将用户决策发送回生成器
-    try:
-        # Resume the generator with the approval status | 使用批准状态恢复生成器
-        generator.send(approved)
-    except StopIteration:
-        # Generator finished (should not happen) | 生成器已结束（不应发生）
-        pass
-    finally:
-        # Signal that the response has been set | 通知等待线程已收到结果
-        result_holder['done'] = True
-        event.set()
+    pending['result']['done'] = approved  # Store the decision | 存储决策
+    pending['event'].set()  # Wake up the loop | 唤醒循环
 
     return jsonify({'status': 'ok'})
 
@@ -538,24 +525,97 @@ def chat():
         # Accumulate full response (for final HTML) | 累积完整回复（用于最终 HTML）
         full_response = ""
 
-        # Retrieve knowledge and send to frontend | 检索知识并发送到前端
         try:
-            # Get knowledge_k from agent, default to 5 if not present | 从 agent 获取 knowledge_k，如果不存在则默认 5
-            k = getattr(chat_agent, 'knowledge_k', 5)
-            relevant = search(user_message, k=k)
-            for item in relevant:
-                # Send each knowledge item as a separate 'knowledge' event | 每条知识单独发送一个 knowledge 事件
-                yield f"data: {json.dumps({'type': 'knowledge', 'text': item})}\n\n"
-        except Exception as e:
-            # Retrieval failure does not affect main flow, only print log | 检索失败不影响主流程，仅打印日志
-            print(f"Knowledge retrieval failed | 知识检索失败: {e}")
+            # Retrieve knowledge and send to frontend | 检索知识并发送到前端
+            try:
+                # Get knowledge_k from agent, default to 5 if not present | 从 agent 获取 knowledge_k，如果不存在则默认 5
+                k = getattr(chat_agent, 'knowledge_k', 5)
+                relevant = search(user_message, k=k)
+                for item in relevant:
+                    # Send each knowledge item as a separate 'knowledge' event | 每条知识单独发送一个 knowledge 事件
+                    yield f"data: {json.dumps({'type': 'knowledge', 'text': item})}\n\n"
+            except Exception as e:
+                # Retrieval failure does not affect main flow, only print log | 检索失败不影响主流程，仅打印日志
+                print(f"Knowledge retrieval failed | 知识检索失败: {e}")
 
-        # Get the generator from agent (this yields text and confirmation requests) | 获取智能体的生成器（yield 文本和确认请求）
-        agent_gen = chat_agent.input(user_message)
-        gen_exhausted = False
+            # Get the generator from agent (this yields text and confirmation requests) | 获取智能体的生成器（yield 文本和确认请求）
+            agent_gen = chat_agent.input(user_message)
+            gen_exhausted = False
 
-        while not gen_exhausted:
-            # Drain log queue (print output) | 排空日志队列
+            while not gen_exhausted:
+                # Drain log queue (print output) | 排空日志队列
+                while True:
+                    try:
+                        line = log_q.get_nowait()
+                        if line:
+                            yield f"data: {json.dumps({'type': 'log', 'text': line})}\n\n"
+                    except queue.Empty:
+                        break
+
+                try:
+                    # Get next item from agent generator | 从智能体生成器获取下一个项目
+                    item = next(agent_gen)
+                except StopIteration:
+                    # Generator finished | 生成器结束
+                    gen_exhausted = True
+                    break
+
+                # Handle different types of items | 处理不同类型的项目
+                if isinstance(item, str):
+                    # Normal text chunk | 普通文本块
+                    full_response += item
+                    yield f"data: {json.dumps({'type': 'content', 'text': item})}\n\n"
+                elif isinstance(item, dict) and item.get('type') == 'confirmation_required':
+                    # Confirmation request | 确认请求
+                    confirm_id = item['confirm_id']
+                    # Create an event and result holder to wait for user decision | 创建事件和结果容器以等待用户决策
+                    event = threading.Event()
+                    result_holder = {'done': None}  # None means not decided yet | None 表示尚未决策
+                    # Store in global dict | 存储到全局字典
+                    with _pending_lock:
+                        _pending_confirmations[confirm_id] = {
+                            'generator': agent_gen,
+                            'event': event,
+                            'result': result_holder,
+                            'tool_name': item['tool_name'],
+                            'arguments': item['arguments']
+                        }
+                    # Send confirmation request to frontend | 发送确认请求到前端
+                    yield f"data: {json.dumps(item)}\n\n"
+                    # Wait for the confirmation API to set the result | 等待确认 API 设置结果
+                    event.wait()
+                    
+                    # Now we resume the generator here | 现在我们在这里恢复生成器
+                    approved = result_holder.get('done', False)
+                    try:
+                        # generator.send() returns the next yielded value (tool_result) | generator.send() 返回下一个 yield 的值 (tool_result)
+                        next_item = agent_gen.send(approved)
+                        
+                        # Forward the yielded item to frontend | 将 yield 的项目转发到前端
+                        if isinstance(next_item, dict):
+                             yield f"data: {json.dumps(next_item)}\n\n"
+                        elif isinstance(next_item, str):
+                             # Handle text if returned immediately | 如果立即返回文本则处理
+                             full_response += next_item
+                             yield f"data: {json.dumps({'type': 'content', 'text': next_item})}\n\n"
+                    except StopIteration:
+                        gen_exhausted = True
+                    
+                    continue  # Go back to the loop to get next items | 回到循环，获取确认后的后续项目
+                elif isinstance(item, dict) and item.get('type') == 'tool_call':
+                    # Structured tool call event | 结构化工具调用事件
+                    yield f"data: {json.dumps(item)}\n\n"
+                
+                # Handle tool result event | 处理工具结果事件
+                elif isinstance(item, dict) and item.get('type') == 'tool_result':
+                    # Tool result event | 工具结果事件
+                    yield f"data: {json.dumps(item)}\n\n"
+                
+                else:
+                    # Unknown item type, ignore | 未知类型，忽略
+                    print(f"Unknown item from agent generator: {item}")
+
+            # Final drain of logs | 最后排空日志
             while True:
                 try:
                     line = log_q.get_nowait()
@@ -564,73 +624,31 @@ def chat():
                 except queue.Empty:
                     break
 
-            try:
-                # Get next item from agent generator | 从智能体生成器获取下一个项目
-                item = next(agent_gen)
-            except StopIteration:
-                # Generator finished | 生成器结束
-                gen_exhausted = True
-                break
+            # Render full message as HTML (backend rendering) | 完整消息渲染为 HTML（后端渲染）
+            if full_response:
+                try:
+                    # Convert Markdown to HTML using markdown library | 使用 markdown 库将 Markdown 转为 HTML
+                    html = markdown.markdown(full_response, extensions=['tables', 'fenced_code'])
+                    yield f"data: {json.dumps({'type': 'html', 'html': html})}\n\n"
+                except Exception as e:
+                    # Rendering failed, send error but don't interrupt stream | 渲染失败，发送错误但不中断流
+                    yield f"data: {json.dumps({'type': 'error', 'text': f'Markdown rendering failed | Markdown渲染失败: {str(e)}'})}\n\n"
 
-            # Handle different types of items | 处理不同类型的项目
-            if isinstance(item, str):
-                # Normal text chunk | 普通文本块
-                full_response += item
-                yield f"data: {json.dumps({'type': 'content', 'text': item})}\n\n"
-            elif isinstance(item, dict) and item.get('type') == 'confirmation_required':
-                # Confirmation request | 确认请求
-                confirm_id = item['confirm_id']
-                # Create an event and result holder to wait for user decision | 创建事件和结果容器以等待用户决策
-                event = threading.Event()
-                result_holder = {'done': False}
-                # Store in global dict | 存储到全局字典
-                with _pending_lock:
-                    _pending_confirmations[confirm_id] = {
-                        'generator': agent_gen,
-                        'event': event,
-                        'result': result_holder,
-                        'tool_name': item['tool_name'],
-                        'arguments': item['arguments']
-                    }
-                # Send confirmation request to frontend | 发送确认请求到前端
-                yield f"data: {json.dumps(item)}\n\n"
-                # Wait for the confirmation API to set the result | 等待确认 API 设置结果
-                # Note: This blocks the current thread until the user responds via /api/confirm_tool | 注意：这会阻塞当前线程，直到用户通过 /api/confirm_tool 响应
-                event.wait()
-                # After waiting, the generator already received .send(approved) and continues | 等待结束后，生成器已经通过 .send(approved) 继续执行
-                continue  # Go back to the loop to get next items after confirmation | 回到循环，获取确认后的后续项目
-            else:
-                # Unknown item type, ignore | 未知类型，忽略
-                print(f"Unknown item from agent generator: {item}")
+            # Send stream end signal | 发送流结束信号
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
 
-        # Final drain of logs | 最后排空日志
-        while True:
-            try:
-                line = log_q.get_nowait()
-                if line:
-                    yield f"data: {json.dumps({'type': 'log', 'text': line})}\n\n"
-            except queue.Empty:
-                break
+            # Store the current Q&A pair into the vector database | 将本轮问答实时存入向量库
+            if full_response:
+                add_conversation(user_message, full_response)
 
-        # Render full message as HTML (backend rendering) | 完整消息渲染为 HTML（后端渲染）
-        if full_response:
-            try:
-                # Convert Markdown to HTML using markdown library | 使用 markdown 库将 Markdown 转为 HTML
-                html = markdown.markdown(full_response, extensions=['tables', 'fenced_code'])
-                yield f"data: {json.dumps({'type': 'html', 'html': html})}\n\n"
-            except Exception as e:
-                # Rendering failed, send error but don't interrupt stream | 渲染失败，发送错误但不中断流
-                yield f"data: {json.dumps({'type': 'error', 'text': f'Markdown rendering failed | Markdown渲染失败: {str(e)}'})}\n\n"
-
-        # Send stream end signal | 发送流结束信号
-        yield f"data: {json.dumps({'type': 'done'})}\n\n"
-
-        # Store the current Q&A pair into the vector database | 将本轮问答实时存入向量库
-        if full_response:
-            add_conversation(user_message, full_response)
-
-        # Restore original stdout | 恢复原始标准输出
-        sys.stdout = old_stdout
+        except Exception as e:
+            # Catch any unhandled exceptions to prevent server crash | 捕获未处理异常，防止服务崩溃
+            import traceback
+            traceback.print_exc()
+            yield f"data: {json.dumps({'type': 'error', 'text': f'Agent crashed | 智能体崩溃: {str(e)}'})}\n\n"
+        finally:
+            # CRITICAL: MUST restore stdout no matter what happens | 关键：无论发生什么，必须恢复原始标准输出
+            sys.stdout = old_stdout
 
     return Response(
         stream_with_context(generate()),

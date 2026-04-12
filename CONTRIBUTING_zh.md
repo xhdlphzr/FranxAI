@@ -1,20 +1,20 @@
 # 贡献指南
 
-感谢你对 FranxAI 的兴趣！我们欢迎任何形式的贡献，包括新功能、工具插件、**技能**、文档改进、Bug 报告等。为了让协作更顺畅，请遵循以下流程和规范。
+感谢你对 FranxAgent 的兴趣！我们欢迎任何形式的贡献，包括新功能、工具插件、**技能**、文档改进、Bug 报告等。为了让协作更顺畅，请遵循以下流程和规范。
 
 ---
 
 ## 📦 工具贡献（最常用）
 
-如果你想为 FranxAI 添加一个新工具（例如 `weather`、`calc` 等），请按以下步骤操作：
+如果你想为 FranxAgent 添加一个新工具（例如 `weather`、`calc` 等），请按以下步骤操作：
 
 ### 1. Fork 仓库
-- 访问 [FranxAI 仓库](https://github.com/xhdlphzr/FranxAI)，点击右上角的 **Fork**，将仓库复制到你的 GitHub 账户下。
+- 访问 [FranxAgent 仓库](https://github.com/xhdlphzr/FranxAgent)，点击右上角的 **Fork**，将仓库复制到你的 GitHub 账户下。
 
 ### 2. 克隆你的 Fork 到本地
 ```bash
-git clone https://github.com/xhdlphzr/FranxAI.git
-cd FranxAI
+git clone https://github.com/xhdlphzr/FranxAgent.git
+cd FranxAgent
 ```
 
 ### 3. 创建新分支
@@ -71,7 +71,7 @@ git push origin add-工具名
 
 ## 🧠 技能贡献
 
-FranxAI 支持通过 `knowledge/` 文件夹加载额外的知识、规则或工作流（Markdown 文件）。你可以贡献一个实用的技能，帮助 AI 更好地完成特定领域的任务。
+FranxAgent 支持通过 `knowledge/` 文件夹加载额外的知识、规则或工作流（Markdown 文件）。你可以贡献一个实用的技能，帮助 AI 更好地完成特定领域的任务。
 
 ### 1. Fork 仓库（同上）
 
@@ -107,7 +107,7 @@ git checkout -b add-技能名
 - 请确保不包含任何违反法律法规、侵犯他人权益或敏感的内容。
 
 ### 5. 本地验证
-你可以在本地运行 FranxAI，观察技能是否被正常加载（启动时控制台会打印已加载的技能文件列表）。  
+你可以在本地运行 FranxAgent，观察技能是否被正常加载（启动时控制台会打印已加载的技能文件列表）。  
 如果技能内容正确，AI 在对话中会表现出相应的行为。
 
 ### 6. 提交你的改动
@@ -157,9 +157,9 @@ GitHub 会在该提交上同时显示你和伙伴的头像。
 
 ## 🔀 处理冲突
 如果你的 PR 出现了冲突（通常是因为 `main` 分支在你提交期间有了新变化），可以：
-1. 将 FranxAI 官方仓库添加为远程：
+1. 将 FranxAgent 官方仓库添加为远程：
    ```bash
-   git remote add upstream https://github.com/xhdlphzr/FranxAI.git
+   git remote add upstream https://github.com/xhdlphzr/FranxAgent.git
    ```
 2. 获取最新代码：
    ```bash
@@ -184,6 +184,6 @@ GitHub 会在该提交上同时显示你和伙伴的头像。
 ---
 
 ## 🎉 感谢
-感谢你愿意为 FranxAI 贡献！你的每一行代码和每一份知识都会让这个项目变得更好。如果遇到任何问题，欢迎在 PR 或 Issue 中提问。
+感谢你愿意为 FranxAgent 贡献！你的每一行代码和每一份知识都会让这个项目变得更好。如果遇到任何问题，欢迎在 PR 或 Issue 中提问。
 
 Happy coding!

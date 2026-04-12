@@ -1,20 +1,20 @@
 # Contribution Guide
 
-Thank you for your interest in FranxAI! We welcome all forms of contributions, including new features, tool plugins, skills, documentation improvements, bug reports, and more. Please follow the processes and specifications below to ensure smooth collaboration.
+Thank you for your interest in FranxAgent! We welcome all forms of contributions, including new features, tool plugins, skills, documentation improvements, bug reports, and more. Please follow the processes and specifications below to ensure smooth collaboration.
 
 ---
 
 ## 📦 Tool Contribution (Most Common)
 
-If you want to add a new tool to FranxAI (such as `weather`, `calc`, etc.), please follow these steps:
+If you want to add a new tool to FranxAgent (such as `weather`, `calc`, etc.), please follow these steps:
 
 ### 1. Fork the Repository
-- Visit the [FranxAI Repository](sslocal://flow/file_open?url=https%3A%2F%2Fgithub.com%2Fxhdlphzr%2FFranxAI&flow_extra=eyJsaW5rX3R5cGUiOiJjb2RlX2ludGVycHJldGVyIn0=) and click the **Fork** button in the upper right corner to copy the repository to your GitHub account.
+- Visit the [FranxAgent Repository](sslocal://flow/file_open?url=https%3A%2F%2Fgithub.com%2Fxhdlphzr%2FFranxAgent&flow_extra=eyJsaW5rX3R5cGUiOiJjb2RlX2ludGVycHJldGVyIn0=) and click the **Fork** button in the upper right corner to copy the repository to your GitHub account.
 
 ### 2. Clone Your Fork Locally
 ```bash
-git clone https://github.com/xhdlphzr/FranxAI.git
-cd FranxAI
+git clone https://github.com/xhdlphzr/FranxAgent.git
+cd FranxAgent
 ```
 
 ### 3. Create a New Branch
@@ -71,7 +71,7 @@ Maintainers will review your pull request and may put forward revision suggestio
 
 ## 🧑‍💻 Skill Contribution
 
-FranxAI loads additional knowledge, rules and workflows (Markdown files) through the `knowledge/` folder. You can contribute practical skills to help the AI complete tasks in specific fields more effectively.
+FranxAgent loads additional knowledge, rules and workflows (Markdown files) through the `knowledge/` folder. You can contribute practical skills to help the AI complete tasks in specific fields more effectively.
 
 ### 1. Fork the Repository (Same as Above)
 
@@ -107,7 +107,7 @@ The file needs to include the following content:
 - The content must not contain any illegal, infringing or sensitive information.
 
 ### 5. Local Verification
-Run FranxAI locally to check whether the skill is loaded successfully (the console will print the list of loaded skill files on startup).
+Run FranxAgent locally to check whether the skill is loaded successfully (the console will print the list of loaded skill files on startup).
 If the skill content is correct, the AI will show corresponding behavioral changes in conversations.
 
 ### 6. Commit Your Changes
@@ -157,9 +157,9 @@ GitHub will display the avatars of all relevant contributors under this commit.
 
 ## 🔀 Resolving Merge Conflicts
 If merge conflicts appear in your pull request (usually caused by updates to the `main` branch during your development):
-1. Add the official FranxAI repository as a remote source:
+1. Add the official FranxAgent repository as a remote source:
    ```bash
-   git remote add upstream https://github.com/xhdlphzr/FranxAI.git
+   git remote add upstream https://github.com/xhdlphzr/FranxAgent.git
    ```
 2. Fetch the latest code:
    ```bash
@@ -184,6 +184,6 @@ If you are not familiar with conflict resolution, leave a message in the pull re
 ---
 
 ## 🎉 Acknowledgments
-Thank you for contributing to FranxAI! Every line of code and every piece of knowledge you provide will make this project better. Feel free to ask questions in pull requests or Issues if you encounter any problems.
+Thank you for contributing to FranxAgent! Every line of code and every piece of knowledge you provide will make this project better. Feel free to ask questions in pull requests or Issues if you encounter any problems.
 
 Happy coding!

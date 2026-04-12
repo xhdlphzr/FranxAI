@@ -1,8 +1,8 @@
 # Copyright (C) 2026 xhdlphzr
-# This file is part of FranxAI.
-# FranxAI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-# FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
+# This file is part of FranxAgent.
+# FranxAgent is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+# FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 Flask Web Application Module | Flask Web应用模块
@@ -23,7 +23,7 @@ from pathlib import Path
 from functools import wraps
 from pycloudflared import try_cloudflare
 from flask import Flask, render_template, request, jsonify, Response, stream_with_context
-from agent import FranxAI
+from agent import FranxAgent
 import markdown
 import bcrypt
 import jwt
@@ -213,7 +213,7 @@ def init_agents():
     settings = config.get("settings", "You are a helpful AI assistant. 你是一个有用的AI助手。")
     
     # Chat agent | 聊天智能体
-    chat_agent = FranxAI(
+    chat_agent = FranxAgent(
         key=config["api_key"],
         url=config["base_url"],
         model=config["model"],
@@ -226,7 +226,7 @@ def init_agents():
     )
     
     # Task agent | 任务智能体
-    tasks_agent = FranxAI(
+    tasks_agent = FranxAgent(
         key=config["api_key"],
         url=config["base_url"],
         model=config["model"],

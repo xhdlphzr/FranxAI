@@ -1,9 +1,9 @@
-# FranxAI 🤖
+# FranxAgent 🤖
 
 **Let AI work for you like a partner – simple, secure, low cost.**  
 **Now you can control the AI on your computer directly from your phone – no public IP, no port forwarding, one‑click secure remote access.**
 
-FranxAI is a lightweight AI agent framework that enables AI to read files, execute commands, search the web, understand multimodal content, and truly interact with the world through the MCP protocol.  
+FranxAgent is a lightweight AI agent framework that enables AI to read files, execute commands, search the web, understand multimodal content, and truly interact with the world through the MCP protocol.  
 **Now it also features:**
 - 🌐 **One‑click intranet penetration**: integrated Cloudflare Tunnel – start it and get a public URL, access from your phone or tablet anytime, anywhere.
 - 🔐 **Military‑grade security authentication**: RSA public‑key encryption + JWT short‑lived tokens, supports “refresh‑to‑re‑login” mode, completely eliminating long‑term token leakage risks.
@@ -16,7 +16,7 @@ FranxAI is a lightweight AI agent framework that enables AI to read files, execu
 
 ## ✨ Core Features
 
-- 📱 **Zero‑configuration remote access**: integrated Cloudflare Tunnel – one‑click public URL, no public IP or router settings needed. Access FranxAI on your computer directly from your phone/tablet.
+- 📱 **Zero‑configuration remote access**: integrated Cloudflare Tunnel – one‑click public URL, no public IP or router settings needed. Access FranxAgent on your computer directly from your phone/tablet.
 - 🔐 **Military‑grade security authentication**: RSA asymmetric encryption + JWT short‑lived tokens, supports “refresh‑to‑re‑login” (token stored only in memory, cleared on page refresh), completely prevents long‑term control after token leakage.
 - 🧠 **Intelligent memory & hybrid search**: conversation history automatically stored in vector database, combined with FTS5 keyword search for precise cross‑session recall.
 - 🛠️ **Rich built‑in tools**: `time`, `read`, `write`, `command`, `search`, `similarity`, `ett` (multimodal understanding), `beijing_subway`, etc., extensible.
@@ -36,8 +36,8 @@ FranxAI is a lightweight AI agent framework that enables AI to read files, execu
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/xhdlphzr/FranxAI.git
-cd FranxAI
+git clone https://github.com/xhdlphzr/FranxAgent.git
+cd FranxAgent
 ```
 
 ### 2. Install dependencies
@@ -59,7 +59,7 @@ Type your question in the chat box – the AI will automatically call tools to h
 
 ## ⚠️ Disclaimer
 
-The Cloudflare Tunnel remote access feature provided by FranxAI is offered as a technical convenience. Users assume all risks associated with network exposure, device loss, password leakage, third‑party attacks, or any other cause that may lead to damage to devices, data, or personal safety. Before use, ensure that:
+The Cloudflare Tunnel remote access feature provided by FranxAgent is offered as a technical convenience. Users assume all risks associated with network exposure, device loss, password leakage, third‑party attacks, or any other cause that may lead to damage to devices, data, or personal safety. Before use, ensure that:
 - You set a strong password and change it regularly;
 - You enable remote access only on trusted networks and devices;
 - You understand and accept that any networked service may have unknown security vulnerabilities.
@@ -199,12 +199,12 @@ To control remote hardware via SSH, add a configuration like:
 
 ## 🧠 Skill System
 
-FranxAI loads Markdown files from `knowledge/skills/` and merges them into the system prompt. You can write `.md` files to inject domain knowledge, behavior rules, workflows, etc., customising the AI's behaviour.
+FranxAgent loads Markdown files from `knowledge/skills/` and merges them into the system prompt. You can write `.md` files to inject domain knowledge, behavior rules, workflows, etc., customising the AI's behaviour.
 
 **Usage**:
 1. Create `skills/` under `knowledge/` if not exists.
-2. Place your Markdown files there (e.g., `coding_style.md`, `company_rules.md`). You can copy some skills from the [skills branch](https://github.com/xhdlphzr/FranxAI/tree/skills) (note: these skills undergo some review, but FranxAI is not responsible for their content).
-3. Start FranxAI – all `.md` files are automatically read and stored into the database, ready for retrieval.
+2. Place your Markdown files there (e.g., `coding_style.md`, `company_rules.md`). You can copy some skills from the [skills branch](https://github.com/xhdlphzr/FranxAgent/tree/skills) (note: these skills undergo some review, but FranxAgent is not responsible for their content).
+3. Start FranxAgent – all `.md` files are automatically read and stored into the database, ready for retrieval.
 
 **Example**:
 Suppose `skills/coding_style.md` contains:
@@ -212,13 +212,13 @@ Suppose `skills/coding_style.md` contains:
 
 The AI will then follow these style conventions in subsequent conversations.
 
-> ⚠️ **Disclaimer**: Skill files are provided by users; FranxAI assumes no responsibility for their content. Ensure the content complies with laws and does not contain sensitive or harmful information.
+> ⚠️ **Disclaimer**: Skill files are provided by users; FranxAgent assumes no responsibility for their content. Ensure the content complies with laws and does not contain sensitive or harmful information.
 
 ---
 
 ## 🧠 Memory & Scheduled Tasks
 
-- **Long‑term memory**: FranxAI no longer relies on `memory.txt`. Complete conversation history is automatically saved to `knowledge/memories/` (one `.md` file per session). On next startup, these histories are loaded into the vector knowledge base, allowing the AI to recall previous conversations via **hybrid retrieval (vector semantics + keyword matching)**.
+- **Long‑term memory**: FranxAgent no longer relies on `memory.txt`. Complete conversation history is automatically saved to `knowledge/memories/` (one `.md` file per session). On next startup, these histories are loaded into the vector knowledge base, allowing the AI to recall previous conversations via **hybrid retrieval (vector semantics + keyword matching)**.
 - **History compression**: When messages exceed `threshold`, the first half is compressed into a summary to keep context within limits.
 - **Scheduled tasks**: Background thread checks `tasks.json` every 10 seconds; executes commands at specified times (HH:MM). Supports daily repetition without duplication.
 
@@ -284,7 +284,7 @@ Issues and Pull Requests are welcome! Please keep code clear and update relevant
 
 ## 🙏 Acknowledgements
 
-- All friends who use and support FranxAI
+- All friends who use and support FranxAgent
 - [xhdlphzr](https://github.com/xhdlphzr) – a busy coder
 - [zhiziwj](https://github.com/zhiziwj) – provided a valuable suggestion (though not implemented) and also implemented a feature
 - [humanity687](https://github.com/humanity687) – raised several constructive issues, all of which have been studied and fixed

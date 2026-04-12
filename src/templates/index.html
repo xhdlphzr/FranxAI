@@ -1,9 +1,9 @@
 <!--
 Copyright (C) 2026 xhdlphzr
-This file is part of FranxAI.
-FranxAI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
+This file is part of FranxAgent.
+FranxAgent is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
 <!DOCTYPE html>
@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along with Fra
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>FranxAI Chat Assistant | FranxAI 聊天助手</title>
+    <title>FranxAgent Chat Assistant | FranxAgent 聊天助手</title>
     <!-- KaTeX online resources | KaTeX 在线资源 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
@@ -528,7 +528,7 @@ You should have received a copy of the GNU General Public License along with Fra
             <!-- Chat page | 聊天页面 -->
             <div id="chat-page" class="page">
                 <div class="page-header">
-                    <h2>🤖 FranxAI Chat Assistant | FranxAI 聊天助手</h2>
+                    <h2>🤖 FranxAgent</h2>
                 </div>
                 <div id="chat-messages" class="chat-messages"></div>
                 <div class="chat-input-area">
@@ -1665,8 +1665,8 @@ You should have received a copy of the GNU General Public License along with Fra
 
     // Initialization | 初始化
     (async function init() {
-        const tempToken = localStorage.getItem('franxai_temp_token');
-        if (tempToken) { setAuthToken(tempToken); localStorage.removeItem('franxai_temp_token'); }
+        const tempToken = localStorage.getItem('FranxAgent_temp_token');
+        if (tempToken) { setAuthToken(tempToken); localStorage.removeItem('FranxAgent_temp_token'); }
         const authenticated = await checkAuth();
         if (!authenticated) return;
         await checkSessionAndClear();

@@ -1,12 +1,12 @@
 # Copyright (C) 2026 xhdlphzr
-# This file is part of FranxAI.
-# FranxAI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-# FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
+# This file is part of FranxAgent.
+# FranxAgent is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+# FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 Agent Module - Core Implementation of AI Agent | Agent模块 - AI智能体核心实现
-Provides the FranxAI class, responsible for interacting with AI models, tool calling, and memory management | 提供FranxAI类，负责与AI模型交互、工具调用和记忆管理
+Provides the FranxAgent class, responsible for interacting with AI models, tool calling, and memory management | 提供FranxAgent类，负责与AI模型交互、工具调用和记忆管理
 """
 
 import json
@@ -275,7 +275,7 @@ Requirements:
 """
 
 
-class FranxAI:
+class FranxAgent:
     """
     AI Agent Class | AI智能体类
     """

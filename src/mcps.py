@@ -1,8 +1,8 @@
 # Copyright (C) 2026 xhdlphzr
-# This file is part of FranxAI.
-# FranxAI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-# FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
+# This file is part of FranxAgent.
+# FranxAgent is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+# FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
 import subprocess
 import json
@@ -89,7 +89,7 @@ class MCPStdioClient:
         params = {
             "protocolVersion": "0.1.0",
             "capabilities": {},
-            "clientInfo": {"name": "FranxAI", "version": "3.0.0"}
+            "clientInfo": {"name": "FranxAgent", "version": "3.0.0"}
         }
         result = self._send_request("initialize", params)
         # Send initialized notification | 发送 initialized 通知

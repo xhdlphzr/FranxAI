@@ -1,9 +1,9 @@
 <!--
 Copyright (C) 2026 xhdlphzr
-This file is part of FranxAI.
-FranxAI is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
-FranxAI is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-You should have received a copy of the GNU General Public License along with FranxAI.  If not, see <https://www.gnu.org/licenses/>.
+This file is part of FranxAgent.
+FranxAgent is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or any later version.
+FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
 <!DOCTYPE html>
@@ -11,7 +11,7 @@ You should have received a copy of the GNU General Public License along with Fra
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Set Password | FranxAI</title>
+    <title>Set Password | FranxAgent</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
     <style>
         /* Reset styles | 重置样式 */
@@ -169,8 +169,7 @@ You should have received a copy of the GNU General Public License along with Fra
 </head>
 <body>
     <div class="register-container">
-        <h1>🤖 FranxAI Chat Assistant</h1>
-        <div class="subtitle">FranxAI 聊天助手</div>
+        <h1>🤖 FranxAgent</h1>
         <input type="password" id="password" placeholder="Password | 密码" autocomplete="new-password">
         <input type="password" id="confirmPassword" placeholder="Confirm password | 确认密码" autocomplete="new-password">
         
@@ -178,8 +177,8 @@ You should have received a copy of the GNU General Public License along with Fra
         <div class="agree-container" id="agreeContainer">
             <input type="checkbox" id="agreeCheckbox">
             <label for="agreeCheckbox">
-                I have read and agree to the <a href="https://github.com/xhdlphzr/FranxAI/blob/main/README.md" target="_blank">User Guide and Disclaimer</a> | 
-                我已阅读并同意 <a href="https://github.com/xhdlphzr/FranxAI/blob/main/README_zh.md" target="_blank">《使用说明和免责声明》</a>
+                I have read and agree to the <a href="https://github.com/xhdlphzr/FranxAgent/blob/main/README.md" target="_blank">User Guide and Disclaimer</a> | 
+                我已阅读并同意 <a href="https://github.com/xhdlphzr/FranxAgent/blob/main/README_zh.md" target="_blank">《使用说明和免责声明》</a>
             </label>
         </div>
         <div id="agreeError" class="agree-error" style="display: none;">Please check the checkbox | 请勾选勾选框</div>
@@ -304,7 +303,7 @@ You should have received a copy of the GNU General Public License along with Fra
 
                 if (resp.ok) {
                     // Store token temporarily (will be consumed by index.html) | 临时存储 token（将被 index.html 消费）
-                    localStorage.setItem('franxai_temp_token', result.token);
+                    localStorage.setItem('FranxAgent_temp_token', result.token);
                     // Registration succeeded: play animation then redirect | 注册成功：播放动画后跳转
                     playExpandAnimation(() => {
                         window.location.href = '/';

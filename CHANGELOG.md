@@ -176,3 +176,4 @@
 - Changed the order of tools and messages to be sorted by time.
 - Added confirmation feature for the `command` and `write` tools.
 - Fixed some known issues.
+- Renamed to `FranxAgent`.

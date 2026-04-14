@@ -177,3 +177,6 @@
 - 增加了 `command` 和 `write` 工具的确认功能。
 - 修复了一些已知问题。
 - 更名为 `FranxAgent`。
+
+## [v4.9.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.9.1)
+- 文档修复。

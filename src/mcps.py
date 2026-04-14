@@ -87,7 +87,7 @@ class MCPStdioClient:
     def initialize(self):
         # Perform MCP initialization handshake | 执行 MCP 初始化握手
         params = {
-            "protocolVersion": "0.1.0",
+            "protocolVersion": "2025-03-26",
             "capabilities": {},
             "clientInfo": {"name": "FranxAgent", "version": "3.0.0"}
         }

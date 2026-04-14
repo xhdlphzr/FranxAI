@@ -5,6 +5,11 @@ memory.txt
 tasks.json
 knowledge/*
 !knowledge/__init__.py
-!knowledge/tools/
+!knowledge/tools/command
+!knowledge/tools/ett
+!knowledge/tools/read
+!knowledge/tools/search
+!knowledge/tools/time
+!knowledge/tools/write
 /private.key
 /public.key

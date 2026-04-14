@@ -24,7 +24,7 @@ git checkout -b add-工具名
 例如 `add-weather`。
 
 ### 4. 添加工具文件
-在 `tools/` 目录下创建一个以工具名称命名的文件夹（例如 `tools/weather/`）。  
+在 `tools` 分支下创建一个以工具名称命名的文件夹（例如 `weather/`）。  
 该文件夹必须包含以下两个文件：
 
 #### a. `tool.py`
@@ -38,7 +38,7 @@ git checkout -b add-工具名
 
 #### b. `README.md`
 - 用简洁的格式说明工具的用途、输入、输出和注意事项（模仿已有工具）。
-- 示例见 `knowledge/tools/time/README.md`。
+- 示例见 `main` 分支中 `knowledge/tools/time/README.md`。
 
 ### 5. 本地测试
 确保你的工具能正常导入并工作（可以临时修改 `src/main.py` 测试）。  
@@ -49,7 +49,7 @@ python src/main.py
 
 ### 6. 提交你的改动
 ```bash
-git add tools/你的工具名/
+git add .
 git commit -m "添加 [工具名] 工具"
 ```
 如果此工具有其他人的贡献（例如合作开发），请在提交信息末尾添加 `Co-authored-by`（见下文“共同作者”说明）。
@@ -84,10 +84,10 @@ git checkout -b add-技能名
 例如 `add-research-workflow`。
 
 ### 4. 添加技能文件
-在 `knowledge/skills/` 目录下添加一个 `.md` 文件（在内容的标题中记得标注 `（技能）` ）。  
+在 `skills` 分支下添加一个 `.md` 文件（在内容的标题中记得标注 `（技能）` ）。  
 该文件应包含以下内容：
 
-- **标题**（使用一级标题，例如 `# 科研工作流程`）
+- **标题**（使用三级标题，例如 `### 科研工作流程`）
 - **概述**：简要说明技能的作用
 - **免责声明**（可选）：如果技能涉及特定领域风险，请添加免责声明
 - **主体内容**：清晰的步骤、规则或示例，格式建议使用 Markdown 的标题层级（`##`、`###`、`####`）组织
@@ -156,7 +156,7 @@ GitHub 会在该提交上同时显示你和伙伴的头像。
 ---
 
 ## 🔀 处理冲突
-如果你的 PR 出现了冲突（通常是因为 `main` 分支在你提交期间有了新变化），可以：
+如果你的 PR 出现了冲突（通常是因为分支在你提交期间有了新变化），可以：
 1. 将 FranxAgent 官方仓库添加为远程：
    ```bash
    git remote add upstream https://github.com/xhdlphzr/FranxAgent.git

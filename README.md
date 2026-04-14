@@ -27,7 +27,7 @@ FranxAgent is a lightweight AI agent framework that enables AI to read files, ex
 - 🕸️ **Free web search**: DuckDuckGo integration, no API key needed.
 - 🖼️ **Multimodal understanding**: analyse images, videos, documents (Word, Excel, PDF, etc.).
 - ⚙️ **Minimal configuration**: one `config.json` handles all settings.
-- 📦 **Lightweight dependencies**: only Python standard library + `openai` SDK.
+- 📦 **Lightweight dependencies**: Minimalist dependency.
 - 💻 **Cross‑platform**: Windows / Linux / macOS.
 
 ---
@@ -153,8 +153,6 @@ Inside the `tools` field, you can specify separate parameters for `ett` (multimo
 | `command` | Execute system command | ❌ Direct deletion blocked; suggests moving instead. Supports timeout. |
 | `search` | Web search (DuckDuckGo) | Free, no API key. Returns title, snippet, URL. |
 | `similarity` | String similarity (rolling hash) | Window size 3 bytes, returns percentage. |
-| `add_task` | Add scheduled task | Parameters: `content`, `time` (HH:MM) |
-| `del_task` | Delete scheduled task | Delete by ID, auto‑renumber remaining tasks |
 | `ett` | Multimodal understanding | Analyze images, videos, documents (Word/Excel/PDF). Requires Zhipu GLM‑4.6V‑Flash. Supports public URL or local file (auto base64). |
 | `beijing_subway` | Beijing subway route planning | Input start and end station names, returns optimal route (peak/off‑peak speed considered). Requires `station.json` and `graph.txt` in `knowledge/tools/beijing_subway/` and `geopy` installed. |
 
@@ -213,6 +211,16 @@ Suppose `skills/coding_style.md` contains:
 The AI will then follow these style conventions in subsequent conversations.
 
 > ⚠️ **Disclaimer**: Skill files are provided by users; FranxAgent assumes no responsibility for their content. Ensure the content complies with laws and does not contain sensitive or harmful information.
+
+---
+
+## 🔨 Tool System
+
+FranxAgent supports loading tools from the `knowledge/tools/` directory.
+
+**Usage**:
+
+Copy some tools from the [tools branch](https://github.com/xhdlphzr/FranxAgent/tree/tools) (note that these tools will undergo basic reviews, but FranxAgent shall not be held responsible for their content) into the `knowledge/tools/` directory.
 
 ---
 

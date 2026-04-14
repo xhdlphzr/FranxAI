@@ -177,3 +177,6 @@
 - Added confirmation feature for the `command` and `write` tools.
 - Fixed some known issues.
 - Renamed to `FranxAgent`.
+
+## [v4.9.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.9.1)
+- Fixed documentation.

@@ -180,3 +180,7 @@
 
 ## [v4.9.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.9.1)
 - Fixed documentation.
+
+## [v4.10.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.10.0)
+- `read` tool merged the functionality of `ett` tool, and the file part is now handled by `markitdown` tool.
+- Fixed documentation.

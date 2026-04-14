@@ -180,3 +180,7 @@
 
 ## [v4.9.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.9.1)
 - 文档修复。
+
+## [v4.10.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.10.0)
+- `read` 工具合并了 `ett` 工具的功能，并且将文件部分交给 `markitdown` 工具处理。
+- 文档修复。

@@ -1,4 +1,7 @@
 # Contribution Guide
+
+**English** | [中文](docs/CONTRIBUTING_zh.md)
+
 Thank you for your interest in FranxAgent! We welcome all forms of contributions, including new features, tool plugins, **skills**, documentation improvements, bug reports, and more. To ensure smooth collaboration, please follow the processes and standards below.
 
 ---

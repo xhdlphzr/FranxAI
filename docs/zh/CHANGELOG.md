@@ -197,7 +197,10 @@
 - 将中文文档迁移到了 `docs/zh/` 目录下。
 
 ## [v4.12.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.12.0)
-- `save_skill` 工具：AI 可将可复用技能保存为 Markdown 文件并立即索引到知识库——零重启，实时检索。
-- `knowledge/tools/save_skill/tool.py` — 一次调用完成写文件 + 向量化 + 更新 file_versions。
-- `knowledge/tools/save_skill/README.md` — 供 AI 检索的工具说明。
-- `USER_GUIDE` 新增 `save_skill` 使用指南，包含适用与不适用场景。
+- `add_skill` 工具：AI 可将可复用技能添加为 Markdown 文件并立即索引到知识库——零重启，实时检索。
+- `knowledge/tools/add_skill/tool.py` — 一次调用完成写文件 + 向量化 + 更新 file_versions。
+- `knowledge/tools/add_skill/README.md` — 供 AI 检索的工具说明。
+- `USER_GUIDE` 新增 `add_skill` 使用指南，包含适用与不适用场景。
+
+## [v4.12.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.12.1)
+- 修复 `add_skill` 工具的 bug。

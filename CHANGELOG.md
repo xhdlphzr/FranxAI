@@ -196,7 +196,10 @@
 - Migrated Chinese documentation to `docs/zh/` directory.
 
 ## [v4.12.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.12.0)
-- `save_skill` tool: AI can now save reusable skills as Markdown files and immediately index them into the knowledge base — zero restart, real-time retrieval.
-- `knowledge/tools/save_skill/tool.py` — writes file + vectors + updates file_versions in one call.
-- `knowledge/tools/save_skill/README.md` — tool description for AI retrieval.
-- `USER_GUIDE` section for `save_skill` with usage guidelines and when (not) to use.
+- `add_skill` tool: AI can now add reusable skills as Markdown files and immediately index them into the knowledge base — zero restart, real-time retrieval.
+- `knowledge/tools/add_skill/tool.py` — writes file + vectors + updates file_versions in one call.
+- `knowledge/tools/add_skill/README.md` — tool description for AI retrieval.
+- `USER_GUIDE` section for `add_skill` with usage guidelines and when (not) to use.
+
+## [v4.12.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.12.1)
+- Fixed `add_skill` bug.

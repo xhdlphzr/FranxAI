@@ -2,7 +2,7 @@ import time
 import sqlite3
 from pathlib import Path
 
-SKILLS_DIR = Path(__file__).parent.parent / "skills"
+SKILLS_DIR = Path(__file__).parent.parent.parent / "skills"
 SKILLS_DIR.mkdir(parents=True, exist_ok=True)
 
 def execute(name: str, content: str):

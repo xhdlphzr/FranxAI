@@ -11,4 +11,4 @@ echo "You should have received a copy of the GNU General Public License along wi
 
 source .venv/bin/activate
 open http://127.0.0.1:5000/
-python3 src/app.py
+python3 -m src.app

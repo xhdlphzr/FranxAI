@@ -1,0 +1,156 @@
+/* Reset styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: system-ui;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    padding: 40px;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.subtitle {
+    color: #666;
+    margin-bottom: 30px;
+    font-size: 0.9rem;
+}
+
+input {
+    width: 100%;
+    padding: 12px 16px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus {
+    border-color: #667eea;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 10px;
+}
+
+button:hover {
+    background: #5a67d8;
+}
+
+.error {
+    color: #e53e3e;
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.info {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
+}
+
+a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Make the register link animate properly */
+#registerLink {
+    display: inline-block;
+}
+
+/* Animation overlay */
+.expand-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.expand-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Checkbox container and shake animation */
+.agree-container {
+    margin: 15px 0 5px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: #444;
+}
+.agree-container input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+}
+.agree-container label {
+    cursor: pointer;
+}
+.shake {
+    animation: shake 0.3s ease-in-out 0s 2;
+}
+@keyframes shake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+    100% { transform: translateX(0); }
+}
+.agree-error {
+    color: #e53e3e;
+    font-size: 0.8rem;
+    margin-top: 5px;
+    text-align: left;
+}
+
+/* Loading state for login button */
+button.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}

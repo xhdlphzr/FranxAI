@@ -145,6 +145,57 @@ GitHub 会在该提交上同时显示你和伙伴的头像。
 
 ---
 
+## 添加翻译
+
+FranxAgent 使用基于 YAML 的国际化方案。添加新语言步骤如下：
+
+### 1. 创建 YAML 文件
+
+将 `i18n/en.yaml` 复制为 `i18n/<lang>.yaml`（例如日语为 `i18n/ja.yaml`），然后翻译所有值。
+
+### 2. YAML 结构
+
+```yaml
+config:
+  language: "Sprache"          # 只翻译值
+  api_key: "API-Schlüssel"
+```
+
+- **不要**翻译键名（如 `config.language`）——它们是代码标识符
+- **不要**翻译值中的 `{占位符}`——例如 `{name}`、`{message}` 必须原样保留
+- **不要**翻译 Emoji 前缀——例如 `📸`、`⏰`、`💾` 保持不变
+
+### 3. 添加语言选项
+
+在 `src/templates/index.html` 的语言选择器中添加 `<option>`：
+
+```html
+<select id="language">
+    <option value="en">English</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>  <!-- 添加这行 -->
+</select>
+```
+
+### 4. 启用语言
+
+在 `config.json` 中设置 `"language": "ja"`，或在配置页面选择。
+
+### 5. 验证
+
+- 所有 UI 文本应显示为新语言
+- `{name}` 等占位符必须正确渲染（检查工具调用块、错误消息）
+- 检查配置页、登录页和注册页
+- 如果缺少某个键，键名本身将作为回退显示
+
+### 备注
+
+- 回退顺序：`<lang>.yaml` → `en.yaml` → 原始键名
+- 如果 `config.json` 中缺少 `language` 字段，默认为 `en`
+- 保持翻译简洁——移动端 UI 空间有限
+
+---
+
 ## 📝 代码风格
 - Python 代码遵循 PEP 8 标准，但不必过于严苛，保持清晰即可。
 - 函数、变量命名应具有描述性。

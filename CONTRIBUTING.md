@@ -129,6 +129,57 @@ Maintainers will review the skill for logic, formatting, and completeness. Feedb
 
 ---
 
+## Adding Translations
+
+FranxAgent uses YAML-based i18n. To add a new language:
+
+### 1. Create a YAML file
+
+Copy `i18n/en.yaml` to `i18n/<lang>.yaml` (e.g., `i18n/ja.yaml` for Japanese), then translate all values.
+
+### 2. YAML structure
+
+```yaml
+config:
+  language: "Sprache"          # Translate the value only
+  api_key: "API-Schlüssel"
+```
+
+- **Do not** translate keys (`config.language`) — they are code identifiers
+- **Do not** translate `{placeholders}` inside values — e.g., `{name}`, `{message}` must stay as-is
+- **Do not** translate emoji prefixes — e.g., `📸`, `⏰`, `💾` stay
+
+### 3. Add the language option
+
+In `src/templates/index.html`, add an `<option>` to the language select:
+
+```html
+<select id="language">
+    <option value="en">English</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>  <!-- Add this -->
+</select>
+```
+
+### 4. Enable the language
+
+Set `"language": "ja"` in `config.json` or select it from the config page.
+
+### 5. Verify
+
+- All UI text should appear in the new language
+- Placeholders like `{name}` must render correctly (check tool call blocks, error messages)
+- Check the config page, login page, and register page
+- If a key is missing, the key itself will be displayed as fallback
+
+### Notes
+
+- Fallback order: `<lang>.yaml` → `en.yaml` → raw key
+- If `language` field is missing in `config.json`, defaults to `en`
+- Keep translations concise — they share space with UI elements on mobile
+
+---
+
 ## 🧑‍🤝‍🧑 Co-Authors
 If you collaborated with partners on development or wish to credit others’ contributions, use this format in your commit message (**must be on its own line; email must be linked to GitHub**):
 

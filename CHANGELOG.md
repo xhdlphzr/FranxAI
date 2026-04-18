@@ -186,3 +186,10 @@
 ## [v4.10.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.10.0)
 - `read` tool merged the functionality of `ett` tool, and the file part is now handled by `markitdown` tool.
 - Fixed documentation.
+
+## [v4.11.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.11.0)
+- YAML-based i18n system (`i18n/en.yaml`, `i18n/zh.yaml`)
+- `/api/i18n` endpoint, returns translations based on `language` field in `config.json`
+- Language dropdown on config page with instant switch on save
+- `t(key, params)` translation function + `data-i18n` declarative attributes
+- Translation fallback chain: `<lang>.yaml` → `en.yaml` → raw key

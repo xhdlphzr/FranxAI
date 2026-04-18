@@ -76,6 +76,7 @@ In `config.json`, you can adjust the following parameters:
 
 | Field | Type | Default | Description |
 |-------|------|---------|-------------|
+| `language` | string | `"en"` | Language for UI and system prompt. |
 | `api_key` | string | - | API key (required). For Ollama, any value works. |
 | `base_url` | string | - | API base URL (required). For Ollama: `http://localhost:11434/v1`, for GLM: `https://open.bigmodel.cn/api/paas/v4`. |
 | `model` | string | - | Model name (required). Recommended: `glm-4.7-flash`, `qwen2.5:7b`, etc. |
@@ -110,6 +111,7 @@ Inside the `tools` field, you can specify separate parameters for `ett` (multimo
 **Example configuration (using GLM + Windows‑MCP)**:
 ```json
 {
+    "language": "en",
     "api_key": "your-zhipu-api-key",
     "base_url": "https://open.bigmodel.cn/api/paas/v4",
     "model": "glm-4.7-flash",

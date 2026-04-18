@@ -85,7 +85,7 @@ def _get_file_state():
             mtime = md_file.stat().st_mtime
             state[str(md_file.relative_to(KNOWLEDGE_ROOT))] = mtime
         except Exception as e:
-            print(f"⚠️ Failed to get file status {md_file}: {e} | 无法获取文件状态 {md_file}: {e}")
+            print(f"⚠️ Failed to get file status {md_file}: {e}")
     return state
 
 # 3. MCP Server Management
@@ -431,12 +431,12 @@ def search(query: str, k: int = 5):
     # Combine scores using RRF (Reciprocal Rank Fusion)
     K = 60  # constant
     combined = {}
-    # Vector part | 向量部分
+    # Vector part
     for idx, (vec_score, doc_id, text, doc_type) in enumerate(vector_scores):
         rank = idx + 1
         rrf_score = _HYBRID_VECTOR_WEIGHT / (K + rank)
         combined[doc_id] = (rrf_score, text, doc_type, vec_score)
-    # FTS part | FTS 部分
+    # FTS part
     for doc_id, fts_rank in fts_rank_map.items():
         rrf_score = _HYBRID_FTS_WEIGHT / (K + fts_rank)
         if doc_id in combined:

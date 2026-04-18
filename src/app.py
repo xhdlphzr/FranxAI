@@ -28,6 +28,7 @@ import markdown
 import bcrypt
 import jwt
 import secrets
+import yaml
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -39,6 +40,9 @@ app = Flask(__name__)
 
 # Startup timestamp for session validation
 STARTUP_ID = str(int(time.time()))
+
+# i18n directory path
+I18N_DIR = Path(__file__).parent.parent / "i18n"
 
 def load_config():
     """
@@ -398,13 +402,35 @@ def check_auth():
         valid = verify_jwt_token(token)
     return jsonify({'password_set': password_set, 'authenticated': valid})
 
+# i18n API endpoint
+@app.route('/api/i18n', methods=['GET'])
+def get_i18n():
+    """
+    Return i18n translations for the current language setting.
+    Reads 'language' from config.json, falls back to 'en' if missing.
+    Falls back to en.yaml if the specified language file does not exist.
+    """
+    try:
+        config = load_config()
+        lang = config.get("language", "en")
+    except Exception:
+        lang = "en"
+    lang_file = I18N_DIR / f"{lang}.yaml"
+    if not lang_file.exists():
+        lang_file = I18N_DIR / "en.yaml"
+    if not lang_file.exists():
+        return jsonify({'language': 'en', 'translations': {}})
+    with open(lang_file, 'r', encoding='utf-8') as f:
+        translations = yaml.safe_load(f) or {}
+    return jsonify({'language': lang, 'translations': translations})
+
 @app.route('/api/messages', methods=['GET'])
 @login_required
 def get_messages():
     """Return current conversation messages for cross‑device sync"""
     if chat_agent is None:
         return jsonify({'error': 'Agent not initialized'}), 500
-    # Return a copy to avoid accidental modification | 返回副本以避免意外修改
+    # Return a copy to avoid accidental modification
     return jsonify({'messages': chat_agent.messages.copy()})
 
 @app.route('/api/save_partial', methods=['POST'])

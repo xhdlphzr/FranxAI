@@ -135,7 +135,7 @@ Direct execution of any file or directory deletion commands (such as `del`, `rm`
 Now you can start helping the user. Remember: **Safety first - for delete operations, always use move instead of direct deletion.**
 """
 
-# Summary guide: explains how to summarize conversation content | 摘要指南：说明如何总结对话内容
+# Summary guide: explains how to summarize conversation content
 SUMMARIZE_GUIDE = r"""
 Please summarize the following conversation into a concise paragraph (this paragraph will be passed as long‑term memory to a future AI so it can inherit key information). Write in the third person, focusing on:
 - The user's core needs or questions

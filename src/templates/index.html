@@ -11,8 +11,8 @@ You should have received a copy of the GNU General Public License along with Fra
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=yes">
-    <title>FranxAgent Chat Assistant | FranxAgent 聊天助手</title>
-    <!-- KaTeX online resources | KaTeX 在线资源 -->
+    <title>FranxAgent</title>
+    <!-- KaTeX online resources -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"
@@ -22,10 +22,10 @@ You should have received a copy of the GNU General Public License along with Fra
                 {left: '$', right: '$', display: false}
             ]
         });"></script>
-    <!-- Markdown parser | Markdown 解析库 -->
+    <!-- Markdown parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
-        /* Reset styles | 重置样式 */
+        /* Reset styles */
         * {
             margin: 0;
             padding: 0;
@@ -41,7 +41,7 @@ You should have received a copy of the GNU General Public License along with Fra
             position: relative;
         }
 
-        /* Main container | 主容器 */
+        /* Main container */
         .app-container {
             display: flex;
             flex-direction: column;
@@ -49,7 +49,7 @@ You should have received a copy of the GNU General Public License along with Fra
             position: relative;
         }
 
-        /* Pages wrapper (sliding) | 页面滑动容器 */
+        /* Pages wrapper (sliding) */
         .pages-wrapper {
             flex: 1;
             overflow: hidden;
@@ -72,7 +72,7 @@ You should have received a copy of the GNU General Public License along with Fra
             scrollbar-width: thin;
         }
 
-        /* Chat page flex column layout | 聊天页面flex列布局 */
+        /* Chat page flex column layout */
         #chat-page {
             display: flex;
             flex-direction: column;
@@ -80,7 +80,7 @@ You should have received a copy of the GNU General Public License along with Fra
             overflow-y: hidden;
         }
 
-        /* Page header | 页面头部 */
+        /* Page header */
         .page-header {
             padding: 1rem 1.25rem;
             border-bottom: 1px solid #e9eef3;
@@ -99,7 +99,7 @@ You should have received a copy of the GNU General Public License along with Fra
             color: #0f172a;
         }
 
-        /* Chat messages | 聊天消息区域 */
+        /* Chat messages */
         .chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -117,7 +117,7 @@ You should have received a copy of the GNU General Public License along with Fra
             word-wrap: break-word;
             white-space: pre-wrap;
             font-size: 0.95rem;
-            font-family: inherit; /* 继承 body 字体 */
+            font-family: inherit;
         }
         .message.user {
             background: #e6f0ff;
@@ -169,7 +169,7 @@ You should have received a copy of the GNU General Public License along with Fra
             border-radius: 0.5rem;
         }
 
-        /* Internal collapsible blocks inside assistant messages | 助手消息内部的可折叠块 */
+        /* Internal collapsible blocks inside assistant messages */
         .assistant-block {
             width: 100%;
             border-top: 1px solid #e2e8f0;
@@ -261,7 +261,7 @@ You should have received a copy of the GNU General Public License along with Fra
             margin: 0.25rem 0;
         }
 
-        /* Confirmation block styles | 确认块样式 */
+        /* Confirmation block styles */
         .confirm-block {
             width: 100%;
             border-top: 1px solid #e2e8f0;
@@ -314,8 +314,8 @@ You should have received a copy of the GNU General Public License along with Fra
             background: #b91c1c;
         }
 
-        /* Table styles for Markdown tables | Markdown 表格样式 */
-        /* Table scroll wrapper: enables horizontal scrolling without breaking table layout | 表格滚动容器：实现横向滚动而不破坏表格布局 */
+        /* Table styles for Markdown tables */
+        /* Table scroll wrapper: enables horizontal scrolling without breaking table layout */
         .table-scroll-wrapper {
             overflow-x: auto;
             margin: 0.5rem 0;
@@ -344,7 +344,7 @@ You should have received a copy of the GNU General Public License along with Fra
             50% { transform: scale(1.2); opacity: 1; }
         }
 
-        /* Input area | 输入区域 */
+        /* Input area */
         .chat-input-area {
             padding: 0.75rem 1rem 1rem;
             border-top: 1px solid #e9eef3;
@@ -385,7 +385,7 @@ You should have received a copy of the GNU General Public License along with Fra
             background: #2563eb;
         }
 
-        /* Configuration form | 配置表单 */
+        /* Configuration form */
         #config-form {
             display: flex;
             flex-direction: column;
@@ -449,7 +449,7 @@ You should have received a copy of the GNU General Public License along with Fra
             text-align: center;
         }
 
-        /* Liquid glass bottom dock | 液态玻璃底部 Dock */
+        /* Liquid glass bottom dock */
         .bottom-dock {
             position: relative;
             background: rgba(255, 255, 255, 0.75);
@@ -488,7 +488,7 @@ You should have received a copy of the GNU General Public License along with Fra
             transform: scale(0.96);
         }
 
-        /* Mobile optimization | 移动端优化 */
+        /* Mobile optimization */
         @media (max-width: 640px) {
             .message {
                 max-width: 90%;
@@ -506,7 +506,7 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         }
 
-        /* Desktop dock refinement | 桌面端 dock 精致化 */
+        /* Desktop dock refinement */
         @media (min-width: 768px) {
             .bottom-dock {
                 width: auto;
@@ -522,82 +522,115 @@ You should have received a copy of the GNU General Public License along with Fra
 </head>
 <body>
 <div class="app-container">
-    <!-- Sliding pages container | 滑动页面容器 -->
+    <!-- Sliding pages container -->
     <div class="pages-wrapper">
         <div class="pages-inner" id="pagesInner">
-            <!-- Chat page | 聊天页面 -->
+            <!-- Chat page -->
             <div id="chat-page" class="page">
                 <div class="page-header">
-                    <h2>🤖 FranxAgent</h2>
+                    <h2 data-i18n="chat.header">🤖 FranxAgent</h2>
                 </div>
                 <div id="chat-messages" class="chat-messages"></div>
                 <div class="chat-input-area">
-                    <textarea id="message-input" rows="2" placeholder="Enter your command... Ctrl+Enter to send | 输入指令... Ctrl+Enter 发送"></textarea>
-                    <button id="send-btn">Send | 发送</button>
+                    <textarea id="message-input" rows="2" data-i18n-placeholder="chat.placeholder" placeholder="Enter your command... Ctrl+Enter to send"></textarea>
+                    <button id="send-btn" data-i18n="chat.send">Send</button>
                 </div>
             </div>
-            <!-- Config page | 配置页面 -->
+            <!-- Config page -->
             <div id="config-page" class="page">
                 <div class="page-header">
-                    <h2>⚙️ Configuration | 配置</h2>
+                    <h2 data-i18n="config.header">⚙️ Configuration</h2>
                 </div>
                 <form id="config-form">
-                    <label>API Key | API密钥</label>
+                    <label data-i18n="config.language">Language</label>
+                    <select id="language">
+                        <option value="en">English</option>
+                        <option value="zh">中文</option>
+                    </select>
+                    <label data-i18n="config.api_key">API Key</label>
                     <input type="text" id="api_key">
-                    <label>Base URL | 接口地址</label>
+                    <label data-i18n="config.base_url">Base URL</label>
                     <input type="text" id="base_url">
-                    <label>Model Name | 模型名称</label>
+                    <label data-i18n="config.model">Model Name</label>
                     <input type="text" id="model">
-                    <label>Temperature | 温度</label>
+                    <label data-i18n="config.temperature">Temperature</label>
                     <input type="number" id="temperature" step="0.1" min="0" max="2" value="0.8">
-                    <label>Deep Thinking | 深度思考</label>
+                    <label data-i18n="config.thinking">Deep Thinking</label>
                     <input type="checkbox" id="thinking">
-                    <label>Max Iterations | 最大迭代次数</label>
+                    <label data-i18n="config.max_iterations">Max Iterations</label>
                     <input type="number" id="max_iterations" min="1" max="500" value="100">
-                    <label>Memory Compression Threshold | 记忆压缩阈值</label>
+                    <label data-i18n="config.threshold">Memory Compression Threshold</label>
                     <input type="number" id="threshold" min="1" max="100" value="20">
-                    <label>Knowledge Retrieval Count | 知识检索数量</label>
+                    <label data-i18n="config.knowledge_k">Knowledge Retrieval Count</label>
                     <input type="number" id="knowledge_k" step="1" min="1" max="10" value="1">
-                    <label>System Settings | 系统设置</label>
+                    <label data-i18n="config.settings">System Settings</label>
                     <textarea id="settings" rows="4"></textarea>
                     <hr>
-                    <h3>📸 ETT (Multimodal) Tool Configuration | ETT（多模态理解）工具配置</h3>
-                    <label>API Key (ett) | API密钥 (ett)</label>
-                    <input type="text" id="ett_api_key" placeholder="Leave empty to use top-level API key | 留空则使用顶层API密钥">
-                    <label>Model Name (ett) | 模型名称 (ett)</label>
+                    <h3 data-i18n="config.ett_header">📸 ETT (Multimodal) Tool Configuration</h3>
+                    <label data-i18n="config.ett_api_key">API Key (ett)</label>
+                    <input type="text" id="ett_api_key" data-i18n-placeholder="config.ett_api_key_placeholder" placeholder="Leave empty to use top-level API key">
+                    <label data-i18n="config.ett_model">Model Name (ett)</label>
                     <input type="text" id="ett_model" value="glm-4.6v-flash">
-                    <label>Temperature (ett) | 温度 (ett)</label>
+                    <label data-i18n="config.ett_temperature">Temperature (ett)</label>
                     <input type="number" id="ett_temperature" step="0.1" min="0" max="1" value="0.8">
-                    <label>Deep Thinking (ett) | 深度思考 (ett)</label>
+                    <label data-i18n="config.ett_thinking">Deep Thinking (ett)</label>
                     <input type="checkbox" id="ett_thinking">
-                    <label>Max Iterations (ett) | 最大迭代次数 (ett)</label>
+                    <label data-i18n="config.ett_max_iterations">Max Iterations (ett)</label>
                     <input type="number" id="ett_max_iterations" min="1" max="500" value="100">
-                    <label>Max Retries (ett) | 最大重试次数 (ett)</label>
+                    <label data-i18n="config.ett_max_retries">Max Retries (ett)</label>
                     <input type="number" id="ett_max_retries" min="1" max="30" value="3">
                     <hr>
-                    <h3>⏰ Scheduled Tasks | 定时任务</h3>
+                    <h3 data-i18n="config.tasks_header">⏰ Scheduled Tasks</h3>
                     <div id="tasks-list"></div>
-                    <button type="button" id="add-task" class="btn-secondary">➕ Add Task | 添加任务</button>
+                    <button type="button" id="add-task" class="btn-secondary" data-i18n="config.add_task">➕ Add Task</button>
                     <hr>
-                    <h3>🌐 MCP Servers (stdio) | MCP 服务器 (stdio)</h3>
+                    <h3 data-i18n="config.mcp_header">🌐 MCP Servers (stdio)</h3>
                     <div id="mcp-servers-list"></div>
-                    <button type="button" id="add-mcp-server" class="btn-secondary">➕ Add Server | 添加服务器</button>
-                    <button type="submit">💾 Save Configuration | 保存配置</button>
+                    <button type="button" id="add-mcp-server" class="btn-secondary" data-i18n="config.add_server">➕ Add Server</button>
+                    <button type="submit" data-i18n="config.save">💾 Save Configuration</button>
                 </form>
                 <div id="config-status"></div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom liquid glass dock | 底部液态玻璃 Dock -->
+    <!-- Bottom liquid glass dock -->
     <div class="bottom-dock">
-        <button class="dock-item active" data-page="chat">💬 Chat | 聊天</button>
-        <button class="dock-item" data-page="config">⚙️ Config | 配置</button>
+        <button class="dock-item active" data-page="chat" data-i18n="nav.chat">💬 Chat</button>
+        <button class="dock-item" data-page="config" data-i18n="nav.config">⚙️ Config</button>
     </div>
 </div>
 
 <script>
-    // Authentication (memory token) | 认证（内存令牌）
+    // i18n setup
+    window.i18n = { language: 'en', translations: {} };
+    function t(key, params = {}) {
+        let text = key.split('.').reduce((o, k) => (o || {})[k], window.i18n.translations) || key;
+        Object.entries(params).forEach(([k, v]) => { text = text.replaceAll(`{${k}}`, v); });
+        return text;
+    }
+    async function loadI18n() {
+        try {
+            const resp = await fetch('/api/i18n');
+            const data = await resp.json();
+            window.i18n.language = data.language || 'en';
+            window.i18n.translations = data.translations || {};
+        } catch (e) {
+            console.error('Failed to load i18n', e);
+        }
+    }
+    function applyTranslations() {
+        document.title = t('app.title');
+        document.documentElement.lang = window.i18n.language;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            el.textContent = t(el.dataset.i18n);
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            el.placeholder = t(el.dataset.i18nPlaceholder);
+        });
+    }
+
+    // Authentication (memory token)
     let memoryToken = null;
     function getAuthToken() { return memoryToken; }
     function setAuthToken(token) { memoryToken = token; }
@@ -619,7 +652,7 @@ You should have received a copy of the GNU General Public License along with Fra
         return fetch(url, { ...options, headers });
     }
 
-    // DOM elements | DOM 元素
+    // DOM elements
     const chatMessages = document.getElementById('chat-messages');
     const messageInput = document.getElementById('message-input');
     const sendBtn = document.getElementById('send-btn');
@@ -631,14 +664,14 @@ You should have received a copy of the GNU General Public License along with Fra
     let currentAbortController = null;
     let isGenerating = false;
 
-    // Global variables for partial response saving | 用于保存部分回复的全局变量
-    let currentUserMessage = '';          // Current user message | 当前用户消息
-    let currentPartialText = '';          // Accumulated partial assistant response | 已累积的部分回复内容
-    let currentAssistantMsgDiv = null;    // Temporary assistant message element | 临时助手消息元素
-    let currentKnowledgeItems = [];        // Store knowledge items for this reply | 存储本轮回复的知识条目
-    let currentKnowledgeBlock = null;      // Knowledge block element inside the assistant message | 知识块元素
+    // Global variables for partial response saving
+    let currentUserMessage = '';          // Current user message
+    let currentPartialText = '';          // Accumulated partial assistant response
+    let currentAssistantMsgDiv = null;    // Temporary assistant message element
+    let currentKnowledgeItems = [];        // Store knowledge items for this reply
+    let currentKnowledgeBlock = null;      // Knowledge block element inside the assistant message
 
-    // Helper: escape HTML | 辅助函数：转义HTML
+    // Helper: escape HTML
     function escapeHtml(str) {
         return str.replace(/[&<>]/g, function(m) {
             if (m === '&') return '&amp;';
@@ -648,7 +681,7 @@ You should have received a copy of the GNU General Public License along with Fra
         });
     }
 
-    // Helper: sanitize HTML entities before Markdown parsing (XSS prevention) | 辅助函数：Markdown 解析前转义 HTML 实体（防止 XSS）
+    // Helper: sanitize HTML entities before Markdown parsing (XSS prevention)
     function sanitizeForMarkdown(str) {
         return str.replace(/&/g, '&amp;')
                   .replace(/</g, '&lt;')
@@ -657,10 +690,10 @@ You should have received a copy of the GNU General Public License along with Fra
                   .replace(/'/g, '&#39;');
     }
 
-    // Helper: wrap tables in scrollable containers for proper layout | 辅助函数：将表格包裹在可滚动容器中以修正布局
+    // Helper: wrap tables in scrollable containers for proper layout
     function wrapTables(container) {
         container.querySelectorAll('table').forEach(table => {
-            // Skip if already wrapped | 跳过已包裹的表格
+            // Skip if already wrapped
             if (table.parentElement.classList.contains('table-scroll-wrapper')) return;
             const wrapper = document.createElement('div');
             wrapper.className = 'table-scroll-wrapper';
@@ -669,7 +702,7 @@ You should have received a copy of the GNU General Public License along with Fra
         });
     }
 
-    // Helper: render Markdown content into the content container with breathing dot | 辅助函数：将 Markdown 内容渲染到内容容器并追加呼吸小球
+    // Helper: render Markdown content into the content container with breathing dot
     function renderStreamingMarkdown(msgDiv, rawText) {
         msgDiv._rawText = rawText;
         let contentContainer = msgDiv.querySelector('.assistant-content:last-of-type');
@@ -685,7 +718,7 @@ You should have received a copy of the GNU General Public License along with Fra
             contentContainer.textContent = rawText;
         }
         wrapTables(contentContainer);
-        // Breathing dot at the end of content | 呼吸小球放在内容末尾
+        // Breathing dot at the end of content
         const existingDot = contentContainer.querySelector('.typing-dot');
         if (existingDot) existingDot.remove();
         const dot = document.createElement('span');
@@ -699,14 +732,14 @@ You should have received a copy of the GNU General Public License along with Fra
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    // Helper: add or update knowledge block inside assistant message | 在助手消息中添加或更新知识块
+    // Helper: add or update knowledge block inside assistant message
     function updateKnowledgeBlock(msgDiv, knowledgeItems) {
         if (!knowledgeItems.length) {
             if (currentKnowledgeBlock) currentKnowledgeBlock.remove();
             currentKnowledgeBlock = null;
             return;
         }
-        // Create knowledge block if not exists | 如果不存在则创建
+        // Create knowledge block if not exists
         if (!currentKnowledgeBlock) {
             currentKnowledgeBlock = document.createElement('div');
             currentKnowledgeBlock.className = 'assistant-block knowledge-block';
@@ -716,7 +749,7 @@ You should have received a copy of the GNU General Public License along with Fra
             icon.className = 'toggle-icon';
             icon.textContent = '▶';
             header.appendChild(icon);
-            header.appendChild(document.createTextNode(`📚 Related Knowledge | 相关知识 (${knowledgeItems.length})`));
+            header.appendChild(document.createTextNode(t('knowledge.title') + ' (' + knowledgeItems.length + ')'));
             const contentDiv = document.createElement('div');
             contentDiv.className = 'block-content';
             const inner = document.createElement('div');
@@ -736,10 +769,10 @@ You should have received a copy of the GNU General Public License along with Fra
                     icon.textContent = '▼';
                 }
             });
-            // Insert at the beginning of assistant message | 插入到消息开头
+            // Insert at the beginning of assistant message
             msgDiv.insertBefore(currentKnowledgeBlock, msgDiv.firstChild);
         }
-        // Update inner items | 更新内部条目
+        // Update inner items
         const inner = currentKnowledgeBlock.querySelector('.block-content > div');
         inner.innerHTML = '';
         knowledgeItems.forEach((text) => {
@@ -783,14 +816,14 @@ You should have received a copy of the GNU General Public License along with Fra
             itemDiv.appendChild(fullDiv);
             inner.appendChild(itemDiv);
         });
-        // Update header count | 更新头部计数
+        // Update header count
         const header = currentKnowledgeBlock.querySelector('.block-header');
-        header.lastChild.textContent = `📚 Related Knowledge | 相关知识 (${knowledgeItems.length})`;
+        header.lastChild.textContent = t('knowledge.title') + ' (' + knowledgeItems.length + ')';
     }
 
-    // Helper: add a tool call block from structured data | 辅助函数：从结构化数据添加工具调用块
+    // Helper: add a tool call block from structured data
     function addToolCallBlockStructured(msgDiv, callId, toolName, argumentsObj, resultText) {
-        // Unpack the real parameters | 解包真实参数
+        // Unpack the real parameters
         let params = argumentsObj;
         if (params && typeof params === 'object') {
             if ('arguments' in params && params.arguments && typeof params.arguments === 'object') {
@@ -799,28 +832,28 @@ You should have received a copy of the GNU General Public License along with Fra
         }
         if (!params || typeof params !== 'object') params = {};
 
-        // Ensure toolName is a string | 确保 toolName 是字符串
+        // Ensure toolName is a string
         if (typeof toolName !== 'string') {
             toolName = String(toolName);
         }
 
         const blockDiv = document.createElement('div');
         blockDiv.className = 'assistant-block tool-call-block';
-        blockDiv.dataset.callId = callId; // Set ID for later update | 设置 ID 以便后续更新
+        blockDiv.dataset.callId = callId; // Set ID for later update
         
         const header = document.createElement('div');
         header.className = 'block-header';
-        header.dataset.toolName = toolName; // Store tool name | 存储工具名
+        header.dataset.toolName = toolName; // Store tool name
         const icon = document.createElement('span');
         icon.className = 'toggle-icon';
         icon.textContent = '▶';
         header.appendChild(icon);
-        header.appendChild(document.createTextNode(`Using ${toolName}... | 调用${toolName}中...`));
+        header.appendChild(document.createTextNode(t('tool.using', { name: toolName })));
         
         const paramsDiv = document.createElement('div');
         paramsDiv.className = 'tool-params';
         
-        // Display parameters | 显示参数
+        // Display parameters
         if (Object.keys(params).length > 0) {
             for (const [key, value] of Object.entries(params)) {
                 const paramLine = document.createElement('div');
@@ -832,16 +865,16 @@ You should have received a copy of the GNU General Public License along with Fra
         } else {
             const fallback = document.createElement('div');
             fallback.className = 'tool-param';
-            fallback.textContent = 'No parameters | 无参数';
+            fallback.textContent = t('tool.no_params');
             paramsDiv.appendChild(fallback);
         }
         
-        // Result area | 结果区域
+        // Result area
         const resultLabel = document.createElement('div');
         resultLabel.className = 'tool-param';
         resultLabel.style.fontWeight = 'bold';
         resultLabel.style.marginTop = '0.5rem';
-        resultLabel.textContent = 'Result | 结果:';
+        resultLabel.textContent = t('tool.result');
         paramsDiv.appendChild(resultLabel);
         
         const resultContent = document.createElement('div');
@@ -850,12 +883,12 @@ You should have received a copy of the GNU General Public License along with Fra
 
         if (resultText && resultText !== 'null' && resultText !== '') {
             resultContent.textContent = resultText;
-            // If result is provided, it means the tool has finished | 如果提供了结果，说明工具已结束
-            header.lastChild.textContent = `Used ${toolName} | 已调用${toolName}`;
+            // If result is provided, it means the tool has finished
+            header.lastChild.textContent = t('tool.used', { name: toolName });
         } else {
-            // Show pending status if no result yet | 如果暂无结果则显示执行中状态
-            resultContent.textContent = 'Executing... | 执行中...';
-            resultContent.classList.add('tool-result-pending'); // Add class for easy replacement | 添加 class 以便替换
+            // Show pending status if no result yet
+            resultContent.textContent = t('tool.executing');
+            resultContent.classList.add('tool-result-pending'); // Add class for easy replacement
         }
         paramsDiv.appendChild(resultContent);
         
@@ -872,46 +905,46 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         });
         
-        // Insert logic: Always insert before the content container to maintain order | 插入逻辑：始终插入到内容容器之前以保持顺序
+        // Insert logic: Always insert before the content container to maintain order
         msgDiv.appendChild(blockDiv);
         
         return blockDiv;
     }
 
-    // Helper: update tool call block with result | 辅助函数：使用结果更新工具调用块
+    // Helper: update tool call block with result
     function updateToolCallResult(msgDiv, callId, resultText) {
         const blockDiv = msgDiv.querySelector(`.tool-call-block[data-call-id="${callId}"]`);
         if (!blockDiv) return;
         
-        // Update header text to "Used" | 更新标题文本为 "Used"
+        // Update header text to "Used"
         const header = blockDiv.querySelector('.block-header');
         if (header) {
             const toolName = header.dataset.toolName;
-            header.lastChild.textContent = `Used ${toolName} | 已调用${toolName}`;
+            header.lastChild.textContent = t('tool.used', { name: toolName });
         }
         
-        // Update result content | 更新结果内容
+        // Update result content
         const pendingResult = blockDiv.querySelector('.tool-result-pending');
         if (pendingResult) {
             pendingResult.textContent = resultText;
             pendingResult.classList.remove('tool-result-pending');
         } else {
-            // Fallback: if pending class was removed, update directly | 后备：如果 pending class 被移除，直接更新
-            const resultContent = blockDiv.querySelectorAll('.tool-param')[1]; // Rough fallback | 粗略后备
+            // Fallback: if pending class was removed, update directly
+            const resultContent = blockDiv.querySelectorAll('.tool-param')[1]; // Rough fallback
             if (resultContent) resultContent.textContent = resultText;
         }
     }
 
-    // Helper: add a confirmation block for write/command tools | 在助手消息中添加确认块用于 write/command 工具
+    // Helper: add a confirmation block for write/command tools
     function addConfirmationBlock(msgDiv, confirmId, toolName, argumentsObj) {        
-        // Extract actual parameters – compatible with both direct and wrapped formats | 提取实际参数 – 兼容直接格式和包装格式
+        // Extract actual parameters – compatible with both direct and wrapped formats
         let params = argumentsObj;
         if (params && typeof params === 'object') {
-            // If the object has an "arguments" field (wrapped by tools), unwrap it | 如果对象包含 "arguments" 字段（被 tools 包装），则解包
+            // If the object has an "arguments" field (wrapped by tools), unwrap it
             if ('arguments' in params && params.arguments && typeof params.arguments === 'object') {
                 params = params.arguments;
             }
-            // Also handle the case where tool_name is present but arguments is separate | 也处理 tool_name 存在但 arguments 独立的情况
+            // Also handle the case where tool_name is present but arguments is separate
             if ('tool_name' in params && 'arguments' in params) {
                 params = params.arguments;
             }
@@ -924,7 +957,7 @@ You should have received a copy of the GNU General Public License along with Fra
         
         const header = document.createElement('div');
         header.className = 'confirm-header';
-        header.textContent = `🔐 Confirm ${toolName} | 确认执行 ${toolName}`;
+        header.textContent = t('tool.confirm', { name: toolName });
         blockDiv.appendChild(header);
         
         const paramsDiv = document.createElement('div');
@@ -935,17 +968,16 @@ You should have received a copy of the GNU General Public License along with Fra
             const path = params.path || '';
             const mode = params.mode || 'overwrite';
             const content = params.content || '';
-            // Use code block for content; keep original characters (no extra escaping) | 使用代码块显示内容，不额外转义，保留原始字符
-            displayParams = `path: ${path}\nmode: ${mode}\n\nContent:\n\`\`\`\n${content}\n\`\`\``;
+            displayParams = t('tool.confirm_write_template', { path, mode, content });
         } else if (toolName === 'command') {
             const command = params.command || '';
-            displayParams = `\`\`\`\n${command}\n\`\`\``;
+            displayParams = t('tool.confirm_command_template', { command });
         } else {
-            // Fallback: show all params as JSON | 后备：将所有参数显示为 JSON
+            // Fallback: show all params as JSON
             displayParams = JSON.stringify(params, null, 2);
         }
         
-        // Render Markdown for code block (safe, does not corrupt Chinese) | 为代码块渲染 Markdown（安全，不会损坏中文）
+        // Render Markdown for code block (safe, does not corrupt Chinese)
         try {
             paramsDiv.innerHTML = marked.parse(displayParams);
         } catch(e) {
@@ -957,15 +989,15 @@ You should have received a copy of the GNU General Public License along with Fra
         buttonsDiv.className = 'confirm-buttons';
         const approveBtn = document.createElement('button');
         approveBtn.className = 'confirm-approve';
-        approveBtn.textContent = '✓ Approve | 同意';
+        approveBtn.textContent = t('tool.approve');
         const rejectBtn = document.createElement('button');
         rejectBtn.className = 'confirm-reject';
-        rejectBtn.textContent = '✗ Reject | 拒绝';
+        rejectBtn.textContent = t('tool.reject');
         buttonsDiv.appendChild(approveBtn);
         buttonsDiv.appendChild(rejectBtn);
         blockDiv.appendChild(buttonsDiv);
         
-        // Handle button clicks | 处理按钮点击
+        // Handle button clicks
         approveBtn.addEventListener('click', async () => {
             try {
                 await fetchWithAuth('/api/confirm_tool', {
@@ -975,7 +1007,7 @@ You should have received a copy of the GNU General Public License along with Fra
                 });
                 blockDiv.remove();
             } catch(err) {
-                console.error('Failed to send approval | 发送同意失败', err);
+                console.error('Failed to send approval', err);
             }
         });
         rejectBtn.addEventListener('click', async () => {
@@ -985,20 +1017,20 @@ You should have received a copy of the GNU General Public License along with Fra
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ confirm_id: confirmId, approved: false })
                 });
-                blockDiv.innerHTML = '<div class="confirm-header">❌ Tool execution rejected | 工具执行已拒绝</div>';
+                blockDiv.innerHTML = `<div class="confirm-header">${t('tool.rejected')}</div>`;
             } catch(err) {
-                console.error('Failed to send rejection | 发送拒绝失败', err);
+                console.error('Failed to send rejection', err);
             }
         });
         
-        // Append to the end to maintain timeline order | 追加到末尾以保持时间线顺序
+        // Append to the end to maintain timeline order
         msgDiv.appendChild(blockDiv);
         
         blockDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         return blockDiv;
     }
 
-    // Page sliding switch | 页面滑动切换
+    // Page sliding switch
     let currentPage = 'chat';
     function switchPage(page) {
         if (page === currentPage) return;
@@ -1018,14 +1050,14 @@ You should have received a copy of the GNU General Public License along with Fra
         btn.addEventListener('click', () => switchPage(btn.dataset.page));
     });
 
-    // Chat message functions | 聊天消息函数
+    // Chat message functions
     function saveMessagesToLocalStorage() {
         const messages = [];
         document.querySelectorAll('.message').forEach(msgDiv => {
             const role = msgDiv.classList.contains('user') ? 'user' : 'assistant';
             if (!msgDiv.classList.contains('temp')) {
                 if (role === 'assistant') {
-                    // Prefer _rawText (streaming Markdown source) over textContent | 优先使用 _rawText（流式 Markdown 原文），其次用 textContent
+                    // Prefer _rawText (streaming Markdown source) over textContent
                     if (msgDiv._rawText) {
                         messages.push({ role, content: msgDiv._rawText });
                     } else if (msgDiv._textNode) {
@@ -1049,35 +1081,34 @@ You should have received a copy of the GNU General Public License along with Fra
                 if (msg.role === 'user') {
                     addMessage(msg.role, msg.content, false, '', true);
                 } else {
-                    // Assistant messages: enable Markdown parsing | 助手消息：启用 Markdown 解析
+                    // Assistant messages: enable Markdown parsing
                     addMessage(msg.role, msg.content, false, '', true);
                 }
             });
         }
     }
 
-    // Add message, supports optional Markdown parsing | 添加消息，支持可选 Markdown 解析
-    // For assistant temporary messages, we also add a breathing dot | 对助手临时消息，我们也添加一个呼吸小球
+    // Add message, supports optional Markdown parsing
+    // For assistant temporary messages, we also add a breathing dot
     function addMessage(role, content, temporary = false, extraClass = '', parseMarkdown = false) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `message ${role} ${extraClass}`;
         if (temporary) msgDiv.classList.add('temp');
 
         if (role === 'assistant' && temporary) {
-            // 临时助手消息：创建空的内容容器，稍后流式填充
             msgDiv._rawText = '';
             const contentContainer = document.createElement('div');
             contentContainer.className = 'assistant-content';
             msgDiv.appendChild(contentContainer);
-            renderStreamingMarkdown(msgDiv, content); // initial "Thinking..."
+            renderStreamingMarkdown(msgDiv, content);
         } else if (parseMarkdown && !temporary) {
             if (role === 'user') {
-                // User messages: sanitize first to prevent XSS, then parse Markdown | 用户消息：先转义防 XSS，再解析 Markdown
+                // User messages: sanitize first to prevent XSS, then parse Markdown
                 const safeContent = sanitizeForMarkdown(content);
                 const html = marked.parse(safeContent);
                 msgDiv.innerHTML = html;
             } else {
-                // Assistant messages: content from trusted backend, parse directly | 助手消息：内容来自可信后端，直接解析
+                // Assistant messages: content from trusted backend, parse directly
                 const html = marked.parse(content);
                 msgDiv.innerHTML = html;
             }
@@ -1095,7 +1126,7 @@ You should have received a copy of the GNU General Public License along with Fra
         return msgDiv;
     }
 
-    // Update message content (for assistant temporary messages, update the text node) | 更新助手临时消息的文本节点内容
+    // Update message content (for assistant temporary messages, update the text node)
     function updateMessage(msgDiv, content) {
         msgDiv._rawText = content;
         const contentContainer = msgDiv.querySelector('.assistant-content');
@@ -1104,7 +1135,7 @@ You should have received a copy of the GNU General Public License along with Fra
                 const html = marked.parse(content);
                 contentContainer.innerHTML = html;
                 wrapTables(contentContainer);
-                // Ensure breathing dot at end | 确保末尾有呼吸小球
+                // Ensure breathing dot at end
                 let dot = contentContainer.querySelector('.typing-dot');
                 if (!dot) {
                     dot = document.createElement('span');
@@ -1126,7 +1157,7 @@ You should have received a copy of the GNU General Public License along with Fra
         saveMessagesToLocalStorage();
     }
 
-    // Remove breathing dot from a message | 移除消息中的呼吸小球
+    // Remove breathing dot from a message
     function removeTypingDot(msgDiv) {
         const lastContainer = msgDiv.querySelector('.assistant-content:last-of-type');
         if (lastContainer) {
@@ -1135,18 +1166,18 @@ You should have received a copy of the GNU General Public License along with Fra
         }
     }
 
-    // Send/Stop button logic | 发送/停止按钮逻辑
+    // Send/Stop button logic
     function setSendButtonToStop() {
-        sendBtn.textContent = 'Stop | 停止';
+        sendBtn.textContent = t('chat.stop');
         sendBtn.removeEventListener('click', sendMessage);
         sendBtn.addEventListener('click', stopGeneration);
     }
     function setSendButtonToSend() {
-        sendBtn.textContent = 'Send | 发送';
+        sendBtn.textContent = t('chat.send');
         sendBtn.removeEventListener('click', stopGeneration);
         sendBtn.addEventListener('click', sendMessage);
     }
-    // Stop generation and save partial response if any | 停止生成并保存部分回复（如果有）
+    // Stop generation and save partial response if any
     function stopGeneration() {
         if (currentAbortController) {
             currentAbortController.abort();
@@ -1155,9 +1186,9 @@ You should have received a copy of the GNU General Public License along with Fra
         setSendButtonToSend();
         isGenerating = false;
 
-        // If there is any partial response, save it to the backend | 如果有部分回复内容，则保存到后端
+        // If there is any partial response, save it to the backend
         if (currentPartialText && currentUserMessage) {
-            // Save partial response via API | 通过 API 保存部分回复
+            // Save partial response via API
             fetchWithAuth('/api/save_partial', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1167,9 +1198,9 @@ You should have received a copy of the GNU General Public License along with Fra
                 })
             }).catch(e => console.error('Failed to save partial response', e));
 
-            // Update the temporary assistant message with Markdown rendering | 用 Markdown 渲染更新临时助手消息
+            // Update the temporary assistant message with Markdown rendering
             if (currentAssistantMsgDiv) {
-                const stopText = currentPartialText + '\n\n(Stopped generating) | （已停止生成）';
+                const stopText = currentPartialText + '\n\n' + t('chat.stopped');
                 currentAssistantMsgDiv._rawText = stopText;
                 const contentContainer = currentAssistantMsgDiv.querySelector('.assistant-content');
                 if (contentContainer) {
@@ -1181,30 +1212,29 @@ You should have received a copy of the GNU General Public License along with Fra
                     }
                 }
                 removeTypingDot(currentAssistantMsgDiv);
-                // Mark as not temporary so it will be saved to localStorage | 标记为非临时，以便保存到本地存储
+                // Mark as not temporary so it will be saved to localStorage
                 currentAssistantMsgDiv.classList.remove('temp');
                 saveMessagesToLocalStorage();
             } else {
-                // Fallback: add a new message | 后备方案：添加新消息
-                addMessage('assistant', currentPartialText + '\n\n(Stopped generating) | （已停止生成）');
+                // Fallback: add a new message
+                addMessage('assistant', currentPartialText + '\n\n' + t('chat.stopped'));
             }
         } else {
-            // No content generated, just add a stop message | 没有生成任何内容，直接添加停止消息
-            addMessage('assistant', '(Stopped generating) | （已停止生成）');
+            // No content generated, just add a stop message
+            addMessage('assistant', t('chat.stopped'));
         }
 
-        // Reset global variables | 重置全局变量
+        // Reset global variables
         currentUserMessage = '';
         currentPartialText = '';
         currentAssistantMsgDiv = null;
         currentKnowledgeItems = [];
         currentKnowledgeBlock = null;
     }
-    setSendButtonToSend();
 
-    // Send message to AI | 发送消息给AI
+    // Send message to AI
     async function sendMessage() {
-        // Reset knowledge items and block | 重置知识条目和块
+        // Reset knowledge items and block
         currentKnowledgeItems = [];
         if (currentKnowledgeBlock) {
             currentKnowledgeBlock.remove();
@@ -1216,7 +1246,7 @@ You should have received a copy of the GNU General Public License along with Fra
         isGenerating = true;
         messageInput.value = '';
 
-        // Store current message and reset partial text | 存储当前用户消息并重置部分文本
+        // Store current message and reset partial text
         currentUserMessage = message;
         currentPartialText = '';
 
@@ -1225,11 +1255,11 @@ You should have received a copy of the GNU General Public License along with Fra
         setSendButtonToStop();
 
         addMessage('user', message, false, '', true);
-        const assistantMsgDiv = addMessage('assistant', 'Thinking... | 思考中...', true, '', false);
-        currentAssistantMsgDiv = assistantMsgDiv;   // Store reference for stop handler | 存储引用供停止处理使用
+        const assistantMsgDiv = addMessage('assistant', t('chat.thinking'), true, '', false);
+        currentAssistantMsgDiv = assistantMsgDiv;   // Store reference for stop handler
 
         let fullText = '';
-        let receivedHtml = false;   // Flag to know if final HTML arrived | 标记是否收到最终HTML
+        let receivedHtml = false;   // Flag to know if final HTML arrived
 
         try {
             const resp = await fetchWithAuth('/chat', {
@@ -1250,24 +1280,24 @@ You should have received a copy of the GNU General Public License along with Fra
                             const data = JSON.parse(line.substring(6));
                             if (data.type === 'content') {
                                 fullText += data.text;
-                                currentPartialText = fullText;   // Update partial text | 更新部分文本
-                                // Real-time Markdown rendering during streaming | 流式输出时实时 Markdown 渲染
+                                currentPartialText = fullText;   // Update partial text
+                                // Real-time Markdown rendering during streaming
                                 renderStreamingMarkdown(assistantMsgDiv, fullText);
                                 assistantMsgDiv.classList.remove('temp');
                             } else if (data.type === 'tool_call') {
                                 removeTypingDot(assistantMsgDiv);
-                                // New structured tool call event | 新的结构化工具调用事件
+                                // New structured tool call event
                                 addToolCallBlockStructured(assistantMsgDiv, data.call_id, data.tool_name, data.arguments, data.result);
                                 const newContainer = document.createElement('div');
                                 newContainer.className = 'assistant-content';
                                 assistantMsgDiv.appendChild(newContainer);
                                 fullText = ''; 
                             } else if (data.type === 'tool_result') {
-                                // Update existing tool call block with result | 使用结果更新现有的工具调用块
+                                // Update existing tool call block with result
                                 updateToolCallResult(assistantMsgDiv, data.call_id, data.result);
                             } else if (data.type === 'html') {
                                 receivedHtml = true;
-                                // Final HTML rendering - remove dot and set HTML content | 最终HTML渲染 -移除点并设置HTML内容
+                                // Final HTML rendering - remove dot and set HTML content
                                 removeTypingDot(assistantMsgDiv);
                                 assistantMsgDiv.classList.remove('temp');
                                 if (window.renderMathInElement) {
@@ -1279,16 +1309,16 @@ You should have received a copy of the GNU General Public License along with Fra
                                     });
                                 }
                                 saveMessagesToLocalStorage();
-                                // Knowledge panel already rendered in real-time, no need to re-render | 知识面板已实时渲染，无需再次渲染
+                                // Knowledge panel already rendered in real-time, no need to re-render
                             } else if (data.type === 'knowledge') {
-                                // Collect and render knowledge panel immediately | 收集知识并立即渲染面板
+                                // Collect and render knowledge panel immediately
                                 currentKnowledgeItems.push(data.text);
                                 updateKnowledgeBlock(assistantMsgDiv, currentKnowledgeItems);
                             } else if (data.type === 'confirmation_required') {
-                                // 收到确认请求，创建确认块
+                                // Received confirmation request, create confirmation block
                                 addConfirmationBlock(assistantMsgDiv, data.confirm_id, data.tool_name, data.arguments);
                             } else if (data.type === 'error') {
-                                updateMessage(assistantMsgDiv, 'Error | 错误: ' + data.text);
+                                updateMessage(assistantMsgDiv, t('chat.error', { message: data.text }));
                                 removeTypingDot(assistantMsgDiv);
                             }
                         } catch(e) { console.error(e); }
@@ -1297,20 +1327,20 @@ You should have received a copy of the GNU General Public License along with Fra
             }
 
             if (assistantMsgDiv.querySelector('.typing-dot')) {
-                // Safety: remove dot if still present after html event | 安全兜底：html 事件后仍有小球则移除
+                // Safety: remove dot if still present after html event
                 removeTypingDot(assistantMsgDiv);
                 saveMessagesToLocalStorage();
             }
         } catch(err) {
             if (err.name !== 'AbortError') {
-                updateMessage(assistantMsgDiv, 'Network error | 网络错误: ' + err.message);
+                updateMessage(assistantMsgDiv, t('chat.network_error', { message: err.message }));
                 removeTypingDot(assistantMsgDiv);
             }
         } finally {
             setSendButtonToSend();
             isGenerating = false;
             currentAbortController = null;
-            // Reset global variables after finishing (success or error) | 完成后重置全局变量
+            // Reset global variables after finishing (success or error)
             currentUserMessage = '';
             currentPartialText = '';
             currentAssistantMsgDiv = null;
@@ -1320,20 +1350,20 @@ You should have received a copy of the GNU General Public License along with Fra
     }
     messageInput.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') sendMessage(); });
 
-    // MCP server management | MCP 服务器管理
+    // MCP server management
     let mcpServers = [];
     function renderMCPServers() {
         const container = document.getElementById('mcp-servers-list');
         if (!container) return;
         container.innerHTML = '';
-        if (mcpServers.length === 0) { container.innerHTML = '<div>No MCP server configurations. | 暂无 MCP 服务器配置。</div>'; return; }
+        if (mcpServers.length === 0) { container.innerHTML = `<div>${t('mcp.no_servers')}</div>`; return; }
         mcpServers.forEach((server, index) => {
             const div = document.createElement('div'); div.className = 'mcp-server-item';
             div.innerHTML = `
-                <input type="text" placeholder="Name | 名称" value="${escapeHtml(server.name || '')}" data-field="name" data-index="${index}">
-                <input type="text" placeholder="Command (e.g., uvx) | 命令 (如 uvx)" value="${escapeHtml(server.command || '')}" data-field="command" data-index="${index}">
-                <input type="text" placeholder="Arguments (space separated) | 参数 (空格分隔)" value="${escapeHtml((server.args || []).join(' '))}" data-field="args" data-index="${index}">
-                <button type="button" data-index="${index}" class="remove-mcp">Delete | 删除</button>
+                <input type="text" placeholder="${t('mcp.name_placeholder')}" value="${escapeHtml(server.name || '')}" data-field="name" data-index="${index}">
+                <input type="text" placeholder="${t('mcp.command_placeholder')}" value="${escapeHtml(server.command || '')}" data-field="command" data-index="${index}">
+                <input type="text" placeholder="${t('mcp.args_placeholder')}" value="${escapeHtml((server.args || []).join(' '))}" data-field="args" data-index="${index}">
+                <button type="button" data-index="${index}" class="remove-mcp">${t('mcp.delete')}</button>
             `;
             container.appendChild(div);
         });
@@ -1356,27 +1386,27 @@ You should have received a copy of the GNU General Public License along with Fra
         });
     }
     document.getElementById('add-mcp-server')?.addEventListener('click', () => {
-        mcpServers.push({ name: "New Server | 新服务器", command: "uvx", args: ["windows-mcp"] });
+        mcpServers.push({ name: t('mcp.new_server'), command: "uvx", args: ["windows-mcp"] });
         renderMCPServers();
     });
 
-    // Scheduled tasks | 定时任务
+    // Scheduled tasks
     let tasks = {};
     function renderTasks() {
         const container = document.getElementById('tasks-list');
         if (!container) return;
         container.innerHTML = '';
         const entries = Object.entries(tasks);
-        if (entries.length === 0) { container.innerHTML = '<div>No scheduled tasks. | 暂无定时任务。</div>'; return; }
+        if (entries.length === 0) { container.innerHTML = `<div>${t('task.no_tasks')}</div>`; return; }
         for (const [time, content] of entries) {
             const div = document.createElement('div'); div.className = 'task-item';
-            div.innerHTML = `<div class="task-info"><span class="task-time">${escapeHtml(time)}</span><span class="task-content">${escapeHtml(content)}</span></div><button data-time="${escapeHtml(time)}" class="delete-task">Delete | 删除</button>`;
+            div.innerHTML = `<div class="task-info"><span class="task-time">${escapeHtml(time)}</span><span class="task-content">${escapeHtml(content)}</span></div><button data-time="${escapeHtml(time)}" class="delete-task">${t('mcp.delete')}</button>`;
             container.appendChild(div);
         }
         document.querySelectorAll('.delete-task').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 const time = btn.dataset.time;
-                if (confirm(`Are you sure you want to delete task "${time}"? | 确定要删除任务 "${time}" 吗？`)) { await deleteTask(time); await loadTasks(); }
+                if (confirm(t('task.delete_confirm', { time }))) { await deleteTask(time); await loadTasks(); }
             });
         });
     }
@@ -1393,33 +1423,34 @@ You should have received a copy of the GNU General Public License along with Fra
             const resp = await fetchWithAuth('/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'add', time, content }) });
             const result = await resp.json();
             if (result.status === 'success') return true;
-            else { alert('Add failed | 添加失败: ' + (result.error || 'Unknown error | 未知错误')); return false; }
-        } catch(e) { alert('Network error | 网络错误: ' + e.message); return false; }
+            else { alert(t('task.add_failed', { message: result.error || t('task.unknown_error') })); return false; }
+        } catch(e) { alert(t('chat.network_error', { message: e.message })); return false; }
     }
     async function deleteTask(time) {
         try {
             const resp = await fetchWithAuth('/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'delete', time }) });
             const result = await resp.json();
             if (result.status === 'success') return true;
-            else { alert('Delete failed | 删除失败: ' + (result.error || 'Unknown error | 未知错误')); return false; }
-        } catch(e) { alert('Network error | 网络错误: ' + e.message); return false; }
+            else { alert(t('task.delete_failed', { message: result.error || t('task.unknown_error') })); return false; }
+        } catch(e) { alert(t('chat.network_error', { message: e.message })); return false; }
     }
     document.getElementById('add-task')?.addEventListener('click', async () => {
-        const time = prompt('Please enter execution time (format HH:MM, e.g., 14:30): | 请输入执行时间（格式 HH:MM，例如 14:30）：');
+        const time = prompt(t('task.time_prompt'));
         if (!time) return;
-        if (!/^\d{2}:\d{2}$/.test(time)) { alert('Invalid time format, please use HH:MM | 时间格式错误，请使用 HH:MM 格式'); return; }
-        const content = prompt('Please enter the command or task content to execute: | 请输入要执行的命令或任务内容：');
+        if (!/^\d{2}:\d{2}$/.test(time)) { alert(t('task.time_invalid')); return; }
+        const content = prompt(t('task.content_prompt'));
         if (!content) return;
         if (await addTask(time, content)) await loadTasks();
     });
 
-    // Load and save configuration | 加载与保存配置
+    // Load and save configuration
     async function loadConfig() {
         try {
             const resp = await fetchWithAuth('/config');
             const config = await resp.json();
-            if (config.error) configStatus.innerText = 'Failed to load config | 加载配置失败: ' + config.error;
+            if (config.error) configStatus.innerText = t('config.load_failed', { message: config.error });
             else {
+                document.getElementById('language').value = config.language || 'en';
                 document.getElementById('api_key').value = config.api_key || '';
                 document.getElementById('base_url').value = config.base_url || '';
                 document.getElementById('model').value = config.model || '';
@@ -1440,11 +1471,12 @@ You should have received a copy of the GNU General Public License along with Fra
                 renderMCPServers();
                 configStatus.innerText = '';
             }
-        } catch(err) { configStatus.innerText = 'Failed to load config | 加载配置失败: ' + err.message; }
+        } catch(err) { configStatus.innerText = t('config.load_failed', { message: err.message }); }
     }
     configForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const newConfig = {
+            language: document.getElementById('language').value,
             api_key: document.getElementById('api_key').value,
             base_url: document.getElementById('base_url').value,
             model: document.getElementById('model').value,
@@ -1470,11 +1502,17 @@ You should have received a copy of the GNU General Public License along with Fra
             const mergedConfig = { ...currentConfig, ...newConfig, tools: { ...currentConfig.tools, ...newConfig.tools } };
             const saveResp = await fetchWithAuth('/config', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(mergedConfig) });
             const result = await saveResp.json();
-            configStatus.innerText = result.status === 'success' ? 'Configuration saved and activated! | 配置已保存，已生效！' : 'Save failed | 保存失败: ' + result.error;
-        } catch(err) { configStatus.innerText = 'Save failed | 保存失败: ' + err.message; }
+            if (result.status === 'success') {
+                await loadI18n();
+                applyTranslations();
+                configStatus.innerText = t('config.saved');
+            } else {
+                configStatus.innerText = t('config.save_failed', { message: result.error });
+            }
+        } catch(err) { configStatus.innerText = t('config.save_failed', { message: err.message }); }
     });
 
-    // SSE for scheduled tasks (real-time) | 定时任务实时推送
+    // SSE for scheduled tasks (real-time)
     const taskMessages = {};
     const eventSource = new EventSource('/events');
     eventSource.addEventListener('task_start', (e) => {
@@ -1482,7 +1520,7 @@ You should have received a copy of the GNU General Public License along with Fra
         const msgDiv = document.createElement('div');
         msgDiv.className = 'message assistant task-message';
         msgDiv.id = `task-${data.task_id}`;
-        msgDiv.innerHTML = `<div>${escapeHtml(data.message)}</div><div class="task-status">Executing... | 执行中...</div><button class="stop-task-btn" data-task-id="${data.task_id}">Stop | 停止</button>`;
+        msgDiv.innerHTML = `<div>${escapeHtml(data.message)}</div><div class="task-status">${t('task.executing')}</div><button class="stop-task-btn" data-task-id="${data.task_id}">${t('task.stop')}</button>`;
         chatMessages.appendChild(msgDiv);
         chatMessages.scrollTop = chatMessages.scrollHeight;
         taskMessages[data.task_id] = msgDiv;
@@ -1501,27 +1539,27 @@ You should have received a copy of the GNU General Public License along with Fra
     eventSource.addEventListener('task_done', (e) => {
         const data = JSON.parse(e.data);
         const msgDiv = taskMessages[data.task_id];
-        if (msgDiv) { msgDiv.innerHTML = `<div>✅ Scheduled task completed | 定时任务完成</div><div class="task-result">${escapeHtml(data.result || '(No content returned) | （无返回内容）')}</div>`; delete taskMessages[data.task_id]; }
+        if (msgDiv) { msgDiv.innerHTML = `<div>${t('task.completed')}</div><div class="task-result">${escapeHtml(data.result || t('task.no_content'))}</div>`; delete taskMessages[data.task_id]; }
     });
     eventSource.addEventListener('task_error', (e) => {
         const data = JSON.parse(e.data);
         const msgDiv = taskMessages[data.task_id];
-        if (msgDiv) { msgDiv.innerHTML = `<div>❌ Scheduled task failed | 定时任务失败</div><div class="task-result">Error | 错误: ${escapeHtml(data.error)}</div>`; delete taskMessages[data.task_id]; }
+        if (msgDiv) { msgDiv.innerHTML = `<div>${t('task.failed')}</div><div class="task-result">${t('chat.error', { message: escapeHtml(data.error) })}</div>`; delete taskMessages[data.task_id]; }
     });
     eventSource.addEventListener('task_cancel', (e) => {
         const data = JSON.parse(e.data);
         const msgDiv = taskMessages[data.task_id];
-        if (msgDiv) { msgDiv.innerHTML = `<div>⏸️ Scheduled task cancelled | 定时任务已取消</div>`; delete taskMessages[data.task_id]; }
+        if (msgDiv) { msgDiv.innerHTML = `<div>${t('task.cancelled')}</div>`; delete taskMessages[data.task_id]; }
     });
     async function stopTask(taskId) {
         try {
             const resp = await fetchWithAuth(`/cancel_task/${taskId}`, { method: 'POST' });
             const result = await resp.json();
-            if (result.status !== 'cancelling') alert('Stop failed | 停止失败: ' + (result.error || 'Unknown error | 未知错误'));
-        } catch(err) { alert('Stop failed | 停止失败: ' + err.message); }
+            if (result.status !== 'cancelling') alert(t('task.stop_failed', { message: result.error || t('task.unknown_error') }));
+        } catch(err) { alert(t('task.stop_failed', { message: err.message })); }
     }
 
-    // Session check | 会话检查
+    // Session check
     async function checkSessionAndClear() {
         try {
             const resp = await fetch('/session');
@@ -1535,53 +1573,52 @@ You should have received a copy of the GNU General Public License along with Fra
         } catch(e) { console.error(e); }
     }
 
-    // Load conversation messages from the server and render them. | 从服务器加载对话消息并渲染。
-    // Returns true if messages were successfully loaded and displayed, false otherwise. | 成功加载并显示返回 true，否则返回 false。
+    // Load conversation messages from the server and render them.
+    // Returns true if messages were successfully loaded and displayed, false otherwise.
     async function loadMessagesFromServer() {
         try {
             const resp = await fetchWithAuth('/api/messages');
             const data = await resp.json();
             if (data.messages && data.messages.length > 0) {
-                // Clear current chat display | 清空当前聊天显示
+                // Clear current chat display
                 chatMessages.innerHTML = '';
 
-                // 1. Pre-process messages: Construct timeline chunks | 1. 预处理消息：构建时间轴块
+                // 1. Pre-process messages: Construct timeline chunks
                 // We reconstruct the timeline to handle Text -> Tool -> Text sequences correctly.
-                // 我们重建时间轴以正确处理 文本 -> 工具 -> 文本 的序列。
                 let mergedMessages = [];
                 let lastAssistantMsg = null;
 
                 data.messages.forEach(msg => {
                     if (msg.role === 'assistant') {
-                        // If no active assistant message, create one | 如果没有活动的助手消息，创建一个
+                        // If no active assistant message, create one
                         if (!lastAssistantMsg) {
                             lastAssistantMsg = { role: 'assistant', chunks: [] };
                         }
                         
-                        // Add text chunk if present | 如果存在文本内容，添加文本块
+                        // Add text chunk if present
                         if (msg.content) {
                             lastAssistantMsg.chunks.push({ type: 'text', content: msg.content });
                         }
-                        // Add tool calls chunk if present | 如果存在工具调用，添加工具块
+                        // Add tool calls chunk if present
                         if (msg.tool_calls) {
                             lastAssistantMsg.chunks.push({ type: 'tool_calls', calls: msg.tool_calls });
                         }
                     } else if (msg.role === 'tool' && lastAssistantMsg) {
-                        // Attach result to the corresponding tool in the last chunk | 将结果附加到最后一个块中对应的工具
-                        // Look for the last tool_calls chunk to attach results | 查找最后一个 tool_calls 块来附加结果
+                        // Attach result to the corresponding tool in the last chunk
+                        // Look for the last tool_calls chunk to attach results
                         for (let i = lastAssistantMsg.chunks.length - 1; i >= 0; i--) {
                             if (lastAssistantMsg.chunks[i].type === 'tool_calls') {
                                 const chunk = lastAssistantMsg.chunks[i];
-                                // Find the matching call in this chunk | 在此块中找到匹配的调用
+                                // Find the matching call in this chunk
                                 const call = chunk.calls.find(c => c.id === msg.tool_call_id);
                                 if (call) {
-                                    call.result = msg.content; // Store result in the call object | 将结果存储在调用对象中
+                                    call.result = msg.content; // Store result in the call object
                                 }
-                                break; // Assume result matches the most recent tool block | 假设结果匹配最近的工具块
+                                break; // Assume result matches the most recent tool block
                             }
                         }
                     } else {
-                        // User message or other roles, push previous assistant if exists | 用户消息或其他角色，如果存在之前的助手消息则推送
+                        // User message or other roles, push previous assistant if exists
                         if (lastAssistantMsg) {
                             mergedMessages.push(lastAssistantMsg);
                             lastAssistantMsg = null;
@@ -1589,21 +1626,21 @@ You should have received a copy of the GNU General Public License along with Fra
                         mergedMessages.push(msg);
                     }
                 });
-                // Push the last pending assistant message | 推送最后一条待处理的助手消息
+                // Push the last pending assistant message
                 if (lastAssistantMsg) {
                     mergedMessages.push(lastAssistantMsg);
                 }
 
-                // 2. Render merged messages | 2. 渲染合并后的消息
+                // 2. Render merged messages
                 mergedMessages.forEach(msg => {
                     if (msg.role === 'user') {
                         addMessage('user', msg.content);
                     } else if (msg.role === 'assistant') {
-                        // Create the main assistant bubble | 创建主助手气泡
+                        // Create the main assistant bubble
                         const msgDiv = document.createElement('div');
                         msgDiv.className = 'message assistant';
                         
-                        // Render chunks in order | 按顺序渲染块
+                        // Render chunks in order
                         msg.chunks.forEach(chunk => {
                             if (chunk.type === 'text') {
                                 const contentContainer = document.createElement('div');
@@ -1618,14 +1655,14 @@ You should have received a copy of the GNU General Public License along with Fra
                                 }
                                 msgDiv.appendChild(contentContainer);
                             } else if (chunk.type === 'tool_calls') {
-                                // Render tools in this chunk | 渲染此块中的工具
+                                // Render tools in this chunk
                                 chunk.calls.forEach(tc => {
                                     const callId = tc.id;
                                     let toolName = tc.function.name;
                                     let params = {};
                                     try { params = JSON.parse(tc.function.arguments); } catch(e) {}
 
-                                    // Unwrap 'tools' parameters | 解包 'tools' 参数
+                                    // Unwrap 'tools' parameters
                                     let actualName = toolName;
                                     let actualParams = params;
                                     if (toolName === 'tools' && params.tool_name) {
@@ -1635,14 +1672,14 @@ You should have received a copy of the GNU General Public License along with Fra
 
                                     const resultContent = tc.result;
                                     
-                                    // Add tool block using the helper function | 使用辅助函数添加工具块
-                                    // This function appends the block to the end of msgDiv | 此函数将块追加到 msgDiv 末尾
-                                    addToolCallBlockStructured(msgDiv, callId, actualName, actualParams, resultContent || 'No result | 无结果');
+                                    // Add tool block using the helper function
+                                    // This function appends the block to the end of msgDiv
+                                    addToolCallBlockStructured(msgDiv, callId, actualName, actualParams, resultContent || t('tool.no_result'));
                                 });
                             }
                         });
 
-                        // Math rendering for the whole bubble | 为整个气泡渲染数学公式
+                        // Math rendering for the whole bubble
                         if (window.renderMathInElement) {
                             window.renderMathInElement(msgDiv, {
                                 delimiters: [{left: '$$', right: '$$', display: true},{left: '$', right: '$', display: false}]
@@ -1665,15 +1702,18 @@ You should have received a copy of the GNU General Public License along with Fra
 
     // Initialization | 初始化
     (async function init() {
+        await loadI18n();
+        applyTranslations();
+        setSendButtonToSend();
         const tempToken = localStorage.getItem('FranxAgent_temp_token');
         if (tempToken) { setAuthToken(tempToken); localStorage.removeItem('FranxAgent_temp_token'); }
         const authenticated = await checkAuth();
         if (!authenticated) return;
         await checkSessionAndClear();
-        // Try to load messages from server first (cross-device sync) | 优先尝试从服务器加载消息（跨设备同步）
+        // Try to load messages from server first (cross-device sync)
         const loadedFromServer = await loadMessagesFromServer();
         if (!loadedFromServer) {
-            // Fallback to local storage if server has no messages or failed | 如果服务器无消息或失败，回退到本地存储
+            // Fallback to local storage if server has no messages or failed
             loadMessagesFromLocalStorage();
         }
         loadConfig();

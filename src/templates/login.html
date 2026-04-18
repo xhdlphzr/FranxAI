@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with Fra
     <title>Login | FranxAgent</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
     <style>
-        /* Reset styles | 重置样式 */
+        /* Reset styles */
         * {
             margin: 0;
             padding: 0;
@@ -106,12 +106,12 @@ You should have received a copy of the GNU General Public License along with Fra
             text-decoration: underline;
         }
 
-        /* Make the register link animate properly | 使注册链接能正确动画 */
+        /* Make the register link animate properly */
         #registerLink {
             display: inline-block;
         }
 
-        /* Animation overlay | 动画覆盖层 */
+        /* Animation overlay */
         .expand-overlay {
             position: fixed;
             top: 0;
@@ -130,7 +130,7 @@ You should have received a copy of the GNU General Public License along with Fra
             pointer-events: auto;
         }
 
-        /* Checkbox container and shake animation | 勾选框容器及抖动动画 */
+        /* Checkbox container and shake animation */
         .agree-container {
             margin: 15px 0 5px;
             text-align: left;
@@ -165,7 +165,7 @@ You should have received a copy of the GNU General Public License along with Fra
             text-align: left;
         }
 
-        /* Loading state for login button | 登录按钮加载状态 */
+        /* Loading state for login button */
         button.loading {
             opacity: 0.7;
             pointer-events: none;
@@ -175,27 +175,55 @@ You should have received a copy of the GNU General Public License along with Fra
 <body>
     <div class="login-container">
         <h1>🤖 FranxAgent</h1>
-        <input type="password" id="password" placeholder="Password | 密码" autocomplete="current-password">
+        <input type="password" id="password" autocomplete="current-password">
         
-        <!-- Agreement checkbox | 同意勾选框 -->
+        <!-- Agreement checkbox -->
         <div class="agree-container" id="agreeContainer">
             <input type="checkbox" id="agreeCheckbox">
-            <label for="agreeCheckbox">
-                I have read and agree to the <a href="https://github.com/xhdlphzr/FranxAgent/blob/main/README.md" target="_blank">User Guide and Disclaimer</a> | 
-                我已阅读并同意 <a href="https://github.com/xhdlphzr/FranxAgent/blob/main/README_zh.md" target="_blank">《使用说明和免责声明》</a>
-            </label>
+            <label for="agreeCheckbox" id="agreeLabel"></label>
         </div>
-        <div id="agreeError" class="agree-error" style="display: none;">Please check the checkbox | 请勾选勾选框</div>
+        <div id="agreeError" class="agree-error" style="display: none;"></div>
         
-        <button id="loginBtn">Login | 登录</button>
+        <button id="loginBtn"></button>
         <div id="errorMsg" class="error"></div>
         <div class="info">
-            <a href="/register" id="registerLink">No password? Set up now | 没有密码？立即设置</a>
+            <a href="/register" id="registerLink"></a>
         </div>
     </div>
 
     <script>
-        // DOM elements | DOM 元素
+        // i18n: translation function and loader
+        window.i18n = { language: 'en', translations: {} };
+        function t(key, params = {}) {
+            let text = key.split('.').reduce((o, k) => (o || {})[k], window.i18n.translations) || key;
+            Object.entries(params).forEach(([k, v]) => { text = text.replaceAll(`{${k}}`, v); });
+            return text;
+        }
+        async function loadI18n() {
+            try {
+                const resp = await fetch('/api/i18n');
+                const data = await resp.json();
+                window.i18n.language = data.language || 'en';
+                window.i18n.translations = data.translations || {};
+            } catch (e) {
+                console.error('Failed to load i18n', e);
+            }
+        }
+
+        // Apply translations to all static elements
+        function applyTranslations() {
+            document.title = t('login.title');
+            document.getElementById('password').placeholder = t('login.password_placeholder');
+            document.getElementById('agreeLabel').innerHTML = t('login.agree', {
+                link: `<a href="${t('login.agree_url')}" target="_blank">${t('login.agree_link')}</a>`
+            });
+            document.getElementById('agreeError').textContent = t('login.agree_error');
+            document.getElementById('loginBtn').textContent = t('login.submit');
+            document.getElementById('registerLink').textContent = t('login.no_password');
+            document.documentElement.lang = window.i18n.language;
+        }
+
+        // DOM elements
         const loginBtn = document.getElementById('loginBtn');
         const passwordInput = document.getElementById('password');
         const errorMsg = document.getElementById('errorMsg');
@@ -204,22 +232,22 @@ You should have received a copy of the GNU General Public License along with Fra
         const agreeError = document.getElementById('agreeError');
         const registerLink = document.getElementById('registerLink');
 
-        // Create overlay element | 创建覆盖层元素
+        // Create overlay element
         const overlay = document.createElement('div');
         overlay.className = 'expand-overlay';
         document.body.appendChild(overlay);
 
-        // Fetch RSA public key from server | 从服务器获取 RSA 公钥
+        // Fetch RSA public key from server
         async function fetchPublicKey() {
             const resp = await fetch('/api/public-key');
             const data = await resp.json();
             return data.public_key;
         }
 
-        // Validate checkbox before login | 登录前验证勾选框
+        // Validate checkbox before login
         function validateAgreement() {
             if (!agreeCheckbox.checked) {
-                // Shake the agreement container and show error | 抖动勾选框容器并显示错误
+                // Shake the agreement container and show error
                 agreeContainer.classList.add('shake');
                 agreeError.style.display = 'block';
                 setTimeout(() => {
@@ -232,7 +260,7 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         }
 
-        // Play the expand animation on success | 登录成功后播放放大动画
+        // Play the expand animation on success
         function playExpandAnimation(callback) {
             const btn = loginBtn;
             const rect = btn.getBoundingClientRect();
@@ -249,7 +277,7 @@ You should have received a copy of the GNU General Public License along with Fra
             clone.style.borderRadius = getComputedStyle(btn).borderRadius;
             document.body.appendChild(clone);
 
-            // Force reflow | 强制重绘
+            // Force reflow
             clone.offsetHeight;
             clone.style.top = '0';
             clone.style.left = '0';
@@ -260,56 +288,56 @@ You should have received a copy of the GNU General Public License along with Fra
 
             overlay.classList.add('active');
 
-            // Wait for animation to finish, then execute callback | 等待动画完成，再执行回调
+            // Wait for animation to finish, then execute callback
             setTimeout(() => {
                 clone.remove();
                 if (callback) callback();
             }, 300);
         }
 
-        // Login: verify first, animate only on success | 登录：先验证，仅成功时播放动画
+        // Login: verify first, animate only on success
         async function login() {
-            // First validate agreement | 首先验证同意勾选
+            // First validate agreement
             if (!validateAgreement()) {
                 return;
             }
 
-            // Check if password has been set (avoid animation if not) | 检查是否已设置密码（若未设置则跳过动画）
+            // Check if password has been set (avoid animation if not)
             try {
                 const checkResp = await fetch('/api/check-auth');
                 const checkData = await checkResp.json();
                 if (!checkData.password_set) {
-                    // Password not set: shake the register link and show error message | 密码未设置：抖动注册链接并显示错误信息
+                    // Password not set: shake the register link and show error message
                     if (registerLink) {
                         registerLink.classList.add('shake');
                         setTimeout(() => registerLink.classList.remove('shake'), 300);
                     }
-                    errorMsg.textContent = 'Password not set. Please register first. | 密码未设置，请先注册。';
-                    return; // Do not proceed to login | 不执行后续登录
+                    errorMsg.textContent = t('login.password_not_set');
+                    return; // Do not proceed to login
                 }
             } catch (err) {
-                // If the check fails, continue anyway (assume password set) | 如果检查失败，仍然继续（假设密码已设置）
+                // If the check fails, continue anyway (assume password set)
                 console.error('Failed to check password status', err);
             }
 
             const password = passwordInput.value.trim();
             if (!password) {
-                errorMsg.textContent = 'Please enter password | 请输入密码';
+                errorMsg.textContent = t('login.enter_password');
                 return;
             }
 
-            // Disable button to prevent double-click | 禁用按钮防止重复点击
+            // Disable button to prevent double-click
             loginBtn.classList.add('loading');
             errorMsg.textContent = '';
 
-            // Perform login request first | 先执行登录请求
+            // Perform login request first
             try {
                 const publicKeyPem = await fetchPublicKey();
                 const encrypt = new JSEncrypt();
                 encrypt.setKey(publicKeyPem);
                 const encrypted = encrypt.encrypt(password);
                 if (!encrypted) {
-                    throw new Error('Encryption failed | 加密失败');
+                    throw new Error(t('login.encryption_failed'));
                 }
 
                 const resp = await fetch('/api/login', {
@@ -320,35 +348,41 @@ You should have received a copy of the GNU General Public License along with Fra
                 const result = await resp.json();
 
                 if (resp.ok) {
-                    // Store token temporarily (will be consumed by index.html) | 临时存储 token（将被 index.html 消费）
+                    // Store token temporarily (will be consumed by index.html)
                     localStorage.setItem('FranxAgent_temp_token', result.token);
-                    // Login succeeded: play animation then redirect | 登录成功：播放动画后跳转
+                    // Login succeeded: play animation then redirect
                     playExpandAnimation(() => {
                         window.location.href = '/';
                     });
                 } else {
-                    // Login failed: show error, no animation | 登录失败：显示错误，不播放动画
-                    errorMsg.textContent = result.error || 'Login failed | 登录失败';
+                    // Login failed: show error, no animation
+                    errorMsg.textContent = result.error || t('login.login_failed');
                     loginBtn.classList.remove('loading');
                 }
             } catch (err) {
-                errorMsg.textContent = 'Network error | 网络错误';
+                errorMsg.textContent = t('login.network_error');
                 console.error(err);
                 loginBtn.classList.remove('loading');
             }
         }
 
-        // Event listeners | 事件监听
+        // Event listeners
         loginBtn.addEventListener('click', login);
         passwordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') login();
         });
-        // When checkbox changes, hide error if checked | 当勾选框变化时，如果勾选则隐藏错误
+        // When checkbox changes, hide error if checked
         agreeCheckbox.addEventListener('change', () => {
             if (agreeCheckbox.checked) {
                 agreeError.style.display = 'none';
             }
         });
+
+        // Initialize: load i18n first, then apply translations
+        (async function init() {
+            await loadI18n();
+            applyTranslations();
+        })();
     </script>
 </body>
 </html>

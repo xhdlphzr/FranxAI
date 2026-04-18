@@ -187,3 +187,10 @@
 ## [v4.10.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.10.0)
 - `read` 工具合并了 `ett` 工具的功能，并且将文件部分交给 `markitdown` 工具处理。
 - 文档修复。
+
+## [v4.11.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.11.0)
+- 基于 YAML 的 i18n 国际化系统（`i18n/en.yaml`、`i18n/zh.yaml`）。
+- `/api/i18n` 接口，根据 `config.json` 的 `language` 字段返回翻译。
+- 配置页语言下拉框，保存后即时切换语言。
+- `t(key, params)` 翻译函数 + `data-i18n` 声明式属性。
+- 翻译回退链：`<lang>.yaml` → `en.yaml` → 键名。

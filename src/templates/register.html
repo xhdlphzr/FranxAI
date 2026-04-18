@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License along with Fra
     <title>Register | FranxAgent</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsencrypt/3.3.2/jsencrypt.min.js"></script>
     <style>
-        /* Reset styles | 重置样式 */
+        /* Reset styles */
         * {
             margin: 0;
             padding: 0;
@@ -106,7 +106,7 @@ You should have received a copy of the GNU General Public License along with Fra
             text-decoration: underline;
         }
 
-        /* Animation overlay | 动画覆盖层 */
+        /* Animation overlay */
         .expand-overlay {
             position: fixed;
             top: 0;
@@ -125,7 +125,7 @@ You should have received a copy of the GNU General Public License along with Fra
             pointer-events: auto;
         }
 
-        /* Checkbox container and shake animation | 勾选框容器及抖动动画 */
+        /* Checkbox container and shake animation */
         .agree-container {
             margin: 15px 0 5px;
             text-align: left;
@@ -160,7 +160,7 @@ You should have received a copy of the GNU General Public License along with Fra
             text-align: left;
         }
 
-        /* Loading state for register button | 注册按钮加载状态 */
+        /* Loading state for register button */
         button.loading {
             opacity: 0.7;
             pointer-events: none;
@@ -170,28 +170,57 @@ You should have received a copy of the GNU General Public License along with Fra
 <body>
     <div class="register-container">
         <h1>🤖 FranxAgent</h1>
-        <input type="password" id="password" placeholder="Password | 密码" autocomplete="new-password">
-        <input type="password" id="confirmPassword" placeholder="Confirm password | 确认密码" autocomplete="new-password">
+        <input type="password" id="password" autocomplete="new-password">
+        <input type="password" id="confirmPassword" autocomplete="new-password">
         
-        <!-- Agreement checkbox | 同意勾选框 -->
+        <!-- Agreement checkbox -->
         <div class="agree-container" id="agreeContainer">
             <input type="checkbox" id="agreeCheckbox">
-            <label for="agreeCheckbox">
-                I have read and agree to the <a href="https://github.com/xhdlphzr/FranxAgent/blob/main/README.md" target="_blank">User Guide and Disclaimer</a> | 
-                我已阅读并同意 <a href="https://github.com/xhdlphzr/FranxAgent/blob/main/README_zh.md" target="_blank">《使用说明和免责声明》</a>
-            </label>
+            <label for="agreeCheckbox" id="agreeLabel"></label>
         </div>
-        <div id="agreeError" class="agree-error" style="display: none;">Please check the checkbox | 请勾选勾选框</div>
+        <div id="agreeError" class="agree-error" style="display: none;"></div>
         
-        <button id="registerBtn">Set Password | 设置密码</button>
+        <button id="registerBtn"></button>
         <div id="errorMsg" class="error"></div>
         <div class="info">
-            <a href="/login">Already have a password? Login | 已有密码？登录</a>
+            <a href="/login" id="loginLink"></a>
         </div>
     </div>
 
     <script>
-        // DOM elements | DOM 元素
+        // i18n setup
+        window.i18n = { language: 'en', translations: {} };
+        function t(key, params = {}) {
+            let text = key.split('.').reduce((o, k) => (o || {})[k], window.i18n.translations) || key;
+            Object.entries(params).forEach(([k, v]) => { text = text.replaceAll(`{${k}}`, v); });
+            return text;
+        }
+        async function loadI18n() {
+            try {
+                const resp = await fetch('/api/i18n');
+                const data = await resp.json();
+                window.i18n.language = data.language || 'en';
+                window.i18n.translations = data.translations || {};
+            } catch (e) {
+                console.error('Failed to load i18n', e);
+            }
+        }
+
+        // Apply translations to all static elements
+        function applyTranslations() {
+            document.title = t('register.title');
+            document.getElementById('password').placeholder = t('register.password_placeholder');
+            document.getElementById('confirmPassword').placeholder = t('register.confirm_placeholder');
+            document.getElementById('agreeLabel').innerHTML = t('register.agree', {
+                link: `<a href="${t('register.agree_url')}" target="_blank">${t('register.agree_link')}</a>`
+            });
+            document.getElementById('agreeError').textContent = t('register.agree_error');
+            document.getElementById('registerBtn').textContent = t('register.submit');
+            document.getElementById('loginLink').textContent = t('register.has_password');
+            document.documentElement.lang = window.i18n.language;
+        }
+
+        // DOM elements
         const registerBtn = document.getElementById('registerBtn');
         const passwordInput = document.getElementById('password');
         const confirmInput = document.getElementById('confirmPassword');
@@ -200,19 +229,19 @@ You should have received a copy of the GNU General Public License along with Fra
         const agreeContainer = document.getElementById('agreeContainer');
         const agreeError = document.getElementById('agreeError');
 
-        // Create overlay element | 创建覆盖层元素
+        // Create overlay element
         const overlay = document.createElement('div');
         overlay.className = 'expand-overlay';
         document.body.appendChild(overlay);
 
-        // Fetch RSA public key from server | 从服务器获取 RSA 公钥
+        // Fetch RSA public key from server
         async function fetchPublicKey() {
             const resp = await fetch('/api/public-key');
             const data = await resp.json();
             return data.public_key;
         }
 
-        // Validate checkbox before register | 注册前验证勾选框
+        // Validate checkbox before register
         function validateAgreement() {
             if (!agreeCheckbox.checked) {
                 agreeContainer.classList.add('shake');
@@ -227,7 +256,7 @@ You should have received a copy of the GNU General Public License along with Fra
             }
         }
 
-        // Play the expand animation on success | 注册成功后播放放大动画
+        // Play the expand animation on success
         function playExpandAnimation(callback) {
             const btn = registerBtn;
             const rect = btn.getBoundingClientRect();
@@ -244,7 +273,7 @@ You should have received a copy of the GNU General Public License along with Fra
             clone.style.borderRadius = getComputedStyle(btn).borderRadius;
             document.body.appendChild(clone);
 
-            // Force reflow | 强制重绘
+            // Force reflow
             clone.offsetHeight;
             clone.style.top = '0';
             clone.style.left = '0';
@@ -255,16 +284,16 @@ You should have received a copy of the GNU General Public License along with Fra
 
             overlay.classList.add('active');
 
-            // Wait for animation to finish, then execute callback | 等待动画完成，再执行回调
+            // Wait for animation to finish, then execute callback
             setTimeout(() => {
                 clone.remove();
                 if (callback) callback();
             }, 300);
         }
 
-        // Register: verify first, animate only on success | 注册：先验证，仅成功时播放动画
+        // Register: verify first, animate only on success
         async function register() {
-            // First validate agreement | 首先验证同意勾选
+            // First validate agreement
             if (!validateAgreement()) {
                 return;
             }
@@ -272,26 +301,26 @@ You should have received a copy of the GNU General Public License along with Fra
             const password = passwordInput.value.trim();
             const confirm = confirmInput.value.trim();
             if (!password) {
-                errorMsg.textContent = 'Please enter password | 请输入密码';
+                errorMsg.textContent = t('register.enter_password');
                 return;
             }
             if (password !== confirm) {
-                errorMsg.textContent = 'Passwords do not match | 两次密码不一致';
+                errorMsg.textContent = t('register.password_mismatch');
                 return;
             }
 
-            // Disable button to prevent double-click | 禁用按钮防止重复点击
+            // Disable button to prevent double-click
             registerBtn.classList.add('loading');
             errorMsg.textContent = '';
 
-            // Perform registration request first | 先执行注册请求
+            // Perform registration request first
             try {
                 const publicKeyPem = await fetchPublicKey();
                 const encrypt = new JSEncrypt();
                 encrypt.setKey(publicKeyPem);
                 const encrypted = encrypt.encrypt(password);
                 if (!encrypted) {
-                    throw new Error('Encryption failed | 加密失败');
+                    throw new Error(t('register.encryption_failed'));
                 }
 
                 const resp = await fetch('/api/setup', {
@@ -302,25 +331,25 @@ You should have received a copy of the GNU General Public License along with Fra
                 const result = await resp.json();
 
                 if (resp.ok) {
-                    // Store token temporarily (will be consumed by index.html) | 临时存储 token（将被 index.html 消费）
+                    // Store token temporarily (will be consumed by index.html)
                     localStorage.setItem('FranxAgent_temp_token', result.token);
-                    // Registration succeeded: play animation then redirect | 注册成功：播放动画后跳转
+                    // Registration succeeded: play animation then redirect
                     playExpandAnimation(() => {
                         window.location.href = '/';
                     });
                 } else {
-                    // Registration failed: show error, no animation | 注册失败：显示错误，不播放动画
-                    errorMsg.textContent = result.error || 'Setup failed | 设置失败';
+                    // Registration failed: show error, no animation
+                    errorMsg.textContent = result.error || t('register.setup_failed');
                     registerBtn.classList.remove('loading');
                 }
             } catch (err) {
-                errorMsg.textContent = 'Network error | 网络错误';
+                errorMsg.textContent = t('register.network_error');
                 console.error(err);
                 registerBtn.classList.remove('loading');
             }
         }
 
-        // Event listeners | 事件监听
+        // Event listeners
         registerBtn.addEventListener('click', register);
         passwordInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') register();
@@ -328,12 +357,18 @@ You should have received a copy of the GNU General Public License along with Fra
         confirmInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') register();
         });
-        // When checkbox changes, hide error if checked | 当勾选框变化时，如果勾选则隐藏错误
+        // When checkbox changes, hide error if checked
         agreeCheckbox.addEventListener('change', () => {
             if (agreeCheckbox.checked) {
                 agreeError.style.display = 'none';
             }
         });
+
+        // Initialize: load i18n first, then apply translations
+        (async function init() {
+            await loadI18n();
+            applyTranslations();
+        })();
     </script>
 </body>
 </html>

@@ -2,11 +2,7 @@ import time
 import sqlite3
 from pathlib import Path
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from knowledge import _add_document, VECTOR_DB_PATH, KNOWLEDGE_ROOT
-
-SKILLS_DIR = KNOWLEDGE_ROOT / "skills"
+SKILLS_DIR = Path(__file__).parent.parent.parent / "skills"
 SKILLS_DIR.mkdir(parents=True, exist_ok=True)
 
 def execute(name: str, content: str):
@@ -17,6 +13,10 @@ def execute(name: str, content: str):
         name: Skill name (used as filename, e.g., "nginx_setup")
         content: Skill content in Markdown format
     """
+    # Lazy import to avoid circular dependency at module load time
+    from knowledge.vector import add_document
+    from knowledge.config import VECTOR_DB_PATH, KNOWLEDGE_ROOT
+
     # Sanitize name
     safe_name = "".join(c for c in name if c.isalnum() or c in ('_', '-')).strip()
     if not safe_name:
@@ -42,7 +42,7 @@ def execute(name: str, content: str):
     conn.close()
 
     # Add to vector database immediately
-    _add_document(content, source=source_key, doc_type="skill")
+    add_document(content, source=source_key, doc_type="skill")
 
     # Update file_versions to prevent re-indexing on restart
     mtime = filepath.stat().st_mtime

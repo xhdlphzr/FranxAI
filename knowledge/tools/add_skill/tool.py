@@ -14,7 +14,8 @@ def execute(name: str, content: str):
         content: Skill content in Markdown format
     """
     # Lazy import to avoid circular dependency at module load time
-    from knowledge import _add_document, VECTOR_DB_PATH, KNOWLEDGE_ROOT
+    from knowledge.vector import add_document
+    from knowledge.config import VECTOR_DB_PATH, KNOWLEDGE_ROOT
 
     # Sanitize name
     safe_name = "".join(c for c in name if c.isalnum() or c in ('_', '-')).strip()
@@ -41,7 +42,7 @@ def execute(name: str, content: str):
     conn.close()
 
     # Add to vector database immediately
-    _add_document(content, source=source_key, doc_type="skill")
+    add_document(content, source=source_key, doc_type="skill")
 
     # Update file_versions to prevent re-indexing on restart
     mtime = filepath.stat().st_mtime

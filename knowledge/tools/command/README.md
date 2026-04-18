@@ -6,7 +6,7 @@ FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-### `command` - Execute System Commands (With Administrator Privileges) | 执行系统命令（具有管理员权限）
+### `command` - Execute System Commands (With Administrator Privileges)
 - **Purpose**: Use this tool when users need to run programs, execute scripts, manage system services, install software, or perform other command-line tasks. This tool has **administrator privileges**, enabling most system-level operations.
 - **Input**:
 ```json

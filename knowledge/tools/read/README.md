@@ -6,7 +6,7 @@ FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-### `read` - Read File Content | 读取文件内容
+### `read` - Read File Content
 - **Purpose**: Call this tool when the user requests to view the content of a file, analyze data within a file, or when you need to obtain information from a file to complete subsequent tasks.
 - **Input**:
 ```json

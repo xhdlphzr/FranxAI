@@ -6,7 +6,7 @@ FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-### search - Web Search | 网络搜索
+### search - Web Search
 - **Purpose**: Search internet information to obtain real-time data, news, encyclopedia content and more.
 - **Input**:
     - `query`: **string**, required, search keyword

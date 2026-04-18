@@ -6,7 +6,7 @@ FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-### `write` — Write or append file content | 写入或追加文件内容
+### `write` — Write or append file content
 - **Purpose**: Used when the user requests creating new files, writing content to existing files, or modifying files.
 - **Input**:
     ```json

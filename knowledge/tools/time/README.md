@@ -6,7 +6,7 @@ FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-### `time` — Get current date and time | 获取当前日期和时间
+### `time` — Get current date and time
 - **Purpose**: Used when you need to know the current date, time, weekday, or calculate time intervals.
 - **Input**: No parameters required.
 - **Output**: Returns a string containing the current local date and time (e.g., `2026-03-14 Saturday 15:30:45`).

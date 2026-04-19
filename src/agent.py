@@ -93,8 +93,8 @@ For tools that require parameters, `arguments` must be a JSON object containing 
         "path": "Full path of the file",
         "content": "Content to write",
         "mode": "overwrite" or "append" or "edit",
-        "line_start": 0,
-        "line_end": 0
+        "start_line": 0,
+        "end_line": 0
     }
     ```
     - `path`: **string**, required, full path of the file
@@ -102,9 +102,9 @@ For tools that require parameters, `arguments` must be a JSON object containing 
     - `mode`: **string**, optional, default is "overwrite". Available values:
         - `"overwrite"`: Replace entire file
         - `"append"`: Append to end of file
-        - `"edit"`: Replace lines from `line_start` to `line_end` (both inclusive, 1-based). Use with `read` tool's line numbers for precise editing.
-    - `line_start`: **integer**, required in edit mode. Start line number (1-based, inclusive).
-    - `line_end`: **integer**, required in edit mode. End line number (1-based, inclusive).
+        - `"edit"`: Replace lines from `start_line` to `end_line` (both inclusive, 1-based). Use with `read` tool's line numbers for precise editing.
+    - `start_line`: **integer**, required in edit mode. Start line number (1-based, inclusive).
+    - `end_line`: **integer**, required in edit mode. End line number (1-based, inclusive).
 - **Output**: Prompt message indicating whether the operation succeeded or failed.
 - **Notes**:
     - Ensure the written content is explicitly requested by the user; do not modify files arbitrarily.
@@ -330,7 +330,7 @@ class FranxAgent:
                             "tool_call_id": tool_call["id"],
                             "content": error_msg
                         }
-                        current_api_messages.append(tool_message)
+                        tool_messages.append(tool_message)
                         yield {
                             "type": "tool_result",
                             "call_id": tool_call["id"],
@@ -410,9 +410,9 @@ class FranxAgent:
                         "tool_call_id": call_id,
                         "content": str(result)
                     }
-                    current_api_messages.append(tool_message)
                     tool_messages.append(tool_message)
 
+                current_api_messages.extend(tool_messages)
                 self.messages.append(assistant_message)
                 self.messages.extend(tool_messages)
                 iteration += 1

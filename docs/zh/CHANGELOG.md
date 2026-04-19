@@ -244,3 +244,6 @@
 
 ## [v4.15.4](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.4)
 - 修复 `write` 工具在 `edit` 模式下在前端界面的问题：增加 `start_line` 和 `end_line` 参数。
+
+## [v4.15.5](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.5)
+- 修复工具调用消息不匹配问题，解决中断导致的400崩溃。

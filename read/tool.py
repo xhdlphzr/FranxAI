@@ -6,7 +6,7 @@
 
 """
 File Content Reading Tool
-Allows the AI to read the content of a specified file
+Allows the AI to read the content of a specified file or project structure
 """
 
 from pathlib import Path
@@ -53,6 +53,9 @@ LANGUAGES = {
     '.htm': (Language(tshtml.language()), ['element']),
     '.css': (Language(tscss.language()), ['rule_set']),
 }
+
+# Directories to skip during project scanning
+SKIP_DIRS = {'.git', '__pycache__', 'node_modules', '.venv', 'venv', 'dist', 'build', 'target', '.idea', '.vscode', 'env', '.env', '.tox', '.mypy_cache', '.pytest_cache', 'egg-info'}
 
 def _extract_name(node) -> str:
     """Extract the name of an AST node using tree-sitter fields"""
@@ -104,29 +107,56 @@ def _add_line_numbers(content: str) -> str:
     width = len(str(len(lines)))
     return '\n'.join(f"{i+1:{width}}  {line}" for i, line in enumerate(lines))
 
+def _scan_project(directory: Path) -> str:
+    """Scan project directory, return structure map of all code files"""
+    lines = []
+    
+    for file in sorted(directory.rglob('*')):
+        # Skip hidden and common junk directories
+        if any(part in SKIP_DIRS or part.startswith('.') for part in file.parts):
+            continue
+        if not file.is_file():
+            continue
+        if file.suffix.lower() not in LANGUAGES:
+            continue
+        
+        try:
+            with open(file, 'r', encoding='utf-8') as f:
+                content = f.read()
+            structure = _parse_structure(file, content)
+            if structure:
+                rel = file.relative_to(directory)
+                lines.append(f"### {rel}")
+                lines.append(structure)
+                lines.append("")
+        except Exception:
+            continue
+    
+    return "\n".join(lines) if lines else "No parseable code files found"
+
 def read(path: str) -> str:
     """
-    Read file content
+    Read file content or project structure
 
     Args:
-        path: Full path of the file
+        path: Full path of the file or directory
 
     Returns:
-        File content, returns error message if an error occurs
+        File content or project structure, returns error message if an error occurs
     """
     try:
         # Resolve the path and handle user directory symbol (~)
         p = Path(path).expanduser().resolve()
 
-        # Check if the file exists
+        # Check if the path exists
         if not p.exists():
-            return f"Error: File does not exist - {p}"
+            return f"Error: Path does not exist - {p}"
 
-        # Check if the path is a file
-        if not p.is_file():
-            return f"Error: Path is not a file - {p}"
+        # Directory: scan project structure
+        if p.is_dir():
+            return _scan_project(p)
 
-        # Read file content
+        # File: read content
         with open(p, 'r', encoding='utf-8') as f:
             content = f.read()
 
@@ -142,9 +172,9 @@ def read(path: str) -> str:
             return content
 
     except PermissionError:
-        return f"Error: No permission to read the file - {path}"
+        return f"Error: No permission to read - {path}"
     except Exception as e:
-        return f"An error occurred while reading the file: {str(e)}"
+        return f"An error occurred while reading: {str(e)}"
     
 def _get_config():
     """Read ett tool configuration from config.json"""
@@ -239,6 +269,9 @@ def ett(urls: str) -> str:
     return "Analysis failed: Maximum retries exceeded, please try again later."
 
 def execute(path: str) -> str:
+    # Directory: scan project structure
+    if Path(path).expanduser().is_dir():
+        return read(path)
     if path.endswith(('.pdf', '.docx', '.pptx', '.xlsx', '.xls', '.doc', '.ppt', '.csv')):
         try:
             return MarkItDown().convert(path).text_content

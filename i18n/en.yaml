@@ -29,7 +29,7 @@ tool:
   approve: "✓ Approve"
   reject: "✗ Reject"
   rejected: "❌ Tool execution rejected"
-  confirm_write_template: "path: {path}\nmode: {mode}\n\nContent:\n```\n{content}\n```"
+  confirm_write_template: "path: {path}\nmode: {mode}\nline_start: {line_start}\nline_end: {line_end}\n\ncontent:\n```\n{content}\n```"
   confirm_command_template: "```\n{command}\n```"
 
 config:

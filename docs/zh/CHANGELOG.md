@@ -241,3 +241,6 @@
 ## [v4.15.3](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.3)
 - 实现上下文自动压缩，触发超长报错时智能压缩并重试。
 - 修复工具调用消息不匹配问题，解决中断导致的400崩溃。
+
+## [v4.15.4](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.4)
+- 修复 `write` 工具在 `edit` 模式下在前端界面的问题：增加 `line_start` 和 `line_end` 参数。

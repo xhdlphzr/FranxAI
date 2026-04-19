@@ -240,3 +240,6 @@
 ## [v4.15.3](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.3)
 - Implemented automatic context compression, which intelligently compresses and retries on context length errors.
 - Resolved tool call message mismatch issue and fixed 400 crashes caused by interruptions.
+
+## [v4.15.4](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.4)
+- Fixed `write` tool in `edit` mode: added `line_start` and `line_end` parameters.

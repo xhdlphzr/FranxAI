@@ -14,8 +14,8 @@ You should have received a copy of the GNU General Public License along with Fra
         "path": "文件的完整路径",
         "content": "要写入的内容",
         "mode": "overwrite" 或 "append" 或 "edit",
-        "line_start": 0,
-        "line_end": 0
+        "start_line": 0,
+        "end_line": 0
     }
     ```
     - `path`：**字符串**，必填，文件的完整路径
@@ -23,9 +23,9 @@ You should have received a copy of the GNU General Public License along with Fra
     - `mode`：**字符串**，可选，默认为 "overwrite"。可用值：
         - `"overwrite"`：替换整个文件
         - `"append"`：追加到文件末尾
-        - `"edit"`：替换从 `line_start` 到 `line_end` 的行（两端包含，从 1 开始计数）。与 `read` 工具的行号配合使用，实现精确编辑。
-    - `line_start`：**整数**，编辑模式下必填。起始行号（从 1 开始，包含该行）。
-    - `line_end`：**整数**，编辑模式下必填。结束行号（从 1 开始，包含该行）。
+        - `"edit"`：替换从 `start_line` 到 `end_line` 的行（两端包含，从 1 开始计数）。与 `read` 工具的行号配合使用，实现精确编辑。
+    - `start_line`：**整数**，编辑模式下必填。起始行号（从 1 开始，包含该行）。
+    - `end_line`：**整数**，编辑模式下必填。结束行号（从 1 开始，包含该行）。
 - **输出**：提示操作成功或失败的信息。
 - **备注**：
     - 确保写入的内容是用户明确请求的，不要随意修改文件。

@@ -11,7 +11,7 @@ Allows the AI to write, append, or edit content in a specified file
 
 from pathlib import Path
 
-def execute(path: str, content: str, mode="overwrite", line_start=0, line_end=0) -> str:
+def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0) -> str:
     """
     Write, append, or edit content in a file
 
@@ -19,8 +19,8 @@ def execute(path: str, content: str, mode="overwrite", line_start=0, line_end=0)
         path: Full path of the file
         content: Content to be written
         mode: Write mode - "overwrite", "append", or "edit"
-        line_start: Start line number for edit mode (1-based, inclusive)
-        line_end: End line number for edit mode (1-based, inclusive)
+        start_line: Start line number for edit mode (1-based, inclusive)
+        end_line: End line number for edit mode (1-based, inclusive)
 
     Returns:
         Operation result information
@@ -33,11 +33,11 @@ def execute(path: str, content: str, mode="overwrite", line_start=0, line_end=0)
         p.parent.mkdir(parents=True, exist_ok=True)
 
         if mode == "edit":
-            # Edit mode: replace lines from line_start to line_end (1-based, inclusive)
-            if line_start < 1:
-                return "Edit failed: line_start must be >= 1"
-            if line_end < line_start:
-                return "Edit failed: line_end must be >= line_start"
+            # Edit mode: replace lines from start_line to end_line (1-based, inclusive)
+            if start_line < 1:
+                return "Edit failed: start_line must be >= 1"
+            if end_line < start_line:
+                return "Edit failed: end_line must be >= start_line"
 
             if not p.exists():
                 return f"Edit failed: File does not exist - {p}"
@@ -48,21 +48,21 @@ def execute(path: str, content: str, mode="overwrite", line_start=0, line_end=0)
             lines = original.split('\n')
             total_lines = len(lines)
 
-            if line_start > total_lines:
-                return f"Edit failed: line_start ({line_start}) exceeds total lines ({total_lines})"
+            if start_line > total_lines:
+                return f"Edit failed: start_line ({start_line}) exceeds total lines ({total_lines})"
 
-            # Clamp line_end to file length
-            effective_end = min(line_end, total_lines)
+            # Clamp end_line to file length
+            effective_end = min(end_line, total_lines)
 
-            # Replace lines [line_start, line_end] with content
+            # Replace lines [start_line, end_line] with content
             # Empty content deletes the line range
             new_lines = content.split('\n') if content else []
-            lines[line_start - 1:effective_end] = new_lines
+            lines[start_line - 1:effective_end] = new_lines
 
             with open(p, 'w', encoding='utf-8') as f:
                 f.write('\n'.join(lines))
 
-            return f"Successfully edited file: {p} (L{line_start}-L{effective_end} replaced)"
+            return f"Successfully edited file: {p} (L{start_line}-L{effective_end} replaced)"
         else:
             # Select file opening mode based on the parameter
             flag = 'a' if mode == 'append' else 'w'

@@ -40,7 +40,7 @@ def execute(command: str) -> str:
 
     try:
         # Execute command, capture output and errors
-        result = subprocess.run(f"chcp 65001 && {command}", shell=True, capture_output=True, timeout=30)
+        result = subprocess.run(f"{command}", shell=True, capture_output=True, timeout=30)
         stdout = result.stdout.decode('utf-8', errors='replace')
         stderr = result.stderr.decode('utf-8', errors='replace')
         output = stdout + stderr

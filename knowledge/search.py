@@ -75,8 +75,24 @@ def search(query: str, k: int = 5):
     conn_fts.close()
 
     fts_rank_map = {}
+    fts_rowids = []
     for rank_idx, (rowid, rank) in enumerate(fts_results):
         fts_rank_map[rowid] = rank_idx + 1
+        fts_rowids.append(rowid)
+
+    # Fetch text and type for FTS-only results
+    fts_text_map = {}
+    if fts_rowids:
+        conn_fts2 = sqlite3.connect(VECTOR_DB_PATH)
+        cursor_fts2 = conn_fts2.cursor()
+        placeholders = ','.join('?' * len(fts_rowids))
+        cursor_fts2.execute(
+            f"SELECT id, text, type FROM vectors WHERE id IN ({placeholders})",
+            fts_rowids
+        )
+        for doc_id, text, doc_type in cursor_fts2.fetchall():
+            fts_text_map[doc_id] = (text, doc_type)
+        conn_fts2.close()
 
     K = 60
     combined = {}
@@ -90,7 +106,8 @@ def search(query: str, k: int = 5):
             old_score, text, doc_type, vec_score = combined[doc_id]
             combined[doc_id] = (old_score + rrf_score, text, doc_type, vec_score)
         else:
-            combined[doc_id] = (rrf_score, "", "", 0)
+            text, doc_type = fts_text_map.get(doc_id, ("", ""))
+            combined[doc_id] = (rrf_score, text, doc_type, 0)
 
     sorted_items = sorted(combined.items(), key=lambda x: x[1][0], reverse=True)
     final_texts = [item[1][1] for item in sorted_items[:k] if item[1][1]]

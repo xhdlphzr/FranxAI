@@ -235,3 +235,5 @@
 - 修复刷新页面导致 Agent 卡死的问题：增加 SSE 心跳检测客户端断开，避免确认等待时线程死锁。
 - 调整 `src/agent.py` 中的 `USER_GUIDE`。
 - 更改 `README.md`。
+- 修复混合检索结果数量不足 `knowledge_k` 的问题：仅被 FTS 命中的文档在 RRF 融合时缺少文本内容，导致被过滤掉。
+- 修复 `command` 工具在 Linux/macOS 上报错的问题：`chcp 65001` 仅限 Windows，现在按平台条件执行。

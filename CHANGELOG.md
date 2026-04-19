@@ -234,3 +234,5 @@
 - Fixed agent freezing on page refresh: added SSE heartbeat to detect client disconnect, preventing thread deadlock during confirmation waits.
 - Adjusted `src/agent.py` `USER_GUIDE` .
 - Changed `README.md`.
+- Fix hybrid search returning fewer than `knowledge_k` results: FTS-only documents were missing their text content during RRF fusion, causing them to be filtered out.
+- Fix `command` tool failing on Linux/macOS: `chcp 65001` is Windows-only, now conditionally applied.

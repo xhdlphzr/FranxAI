@@ -227,7 +227,7 @@
 - Tools documentation internationalization (multi-document solution).
 
 ## [v4.15.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.1)
-- Fixed bug in `src/agent.py`.
+- Fixed bug in `src/agent.py` where LLM returns invalid JSON, causing Agent to directly crash.
 
 ## [v4.15.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.2)
 - Fixed knowledge panel disappearing on page refresh in `src/static/js/chat.js`.

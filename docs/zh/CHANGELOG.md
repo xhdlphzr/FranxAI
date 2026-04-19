@@ -228,7 +228,7 @@
 - 工具文档国际化（多文档解决）。
 
 ## [v4.15.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.1)
-- 修复 `src/agent.py` 中的 bug。
+- 修复 `src/agent.py` 中 LLM 返回非法 JSON 时 Agent 直接崩溃的问题：增加 `json.loads` 异常捕获，解析失败时将错误信息回传模型自动修正。
 
 ## [v4.15.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.2)
 - 修复知识面板在页面刷新时消失的问题。

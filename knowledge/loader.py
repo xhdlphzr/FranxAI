@@ -15,7 +15,7 @@ import time
 import threading
 
 from .config import PROJECT_ROOT, TOOLS_DIR
-from src.mcps import MCPStdioClient
+from knowledge.mcps import MCPStdioClient
 
 # Internal tool registry
 _internal_tools = {}

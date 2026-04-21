@@ -2,7 +2,6 @@
 
 [English](../../CHANGELOG.md) | **中文**
 
-
 ## [v1.0.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.0.0)
 - 命令行版本初始发布。
 
@@ -247,3 +246,6 @@
 
 ## [v4.15.5](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.5)
 - 修复工具调用消息不匹配问题，解决中断导致的400崩溃。
+
+## [v4.16.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.0)
+- 将 `src/mcps.py` 移动到 `knowledge/mcps.py`，划清知识库（`knowledge`）和交互层（`src`）的边界，防止知识库直接调用交互层的函数。

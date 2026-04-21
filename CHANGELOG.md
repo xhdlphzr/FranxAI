@@ -246,3 +246,6 @@
 
 ## [v4.15.5](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.5)
 - Resolved tool call message mismatch issue and fixed 400 crashes caused by interruptions.
+
+## [v4.15.6](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.6)
+- Moved `src/mcps.py` to `knowledge/mcps.py` to clearly separate the knowledge base (`knowledge`) from the interaction layer (`src`), and prevent the knowledge base from directly calling functions in the interaction layer.

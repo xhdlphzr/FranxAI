@@ -247,5 +247,8 @@
 ## [v4.15.5](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.5)
 - Resolved tool call message mismatch issue and fixed 400 crashes caused by interruptions.
 
-## [v4.15.6](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.6)
+## [v4.16.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.0)
 - Moved `src/mcps.py` to `knowledge/mcps.py` to clearly separate the knowledge base (`knowledge`) from the interaction layer (`src`), and prevent the knowledge base from directly calling functions in the interaction layer.
+
+## [v4.16.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.1)
+- Fixed bug in `src/agent.py` where `thinking` mode is enabled, but `reasoning_content` is empty.

@@ -274,6 +274,7 @@ class FranxAgent:
                     )
 
                 full_content = ""      # Accumulate complete response
+                full_reasoning = ""    # Accumulate reasoning (if enabled)
                 tool_calls_data = {}   # Store tool call data
 
                 # Process streaming response
@@ -284,6 +285,9 @@ class FranxAgent:
                     if delta.content:
                         full_content += delta.content
                         yield delta.content
+                    
+                    if hasattr(delta, 'reasoning_content') and delta.reasoning_content:
+                        full_reasoning += delta.reasoning_content
 
                     # Process tool calls (incremental)
                     if delta.tool_calls:
@@ -307,6 +311,8 @@ class FranxAgent:
                     "content": full_content,
                     "tool_calls": list(tool_calls_data.values()) if tool_calls_data else None
                 }
+                if self.thinking and full_reasoning:
+                    assistant_message["reasoning_content"] = full_reasoning
                 # Append to both current API messages and persistent history
                 current_api_messages.append(assistant_message)
                 

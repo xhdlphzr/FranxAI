@@ -249,3 +249,6 @@
 
 ## [v4.16.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.0)
 - 将 `src/mcps.py` 移动到 `knowledge/mcps.py`，划清知识库（`knowledge`）和交互层（`src`）的边界，防止知识库直接调用交互层的函数。
+
+## [v4.16.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.1)
+- 修复 `src/agent.py` 中 `thinking` 模式下，`reasoning_content` 为空的问题。

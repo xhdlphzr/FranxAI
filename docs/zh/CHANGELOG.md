@@ -2,88 +2,88 @@
 
 [English](../../CHANGELOG.md) | **中文**
 
-## [v1.0.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.0.0)
+## [v1.0.0] - 2026-03-14
 - 命令行版本初始发布。
 
-## [v1.0.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.0.1)
+## [v1.0.1] - 2026-03-14
 - 工具调用能力。
 - 人性化交互设计。
 
-## [v1.1.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.1.0)
+## [v1.1.0] - 2026-03-15
 - 字符串相似度计算工具。
 - 工具调用中的若干问题。
 
-## [v1.1.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.1.1)
+## [v1.1.1] - 2026-03-15
 - 编码问题。
 
-## [v1.1.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.1.2)
+## [v1.1.2] - 2026-03-15
 - `command` 工具增加安全限制，禁止直接删除文件。
 
-## [v1.2.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.2.0)
+## [v1.2.0] - 2026-03-18
 - 对话记忆功能，支持跨会话保留上下文。
 
-## [v1.3.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v1.3.0)
+## [v1.3.0] - 2026-03-21
 - 执行工具。
 - 记忆功能的稳定性。
 
-## [v2.0.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.0.0)
+## [v2.0.0] - 2026-03-21
 - 网络搜索工具（DuckDuckGo，免费）。
 - 全新 Web 界面，支持实时聊天。
 - 一键启动脚本（Windows `.bat` / macOS `.sh`）。
 - 若干已知问题。
 
-## [v2.1.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.1.0)
+## [v2.1.0] - 2026-03-21
 - 聊天响应改为流式输出。
 
-## [v2.1.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.1.1)
+## [v2.1.1] - 2026-03-21
 - 提升用户体验。
 
-## [v2.2.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.2.0)
+## [v2.2.0] - 2026-03-21
 - 停止生成按钮，可随时中断 AI 回复。
 - 优化用户体验细节。
 
-## [v2.3.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.3.0)
+## [v2.3.0] - 2026-03-21
 - 增加更多可配置参数（温度、最大迭代次数等）。
 
-## [v2.4.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.4.0)
+## [v2.4.0] - 2026-03-22
 - 多模态理解工具 `ett`，支持图片、视频、文档分析。
 
-## [v2.4.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.4.1)
+## [v2.4.1] - 2026-03-23
 - 记忆功能兼容性问题。
 
-## [v2.5.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v2.5.0)
+## [v2.5.0] - 2026-03-24
 - 北京地铁换乘规划工具。
 - 切换至 GPL v3 许可证。
 
-## [v3.0.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.0.0)
+## [v3.0.0] - 2026-03-27
 - MCP 协议支持（stdio 模式），可连接任意 MCP 服务器。
 - 项目更名为 FranxAI。
 - 重构为“大一统工具”架构，所有内置工具及 MCP 工具统一通过 `tools` 调用，显著降低 token 消耗。
 
-## [v3.1.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.1.0)
+## [v3.1.0] - 2026-03-28
 - Web 界面中添加定时任务管理（添加、删除、实时执行）。
 - 定时任务执行结果通过 SSE 实时推送，支持中途停止。
 
-## [v3.2.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.2.0)
+## [v3.2.0] - 2026-03-28
 - 技能系统：`skills/` 文件夹下的 Markdown 文件自动合并到系统提示，扩展 AI 知识。
 - 代码重构，清理历史遗留问题。
 
-## [v3.2.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.2.1)
+## [v3.2.1] - 2026-03-28
 - macOS 启动脚本兼容性调整。
 - 为所有文档添加 GPL 许可声明。
 
-## [v3.2.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.2.2)
+## [v3.2.2] - 2026-03-28
 - 系统提示词优化，增强 AI 行为可控性。
 
-## [v3.2.3](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.2.3)
+## [v3.2.3] - 2026-03-28
 - 为工具 README 添加类型限制，确保加载稳定。
 
-## [v3.3.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v3.3.0)
+## [v3.3.0] - 2026-03-29
 - 后端 Markdown 渲染（`python-markdown`）。
 - 前端 KaTeX 数学公式渲染（支持 `$...$` 和 `$$...$$`）。
 - 用户消息同样支持 Markdown 和数学公式。
 
-## [v4.0.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.0.0)
+## [v4.0.0] - 2026-03-29
 - **向量知识库**：统一所有知识源（工具说明、技能文件、MCP 工具描述、对话历史），通过 `sentence-transformers` 自动构建本地向量库，实现语义检索。
 - **动态系统提示增强**：每次对话前，根据用户输入从向量库检索最相关的知识片段（数量可配置 `knowledge_k`），动态注入系统提示，大幅降低 token 消耗，同时让 AI 获得精准上下文。
 - **对话历史持久化**：将完整对话问答对自动保存到 `skills/memories/` 目录，下次启动时自动纳入知识库，实现跨会话“记忆”检索。
@@ -95,29 +95,29 @@
 - 解决了 MCP 工具描述未加入知识库的遗漏，AI 现在能通过检索发现可用工具。
 - 删除 `memory.txt` 相关代码，不再生成或读取该文件。
 
-## [v4.0.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.0.1)
+## [v4.0.1] - 2026-03-30
 - 将 `skills/` 目录改名为 `knowledge/` 目录，并将原本的 `skills/` 迁移到 `knowledge/skills/`。
 
-## [v4.1.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.1.0)
+## [v4.1.0] - 2026-04-02
 - 增加深度向量库功能：支持递归检索 + 自动去重，通过多次扩展查询获取更相关的知识片段。
 
-## [v4.2.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.2.0)
+## [v4.2.0] - 2026-04-04
 - 对话结束后立即将问答对向量化并存入知识库，无需重启即可生效。
 - 启动时仅处理新增、修改或删除的 `.md` 文件，大幅提升启动速度。
 - `SentenceTransformer` 模型只加载一次，后续检索复用，搜索速度提升 5~10 倍。
 - 对话记忆备份从 `skills/memories/` 移至 `knowledge/memories/`，并排除该目录的自动扫描，更改了v4.0.1的bug。
 - 删除 `session_histories` 及退出时批量写入逻辑，简化代码。
 
-## [v4.3.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.3.0)
+## [v4.3.0] - 2026-04-04
 - 项目全面国际化：所有注释、日志、内部提示完全英文化。
 
-## [v4.4.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.4.0)
+## [v4.4.0] - 2026-04-04
 - 为向量检索增加了基于类型的权重：工具文档（type='tool'）权重为 1.0，技能（type='skill'）为 0.8，对话记忆（type='conversation'）为 0.2。这一改进优先返回可操作的工具，降低背景知识和对话历史噪音，提升检索相关性。
 
-## [v4.4.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.4.1)
+## [v4.4.1] - 2026-04-04
 - 减少冗余记忆，解决i18n遗留bug。
 
-## [v4.5.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.5.0)
+## [v4.5.0] - 2026-04-05
 - 新增混合搜索（向量 + FTS5），结合语义相似度与关键词匹配，提升知识检索准确性。  
 - 新增基于类型的权重：工具（1.0）优先级高于技能（0.8）和对话记忆（0.2）。
 - 新增倒数排名融合（RRF），将向量和 FTS 的排名合并为单一得分。
@@ -131,7 +131,7 @@
 - 修复技能文档霸占搜索结果的问题：通过调整类型权重、文档语言顺序以及依赖 FTS 进行关键词匹配解决。
 - 修复增量更新忽略 `memories/` 目录的问题：将该目录纳入文件状态收集。
 
-## [v4.6.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.6.0)
+## [v4.6.0] - 2026-04-06
 - 全新动画系统 **Breath of Motion**：引入液态玻璃底部 Dock、页面滑动切换、AI 回复呼吸小球，以及控制台和知识面板的平滑伸缩动画。
 - 增加 RSA 密码认证：首次启动自动生成密钥对，前端公钥加密传输，后端私钥解密，提升登录安全性。
 - 增加 JWT 会话管理：登录后签发短期令牌（默认 1 小时），支持“刷新即重登”模式（令牌仅存内存，刷新页面即失效）。
@@ -141,56 +141,56 @@
 - 控制台不再自动展开：由用户主动点击打开，避免干扰聊天体验。
 - 增加对话记忆实时插入向量库时的空文本检查，避免无效记录污染检索结果。
 
-## [v4.6.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.6.1)
+## [v4.6.1] - 2026-04-06
 - 修复 `agent.py` 中多轮对话历史被重置的问题，现在同一 `FranxAgent` 实例的多次 `input` 调用能够正确保留上下文。  
 - 优化系统提示发送策略：`USER_GUIDE` 仅在会话开始时发送一次，不再每轮重复，显著降低 token 消耗。  
 - 动态检索的知识现在以临时系统消息注入，不影响持久化对话历史。  
 - 修复工具调用循环中消息同步问题，确保工具结果正确追加到历史中。  
 - 其他细节改进与代码注释优化。
 
-## [v4.6.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.6.2)
+## [v4.6.2] - 2026-04-07
 - 更改 `agent.py` 中的 `USER_GUIDE`。
 
-## [v4.6.3](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.6.3)
+## [v4.6.3] - 2026-04-07
 - 修复 Flask 的 `app.secret_key` 硬编码安全漏洞，改为从 `config.json` 读取随机生成的密钥（首次启动自动生成）。以前为了图省事直接在代码中写死，对不起。
 
-## [v4.7.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.7.0)
+## [v4.7.0] - 2026-04-07
 - 删除了 `config.json` 中 `ett` 工具的 `base_url` 字段，因为不再需要。
 - 调整用户体验，启动时自动复制 `config.example.json` 并改名为 `config.json`，用户无需手动操作。
 - 增加点击确认免责声明框，用户必须点击确认后才能继续使用。
 - 新增了抖动动画。
 
-## [v4.7.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.7.1)
+## [v4.7.1] - 2026-04-08
 - 增加 `.gitignore` 文件。
 
-## [v4.8.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.8.0)
+## [v4.8.0] - 2026-04-09
 - 增加了全平台共享聊天记录的功能。
 - 修复了部分回复内容保存问题。
 
-## [v4.8.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.8.1)
+## [v4.8.1] - 2026-04-11
 - 更改了 `README.md`。
 
-## [v4.8.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.8.2)
+## [v4.8.2] - 2026-04-11
 - 更改了 `src/agent.py` 内的 `USER_GUIDE`。
 
-## [v4.8.3](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.8.3)
+## [v4.8.3] - 2026-04-11
 - 修复了 `src/templates/index.html` 中的数学公式渲染问题。
 - 修复动画优先bug。
 
-## [v4.9.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.9.0)
+## [v4.9.0] - 2026-04-12
 - 更改了工具和消息的顺序，按照时间排序。
 - 增加了 `command` 和 `write` 工具的确认功能。
 - 修复了一些已知问题。
 - 更名为 `FranxAgent`。
 
-## [v4.9.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.9.1)
+## [v4.9.1] - 2026-04-14
 - 文档修复。
 
-## [v4.10.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.10.0)
+## [v4.10.0] - 2026-04-14
 - `read` 工具合并了 `ett` 工具的功能，并且将文件部分交给 `markitdown` 工具处理。
 - 文档修复。
 
-## [v4.11.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.11.0)
+## [v4.11.0] - 2026-04-18
 - 基于 YAML 的 i18n 国际化系统（`i18n/en.yaml`、`i18n/zh.yaml`）。
 - `/api/i18n` 接口，根据 `config.json` 的 `language` 字段返回翻译。
 - 配置页语言下拉框，保存后即时切换语言。
@@ -198,16 +198,16 @@
 - 翻译回退链：`<lang>.yaml` → `en.yaml` → 键名。
 - 将中文文档迁移到了 `docs/zh/` 目录下。
 
-## [v4.12.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.12.0)
+## [v4.12.0] - 2026-04-18
 - `add_skill` 工具：AI 可将可复用技能添加为 Markdown 文件并立即索引到知识库——零重启，实时检索。
 - `knowledge/tools/add_skill/tool.py` — 一次调用完成写文件 + 向量化 + 更新 file_versions。
 - `knowledge/tools/add_skill/README.md` — 供 AI 检索的工具说明。
 - `USER_GUIDE` 新增 `add_skill` 使用指南，包含适用与不适用场景。
 
-## [v4.12.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.12.1)
+## [v4.12.1] - 2026-04-18
 - 修复 `add_skill` 工具的 bug。
 
-## [v4.13.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.13.0)
+## [v4.13.0] - 2026-04-18
 - 大重构：拆分 `knowledge/__init__.py` 为 `config.py`、`loader.py`、`vector.py`、`search.py`、`memory.py` — 每个模块职责单一。
 - 大重构：拆分 `src/app.py` 为 `state.py`、`auth.py`、`scheduler.py` 及 `routes/` 目录（`auth.py`、`chat.py`、`config.py`、`tasks.py`）— 每个文件对应明确领域。
 - 大重构：CSS 抽取为 `static/css/index.css`、`login.css`、`register.css`。
@@ -216,20 +216,20 @@
 - `save_skill/tool.py` 更新为新模块路径（`knowledge.vector.add_document`、`knowledge.config`）。
 - 启动方式变更：需从项目根目录执行 `python -m src.app`（因包导入调整）。
 
-## [v4.14.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.14.0)
+## [v4.14.0] - 2026-04-19
 - `read` 工具集成 tree-sitter：代码文件自动返回 AST 结构骨架（类、函数、导入等）及行号范围，支持 11 种语言（C/C++/Python/Java/Rust/Go/JS/HTML/CSS/TS/C#）。
 - `read` 工具输出增加行号：所有文本文件（含非代码文件）返回带行号的内容，便于精确定位。
 - `read` 工具支持目录扫描：传入目录路径时，返回项目结构地图（所有代码文件的骨架摘要），一次调用即可了解全局架构。
 - `write` 工具新增 `edit` 模式：按行号范围（`line_start`、`line_end`）精确替换文件内容，与 `read` 的行号体系完全对齐。
 - 更新中英文 README，同步工具说明与使用示例。
 
-## [v4.15.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.0)
+## [v4.15.0] - 2026-04-19
 - 工具文档国际化（多文档解决）。
 
-## [v4.15.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.1)
+## [v4.15.1] - 2026-04-19
 - 修复 `src/agent.py` 中 LLM 返回非法 JSON 时 Agent 直接崩溃的问题：增加 `json.loads` 异常捕获，解析失败时将错误信息回传模型自动修正。
 
-## [v4.15.2](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.2)
+## [v4.15.2] - 2026-04-19
 - 修复知识面板在页面刷新时消失的问题。
 - 修复刷新页面导致 Agent 卡死的问题：增加 SSE 心跳检测客户端断开，避免确认等待时线程死锁。
 - 调整 `src/agent.py` 中的 `USER_GUIDE`。
@@ -237,20 +237,20 @@
 - 修复混合检索结果数量不足 `knowledge_k` 的问题：仅被 FTS 命中的文档在 RRF 融合时缺少文本内容，导致被过滤掉。
 - 修复 `command` 工具在 Linux/macOS 上报错的问题：`chcp 65001` 仅限 Windows，现在按平台条件执行。
 
-## [v4.15.3](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.3)
+## [v4.15.3] - 2026-04-19
 - 实现上下文自动压缩，触发超长报错时智能压缩并重试。
 - 修复工具调用消息不匹配问题，解决中断导致的400崩溃。
 
-## [v4.15.4](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.4)
+## [v4.15.4] - 2026-04-19
 - 修复 `write` 工具在 `edit` 模式下在前端界面的问题：增加 `start_line` 和 `end_line` 参数。
 
-## [v4.15.5](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.15.5)
+## [v4.15.5] - 2026-04-19
 - 修复工具调用消息不匹配问题，解决中断导致的400崩溃。
 
-## [v4.16.0](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.0)
+## [v4.16.0] - 2026-04-21
 - 将 `src/mcps.py` 移动到 `knowledge/mcps.py`，划清知识库（`knowledge`）和交互层（`src`）的边界，防止知识库直接调用交互层的函数。
 
-## [v4.16.1](https://github.com/xhdlphzr/FranxAgent/releases/tag/v4.16.1)
+## [v4.16.1] - 2026-04-25
 - 修复 `src/agent.py` 中 `thinking` 模式下，`reasoning_content` 为空的问题。
 
 ## [v4.17.0] - 2026-04-26

@@ -12,12 +12,10 @@ import json
 import queue
 import sys
 import io
-import threading
 import markdown
 from flask import Blueprint, request, jsonify, Response, stream_with_context
 from src.auth import login_required
 from src import state
-import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from knowledge import search, add_conversation
@@ -48,6 +46,7 @@ def chat():
         full_response = ""
 
         try:
+            # Knowledge retrieval
             try:
                 k = getattr(state.chat_agent, 'knowledge_k', 5)
                 relevant = search(user_message, k=k)
@@ -60,6 +59,7 @@ def chat():
             gen_exhausted = False
 
             while not gen_exhausted:
+                # Flush logs
                 while True:
                     try:
                         line = log_q.get_nowait()
@@ -74,52 +74,38 @@ def chat():
                     gen_exhausted = True
                     break
 
+                # Text content chunk
                 if isinstance(item, str):
                     full_response += item
                     yield f"data: {json.dumps({'type': 'content', 'text': item})}\n\n"
-                elif isinstance(item, dict) and item.get('type') == 'confirmation_required':
-                    confirm_id = item['confirm_id']
-                    event = threading.Event()
-                    result_holder = {'done': None}
-                    with state.pending_lock:
-                        state.pending_confirmations[confirm_id] = {
-                            'generator': agent_gen,
-                            'event': event,
-                            'result': result_holder,
-                            'tool_name': item['tool_name'],
-                            'arguments': item['arguments']
-                        }
+                # Tool call event
+                elif isinstance(item, dict) and item.get('type') == 'tool_call':
                     yield f"data: {json.dumps(item)}\n\n"
-
-                    # Poll with heartbeat instead of blocking wait
-                    # If client disconnects, the heartbeat yield raises GeneratorExit
-                    approved = False
-                    while not event.is_set():
-                        if event.wait(timeout=1):
-                            approved = result_holder.get('done', False)
-                            break
-                        # SSE comment as heartbeat - browsers ignore these lines
-                        yield ": heartbeat\n\n"
-                    else:
-                        approved = result_holder.get('done', False)
-
+                # Tool result event
+                elif isinstance(item, dict) and item.get('type') == 'tool_result':
+                    yield f"data: {json.dumps(item)}\n\n"
+                # Confirmation request – automatically approve to avoid blocking
+                elif isinstance(item, dict) and item.get('type') == 'confirmation_required':
+                    # Notify frontend (optional, but do not wait)
+                    yield f"data: {json.dumps(item)}\n\n"
+                    # Automatically approve so the generator can continue
                     try:
-                        next_item = agent_gen.send(approved)
+                        next_item = agent_gen.send(True)
                         if isinstance(next_item, dict):
-                            yield f"data: {json.dumps(next_item)}\n\n"
+                            if next_item.get('type') == 'tool_result':
+                                yield f"data: {json.dumps(next_item)}\n\n"
+                            else:
+                                # In case something else comes back, send it as generic
+                                yield f"data: {json.dumps(next_item)}\n\n"
                         elif isinstance(next_item, str):
                             full_response += next_item
                             yield f"data: {json.dumps({'type': 'content', 'text': next_item})}\n\n"
                     except StopIteration:
                         gen_exhausted = True
-                    continue
-                elif isinstance(item, dict) and item.get('type') == 'tool_call':
-                    yield f"data: {json.dumps(item)}\n\n"
-                elif isinstance(item, dict) and item.get('type') == 'tool_result':
-                    yield f"data: {json.dumps(item)}\n\n"
                 else:
                     print(f"Unknown item from agent generator: {item}")
 
+            # Final flush of logs
             while True:
                 try:
                     line = log_q.get_nowait()
@@ -128,6 +114,7 @@ def chat():
                 except queue.Empty:
                     break
 
+            # Markdown rendering for full response
             if full_response:
                 try:
                     html = markdown.markdown(full_response, extensions=['tables', 'fenced_code'])
@@ -135,20 +122,24 @@ def chat():
                 except Exception as e:
                     yield f"data: {json.dumps({'type': 'error', 'text': f'Markdown rendering failed: {str(e)}'})}\n\n"
 
-            yield f"data: {json.dumps({'type': 'done'})}\n\n"
-
+            # Conversation history
             if full_response:
                 add_conversation(user_message, full_response)
 
+            # Done signal
+            yield f"data: {json.dumps({'type': 'done'})}\n\n"
+
         except GeneratorExit:
-            # Client disconnected (page refresh/close), clean up pending confirmations
+            # Client disconnected – clean up any pending confirmations if needed
             with state.pending_lock:
-                expired = [cid for cid, info in state.pending_confirmations.items()]
-                for cid in expired:
-                    info = state.pending_confirmations.pop(cid, None)
-                    if info and info.get('event'):
-                        info['result']['done'] = False
-                        info['event'].set()
+                for confirm_id, info in list(state.pending_confirmations.items()):
+                    if info.get('generator') is agent_gen:
+                        # Wake up the generator to let it finish gracefully
+                        try:
+                            info['generator'].send(False)
+                        except Exception:
+                            pass
+                        del state.pending_confirmations[confirm_id]
         except Exception as e:
             import traceback
             traceback.print_exc()

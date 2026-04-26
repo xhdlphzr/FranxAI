@@ -210,6 +210,7 @@ class FranxAgent:
         self.tools_metadata = tools_metadata
         self.tools = self.tools_metadata
 
+        self.messages = [{}]
         if os.path.exists("messages.json"):
             with open("messages.json", "r") as f:
                 self.messages = json.load(f)
@@ -219,16 +220,45 @@ class FranxAgent:
         # Persistent message history: first message is always the base system prompt
         self.messages[0] = {"role": "system", "content": self.base_system_prompt}
 
-        def download_messages(self):
-            """
-            Download the current message history to a file
-            """
-            with open("./messages.json", "w") as f:
-                json.dump(self.messages, f, ensure_ascii=False, indent=4)
-
         # Register cleanup of MCP clients on exit
         atexit.register(cleanup_mcp_clients)
-        atexit.register(download_messages)
+        atexit.register(self._save_messages)   # Fixed: use instance method
+
+    def _save_messages(self):
+        """Save current message history to messages.json."""
+        try:
+            with open("./messages.json", "w") as f:
+                json.dump(self.messages, f, ensure_ascii=False, indent=4)
+        except Exception:
+            pass
+
+    def _clean_orphan_tool_messages(self):
+        """Remove tool messages without a matching assistant tool_call and vice versa."""
+        # Collect all tool_call_ids that have a tool response
+        matched_ids = set()
+        for msg in self.messages:
+            if msg.get("role") == "tool":
+                cid = msg.get("tool_call_id")
+                if cid:
+                    matched_ids.add(cid)
+
+        new_messages = []
+        for msg in self.messages:
+            role = msg.get("role")
+            if role == "assistant" and msg.get("tool_calls"):
+                # Keep only tool_calls that have a matching result
+                filtered = [tc for tc in msg["tool_calls"] if tc["id"] in matched_ids]
+                if filtered:
+                    new_msg = msg.copy()
+                    new_msg["tool_calls"] = filtered
+                    new_messages.append(new_msg)
+                # else discard this assistant message
+            elif role == "tool":
+                if msg.get("tool_call_id") in matched_ids:
+                    new_messages.append(msg)
+            else:
+                new_messages.append(msg)
+        self.messages = new_messages
 
     def input(self, msg: str):
         """
@@ -467,27 +497,47 @@ class FranxAgent:
         """
         Summarize conversation content for memory management, yielding the summary incrementally
         """
-        to_summarize = self.messages[1:idx]
-        to_summarize.append({"role": "user", "content": SUMMARIZE_GUIDE})
-        stream = self.client.chat.completions.create(
-            model=self.model,
-            messages=to_summarize,
-            stream=True
-        )
-        full_summary = ""
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                full_summary += chunk.choices[0].delta.content
-                yield chunk.choices[0].delta.content
-        # Update message list: keep system prompt, replace with summary
-        self.messages = [self.messages[0]] + [{"role": "system", "content": full_summary}] + self.messages[idx:]
+        # Check if the segment to summarize contains any tool-related messages
+        segment = self.messages[1:idx]
+        has_tools = any(msg.get("tool_calls") or msg.get("role") == "tool" for msg in segment)
+        
+        if has_tools:
+            # If the segment contains tool interactions, delete it directly without summary
+            self.messages = [self.messages[0]] + self.messages[idx:]
+        else:
+            # Normal summary generation
+            to_summarize = self.messages[1:idx]
+            to_summarize.append({"role": "user", "content": SUMMARIZE_GUIDE})
+            stream = self.client.chat.completions.create(
+                model=self.model,
+                messages=to_summarize,
+                stream=True
+            )
+            full_summary = ""
+            for chunk in stream:
+                if chunk.choices[0].delta.content:
+                    full_summary += chunk.choices[0].delta.content
+                    yield chunk.choices[0].delta.content
+            # Update message list: keep system prompt, replace with summary
+            self.messages = [self.messages[0]] + [{"role": "system", "content": full_summary}] + self.messages[idx:]
+        
+        # Clean orphan tool messages after modification
+        self._clean_orphan_tool_messages()
+        return
 
     def memory(self):
         """
         Memory management: automatically compress when context is too long
         """
+        # First remove any existing orphan tool messages
+        self._clean_orphan_tool_messages()
+        
         if len(self.messages) <= 5:  # Keep at least 5 messages (system + some context)
             return
         # Compress the oldest half of the conversation
-        for _ in self.summarize_msg(len(self.messages) // 2 + 1):
+        idx = len(self.messages) // 2 + 1
+        gen = self.summarize_msg(idx)
+        for _ in gen:
             pass
+        # Final cleanup
+        self._clean_orphan_tool_messages()

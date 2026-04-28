@@ -269,9 +269,9 @@ function addConfirmationBlock(msgDiv, confirmId, toolName, argumentsObj) {
         const path = params.path || '';
         const mode = params.mode || 'overwrite';
         const content = params.content || '';
-        const StartLine = params.start_line || 0;
-        const EndLine = params.end_line || 0;
-        displayParams = t('tool.confirm_write_template', {path, mode, content, StartLine, EndLine});
+        const startLine = params.start_line || 0;
+        const endLine = params.end_line || 0;
+        displayParams = t('tool.confirm_write_template', {path, mode, content, startLine, endLine});
     } else if (toolName === 'command') {
         const command = params.command || '';
         displayParams = t('tool.confirm_command_template', { command });

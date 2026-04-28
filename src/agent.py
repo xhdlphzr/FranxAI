@@ -497,31 +497,53 @@ class FranxAgent:
         """
         Summarize conversation content for memory management, yielding the summary incrementally
         """
-        # Check if the segment to summarize contains any tool-related messages
-        segment = self.messages[1:idx]
-        has_tools = any(msg.get("tool_calls") or msg.get("role") == "tool" for msg in segment)
-        
-        if has_tools:
-            # If the segment contains tool interactions, delete it directly without summary
-            self.messages = [self.messages[0]] + self.messages[idx:]
-        else:
-            # Normal summary generation
-            to_summarize = self.messages[1:idx]
-            to_summarize.append({"role": "user", "content": SUMMARIZE_GUIDE})
-            stream = self.client.chat.completions.create(
-                model=self.model,
-                messages=to_summarize,
-                stream=True
-            )
-            full_summary = ""
-            for chunk in stream:
-                if chunk.choices[0].delta.content:
-                    full_summary += chunk.choices[0].delta.content
-                    yield chunk.choices[0].delta.content
-            # Update message list: keep system prompt, replace with summary
-            self.messages = [self.messages[0]] + [{"role": "system", "content": full_summary}] + self.messages[idx:]
-        
-        # Clean orphan tool messages after modification
+        # Clean orphan tool messages first
+        self._clean_orphan_tool_messages()
+
+        # Split: old segment to compress, recent segment to keep untouched
+        old_part = self.messages[1:idx]
+        recent_part = self.messages[idx:]
+
+        # Collect all plain-text messages from the old segment
+        text_messages = []
+        for msg in old_part:
+            role = msg.get("role")
+            if role == "tool":
+                continue  # discard tool results
+            if role == "assistant":
+                # Keep only the text content, discard reasoning and tool_calls
+                if msg.get("content"):
+                    text_messages.append({"role": "assistant", "content": msg["content"]})
+            elif role == "user":
+                text_messages.append({"role": "user", "content": msg["content"]})
+            else:
+                # system messages etc. — keep as-is
+                text_messages.append(msg)
+
+        # If nothing left to summarize, just discard the old segment
+        if not text_messages:
+            self.messages = [self.messages[0]] + recent_part
+            self._clean_orphan_tool_messages()
+            return
+
+        # Generate summary from the extracted text
+        to_summarize = text_messages.copy()
+        to_summarize.append({"role": "user", "content": SUMMARIZE_GUIDE})
+        stream = self.client.chat.completions.create(
+            model=self.model,
+            messages=to_summarize,
+            stream=True
+        )
+        full_summary = ""
+        for chunk in stream:
+            if chunk.choices[0].delta.content:
+                full_summary += chunk.choices[0].delta.content
+                yield chunk.choices[0].delta.content
+
+        # Replace the old segment with the generated summary
+        self.messages = [self.messages[0]] + [{"role": "system", "content": full_summary}] + recent_part
+
+        # Clean up any orphan tool messages left over
         self._clean_orphan_tool_messages()
         return
 

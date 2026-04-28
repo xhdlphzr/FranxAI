@@ -29,7 +29,7 @@ tool:
   approve: "✓ 同意"
   reject: "✗ 拒绝"
   rejected: "❌ 工具执行已拒绝"
-  confirm_write_template: "路径：{path}\n模式：{mode}\n起始行：{start_line}\n结束行：{end_line}\n\n内容：\n```\n{content}\n```"
+  confirm_write_template: "路径：{path}\n模式：{mode}\n起始行：{startLine}\n结束行：{endLine}\n\n内容：\n```\n{content}\n```"
   confirm_command_template: "```\n{command}\n```"
 
 config:

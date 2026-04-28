@@ -100,7 +100,7 @@ async function loadMessagesFromServer() {
             }
             mergedMessages.forEach(msg => {
                 if (msg.role === 'user') {
-                    addMessage('user', msg.content);
+                    addMessage('user', msg.content, false, '', true);
                 } else if (msg.role === 'assistant') {
                     const msgDiv = document.createElement('div');
                     msgDiv.className = 'message assistant';

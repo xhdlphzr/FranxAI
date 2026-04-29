@@ -41,7 +41,6 @@ config:
   temperature: "Temperature"
   thinking: "Deep Thinking"
   max_iterations: "Max Iterations"
-  threshold: "Memory Compression Threshold"
   knowledge_k: "Knowledge Retrieval Count"
   settings: "System Settings"
   ett_header: "📸 ETT (Multimodal) Tool Configuration"

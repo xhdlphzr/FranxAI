@@ -6,7 +6,6 @@
     "temperature": 0.8,
     "thinking": false,
     "max_iterations": 100,
-    "threshold": 20,
     "knowledge_k": 5,
     "settings": "You are a helpful AI assistant.",
     "tools": {

@@ -85,7 +85,6 @@ In `config.json`, you can adjust the following parameters:
 | `temperature` | float | `0.8` | Randomness, range 0–2 (but recommended 0–1). Lower = more deterministic, higher = more creative. |
 | `thinking` | bool | `false` | Enable deep thinking mode (GLM models only). The model outputs reasoning steps but responds slightly slower. |
 | `max_iterations` | int | `100` | Max tool call iterations to prevent infinite loops. |
-| `threshold` | int | `20` | Message count threshold for history compression. When exceeded, the oldest 10 messages are summarised. |
 | `knowledge_k` | int | `5` | Number of knowledge snippets retrieved per conversation for knowledge‑augmented prompts. Larger values inject more system prompt but may bring more relevant info. |
 | `mcp_servers` | list | `[]` | List of MCP server configurations, each with `name`, `command`, `args` (optional). Example: `[{"name": "windows-mcp", "command": "uvx", "args": ["windows-mcp"]}]`. |
 
@@ -119,7 +118,6 @@ Inside the `tools` field, you can specify separate parameters for `ett` (multimo
     "temperature": 0.8,
     "thinking": false,
     "max_iterations": 100,
-    "threshold": 20,
     "knowledge_k": 5,
     "settings": "You are a helpful AI assistant.",
     "tools": {
@@ -230,7 +228,6 @@ Copy some tools from the [tools branch](https://github.com/xhdlphzr/FranxAgent/t
 ## 🧠 Memory & Scheduled Tasks
 
 - **Long‑term memory**: FranxAgent no longer relies on `memory.txt`. Complete conversation history is automatically saved to `knowledge/memories/` (one `.md` file per session). On next startup, these histories are loaded into the vector knowledge base, allowing the AI to recall previous conversations via **hybrid retrieval (vector semantics + keyword matching)**.
-- **History compression**: When messages exceed `threshold`, the first half is compressed into a summary to keep context within limits.
 - **Scheduled tasks**: Background thread checks `tasks.json` every 10 seconds; executes commands at specified times (HH:MM). Supports daily repetition without duplication.
 
 ---

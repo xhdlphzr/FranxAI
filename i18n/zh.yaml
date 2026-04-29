@@ -41,7 +41,6 @@ config:
   temperature: "温度"
   thinking: "深度思考"
   max_iterations: "最大迭代次数"
-  threshold: "记忆压缩阈值"
   knowledge_k: "知识检索数量"
   settings: "系统设置"
   ett_header: "📸 ETT（多模态理解）工具配置"

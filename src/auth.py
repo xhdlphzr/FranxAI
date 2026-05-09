@@ -5,18 +5,21 @@
 # You should have received a copy of the GNU Affero General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Authentication - RSA key management, JWT tokens, bcrypt, login_required decorator
+Authentication - ECC key management, JWT tokens, bcrypt, login_required decorator
 """
 
 import os
+import base64
 import secrets
 from functools import wraps
 from datetime import datetime, timezone, timedelta
 
 import bcrypt
 import jwt
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.kdf.hkdf import HKDF
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
 from flask import request, jsonify
 
@@ -25,9 +28,14 @@ from src.state import load_config, save_config
 PRIVATE_KEY_FILE = "private.key"
 PUBLIC_KEY_FILE = "public.key"
 
+# ECC curve: NIST P-256
+CURVE = ec.SECP256R1()
 
-def generate_rsa_keys():
-    private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+# HKDF info string for domain separation
+HKDF_INFO = b'franxagent-ecc-encryption'
+
+def generate_ecc_keys():
+    private_key = ec.generate_private_key(CURVE)
     public_key = private_key.public_key()
     with open(PRIVATE_KEY_FILE, "wb") as f:
         f.write(private_key.private_bytes(
@@ -42,18 +50,46 @@ def generate_rsa_keys():
         ))
     if os.name != 'nt':
         os.chmod(PRIVATE_KEY_FILE, 0o600)
-    print("✅ Generated RSA key pair.")
-
+    print("✅ Generated ECC key pair (P-256).")
 
 def load_private_key():
     with open(PRIVATE_KEY_FILE, "rb") as f:
         return serialization.load_pem_private_key(f.read(), password=None)
 
-
 def load_public_key_pem():
     with open(PUBLIC_KEY_FILE, "r") as f:
         return f.read()
 
+def ecc_decrypt(private_key, encrypted_data: dict) -> bytes:
+    """
+    Decrypt data encrypted with ECIES (ECDH + HKDF + AES-256-GCM).
+
+    encrypted_data expects:
+        - ephemeral_key: base64-encoded SPKI DER of the ephemeral public key
+        - iv: base64-encoded 12-byte nonce
+        - ciphertext: base64-encoded AES-GCM ciphertext (includes 16-byte tag)
+    """
+    ephemeral_key_der = base64.b64decode(encrypted_data['ephemeral_key'])
+    iv = base64.b64decode(encrypted_data['iv'])
+    ciphertext = base64.b64decode(encrypted_data['ciphertext'])
+
+    # Import client's ephemeral public key
+    ephemeral_public_key = serialization.load_der_public_key(ephemeral_key_der)
+
+    # ECDH key exchange
+    shared_secret = private_key.exchange(ec.ECDH(), ephemeral_public_key)
+
+    # Derive AES-256 key via HKDF
+    derived_key = HKDF(
+        algorithm=hashes.SHA256(),
+        length=32,
+        salt=None,
+        info=HKDF_INFO,
+    ).derive(shared_secret)
+
+    # Decrypt with AES-256-GCM (tag is already appended to ciphertext)
+    aesgcm = AESGCM(derived_key)
+    return aesgcm.decrypt(iv, ciphertext, None)
 
 def generate_jwt_token():
     config = load_config()
@@ -69,7 +105,6 @@ def generate_jwt_token():
     }
     return jwt.encode(payload, secret, algorithm="HS256")
 
-
 def verify_jwt_token(token):
     config = load_config()
     secret = config.get("jwt_secret")
@@ -80,7 +115,6 @@ def verify_jwt_token(token):
         return True
     except jwt.InvalidTokenError:
         return False
-
 
 def login_required(f):
     @wraps(f)
@@ -94,7 +128,18 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated
 
-
-# Initialize RSA keys on first run
+# Initialize ECC keys on first run (or migrate from old RSA keys)
 if not os.path.exists(PRIVATE_KEY_FILE) or not os.path.exists(PUBLIC_KEY_FILE):
-    generate_rsa_keys()
+    generate_ecc_keys()
+else:
+    # Check if existing key is RSA (from old version) and regenerate as ECC
+    try:
+        key = load_private_key()
+        if not isinstance(key, ec.EllipticCurvePrivateKey):
+            print("⚠️ Existing key is not ECC, regenerating...")
+            os.remove(PRIVATE_KEY_FILE)
+            os.remove(PUBLIC_KEY_FILE)
+            generate_ecc_keys()
+    except Exception:
+        print("⚠️ Failed to load existing key, regenerating...")
+        generate_ecc_keys()

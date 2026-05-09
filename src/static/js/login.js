@@ -22,6 +22,90 @@ async function fetchPublicKey() {
     return data.public_key;
 }
 
+// ECIES encryption using Web Crypto API (ECDH + HKDF + AES-256-GCM)
+async function eccEncrypt(publicKeyPem, plaintext) {
+    // 1. Parse PEM to DER bytes
+    const pemHeader = '-----BEGIN PUBLIC KEY-----';
+    const pemFooter = '-----END PUBLIC KEY-----';
+    const pemContents = publicKeyPem
+        .replace(pemHeader, '')
+        .replace(pemFooter, '')
+        .replace(/\s/g, '');
+    const derBytes = Uint8Array.from(atob(pemContents), c => c.charCodeAt(0));
+
+    // 2. Import server's P-256 public key
+    const serverPublicKey = await crypto.subtle.importKey(
+        'spki',
+        derBytes,
+        { name: 'ECDH', namedCurve: 'P-256' },
+        false,
+        []
+    );
+
+    // 3. Generate ephemeral key pair
+    const ephemeralKeyPair = await crypto.subtle.generateKey(
+        { name: 'ECDH', namedCurve: 'P-256' },
+        true,
+        ['deriveBits']
+    );
+
+    // 4. Export ephemeral public key as SPKI DER
+    const ephemeralPubDer = await crypto.subtle.exportKey('spki', ephemeralKeyPair.publicKey);
+
+    // 5. ECDH derive shared secret
+    const sharedSecret = await crypto.subtle.deriveBits(
+        { name: 'ECDH', public: serverPublicKey },
+        ephemeralKeyPair.privateKey,
+        256
+    );
+
+    // 6. Import shared secret as HKDF key material
+    const hkdfKey = await crypto.subtle.importKey(
+        'raw',
+        sharedSecret,
+        { name: 'HKDF' },
+        false,
+        ['deriveBits']
+    );
+
+    // 7. HKDF derive AES-256 key
+    const aesKeyBits = await crypto.subtle.deriveBits(
+        {
+            name: 'HKDF',
+            hash: 'SHA-256',
+            salt: new Uint8Array(0),
+            info: new TextEncoder().encode('franxagent-ecc-encryption')
+        },
+        hkdfKey,
+        256
+    );
+
+    // 8. Import AES-GCM key
+    const aesKey = await crypto.subtle.importKey(
+        'raw',
+        aesKeyBits,
+        { name: 'AES-GCM' },
+        false,
+        ['encrypt']
+    );
+
+    // 9. Encrypt with random 12-byte IV
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(plaintext);
+    const ciphertext = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv },
+        aesKey,
+        encoded
+    );
+
+    // 10. Return as ECIES payload object
+    return {
+        ephemeral_key: btoa(String.fromCharCode(...new Uint8Array(ephemeralPubDer))),
+        iv: btoa(String.fromCharCode(...iv)),
+        ciphertext: btoa(String.fromCharCode(...new Uint8Array(ciphertext)))
+    };
+}
+
 function validateAgreement() {
     if (!agreeCheckbox.checked) {
         agreeContainer.classList.add('shake');
@@ -92,12 +176,7 @@ async function login() {
     errorMsg.textContent = '';
     try {
         const publicKeyPem = await fetchPublicKey();
-        const encrypt = new JSEncrypt();
-        encrypt.setKey(publicKeyPem);
-        const encrypted = encrypt.encrypt(password);
-        if (!encrypted) {
-            throw new Error(t('login.encryption_failed'));
-        }
+        const encrypted = await eccEncrypt(publicKeyPem, password);
         const resp = await fetch('/api/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

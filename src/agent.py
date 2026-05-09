@@ -174,7 +174,6 @@ class FranxAgent:
 
     def __init__(self, key: str, url: str, model: str,
                  settings="You are a helpful AI assistant.",
-                 max_iterations=100,
                  temperature=0.8,
                  thinking=False,
                  knowledge_k=1):
@@ -184,7 +183,6 @@ class FranxAgent:
         self.client = OpenAI(api_key=key, base_url=url)
         self.model = model
         self.user_settings = settings
-        self.max_iterations = max_iterations
         self.temperature = temperature
         self.thinking = thinking
         self.knowledge_k = knowledge_k   # Number of knowledge fragments to retrieve
@@ -298,8 +296,7 @@ class FranxAgent:
             # Make a working copy that we will update during the tool call loop
             current_api_messages = api_messages.copy()
 
-            iteration = 0
-            while iteration < self.max_iterations:
+            while True:
                 try:
                     # Call the model (based on thinking configuration)
                     if self.thinking:
@@ -478,7 +475,6 @@ class FranxAgent:
                     current_api_messages.extend(tool_messages)
                     self.messages.append(assistant_message)
                     self.messages.extend(tool_messages)
-                    iteration += 1
                     
                 except Exception as e:
                     # If API call fails due to context length, compress and retry
@@ -533,7 +529,7 @@ class FranxAgent:
         # Only IDs with both call and result matter for safety
         paired_ids = set(call_positions.keys()) & set(result_positions.keys())
 
-            for cut_idx in range(2, len(self.messages)):
+        for cut_idx in range(2, len(self.messages)):
             safe = True
             for cid in paired_ids:
                 call_before = call_positions[cid] < cut_idx

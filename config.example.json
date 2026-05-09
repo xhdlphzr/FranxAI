@@ -5,7 +5,6 @@
     "model": "glm-4.7-flash",
     "temperature": 0.8,
     "thinking": false,
-    "max_iterations": 100,
     "knowledge_k": 5,
     "settings": "You are a helpful AI assistant.",
     "tools": {
@@ -14,7 +13,6 @@
             "model": "glm-4.6v-flash",
             "temperature": 0.8,
             "thinking": false,
-            "max_iterations": 100,
             "max_retries": 20
         }
     },

@@ -167,22 +167,6 @@ Add a skill as a Markdown file and immediately indexes it into the knowledge bas
 Now you can start helping the user. Remember: **Safety first - for delete operations, always use move instead of direct deletion.**
 """
 
-# Summary guide: explains how to summarize conversation content
-SUMMARIZE_GUIDE = r"""
-Please summarize the following conversation into a concise paragraph (this paragraph will be passed as long‑term memory to a future AI so it can inherit key information). Write in the third person, focusing on:
-- The user's core needs or questions
-- Confirmed important facts (e.g., file paths, preferences, task status)
-- Tools or actions the AI has executed (e.g., which files were read, what commands were run)
-- Any pending to-do items
-
-Requirements:
-- The summary must be based solely on the provided conversation; do not add any extra content.
-- Keep the language concise, within 150 words.
-- Ignore pleasantries, repetitions, and irrelevant details.
-- If certain information is missing, omit it.
-"""
-
-
 class FranxAgent:
     """
     AI Agent Class
@@ -222,40 +206,58 @@ class FranxAgent:
 
         # Register cleanup of MCP clients on exit
         atexit.register(cleanup_mcp_clients)
-        atexit.register(self._save_messages)   # Fixed: use instance method
+
+        def _safe_save():
+            try:
+                self._save_messages()
+            except Exception as e:
+                print(f"[FranxAgent] Failed to save messages on exit: {e}", file=sys.stderr)
+        atexit.register(_safe_save)
 
     def _save_messages(self):
-        """Save current message history to messages.json."""
-        try:
-            with open("./messages.json", "w") as f:
-                json.dump(self.messages, f, ensure_ascii=False, indent=4)
-        except Exception:
-            pass
+        """Save current message history to messages.json atomically."""
+        tmp_path = "./messages.json.tmp"
+        with open(tmp_path, "w", encoding="utf-8") as f:
+            json.dump(self.messages, f, ensure_ascii=False, indent=4)
+        os.replace(tmp_path, "./messages.json")
 
     def _clean_orphan_tool_messages(self):
         """Remove tool messages without a matching assistant tool_call and vice versa."""
-        # Collect all tool_call_ids that have a tool response
-        matched_ids = set()
+        # Collect all tool_call IDs from assistant messages
+        assistant_call_ids = set()
+        for msg in self.messages:
+            if msg.get("role") == "assistant" and msg.get("tool_calls"):
+                for tc in msg["tool_calls"]:
+                    assistant_call_ids.add(tc["id"])
+
+        # Collect all tool_call_ids from tool messages
+        tool_message_ids = set()
         for msg in self.messages:
             if msg.get("role") == "tool":
                 cid = msg.get("tool_call_id")
                 if cid:
-                    matched_ids.add(cid)
+                    tool_message_ids.add(cid)
+
+        # Valid IDs must appear in BOTH sets (bidirectional match)
+        valid_ids = assistant_call_ids & tool_message_ids
 
         new_messages = []
         for msg in self.messages:
             role = msg.get("role")
             if role == "assistant" and msg.get("tool_calls"):
-                # Keep only tool_calls that have a matching result
-                filtered = [tc for tc in msg["tool_calls"] if tc["id"] in matched_ids]
+                # Keep only tool_calls that have a matching tool result
+                filtered = [tc for tc in msg["tool_calls"] if tc["id"] in valid_ids]
+                new_msg = msg.copy()
                 if filtered:
-                    new_msg = msg.copy()
                     new_msg["tool_calls"] = filtered
-                    new_messages.append(new_msg)
-                # else discard this assistant message
+                else:
+                    # Strip invalid tool_calls but keep the message (preserve text content)
+                    new_msg.pop("tool_calls", None)
+                new_messages.append(new_msg)
             elif role == "tool":
-                if msg.get("tool_call_id") in matched_ids:
+                if msg.get("tool_call_id") in valid_ids:
                     new_messages.append(msg)
+                # else discard orphan tool message (no matching assistant tool_call)
             else:
                 new_messages.append(msg)
         self.messages = new_messages
@@ -356,7 +358,7 @@ class FranxAgent:
                     assistant_message = {
                         "role": "assistant",
                         "content": full_content,
-                        "tool_calls": list(tool_calls_data.values()) if tool_calls_data else None
+                        "tool_calls": [dict(tc) for tc in tool_calls_data.values()] if tool_calls_data else None
                     }
                     if self.thinking and full_reasoning:
                         assistant_message["reasoning_content"] = full_reasoning
@@ -366,6 +368,7 @@ class FranxAgent:
                     # If no tool calls, finish
                     if not tool_calls_data:
                         self.messages.append(assistant_message)
+                        self._save_messages()
                         return
 
                     # Execute tool calls one by one
@@ -497,78 +500,72 @@ class FranxAgent:
                         # Re-raise other exceptions
                         raise
 
+            # Max iterations exhausted — save current state and return
+            self._save_messages()
+            return
+
         except GeneratorExit:
-            # User stopped the output; discard all messages added in this round
-            self.messages = self.messages[:original_len]
-            return
-
-    def summarize_msg(self, idx: int):
-        """
-        Summarize conversation content for memory management, yielding the summary incrementally
-        """
-        # Clean orphan tool messages first
-        self._clean_orphan_tool_messages()
-
-        # Split: old segment to compress, recent segment to keep untouched
-        old_part = self.messages[1:idx]
-        recent_part = self.messages[idx:]
-
-        # Collect all plain-text messages from the old segment
-        text_messages = []
-        for msg in old_part:
-            role = msg.get("role")
-            if role == "tool":
-                continue  # discard tool results
-            if role == "assistant":
-                # Keep only the text content, discard reasoning and tool_calls
-                if msg.get("content"):
-                    text_messages.append({"role": "assistant", "content": msg["content"]})
-            elif role == "user":
-                text_messages.append({"role": "user", "content": msg["content"]})
+            # User stopped; keep committed messages, clean orphans
+            # If only the user message was added (no assistant response), roll back
+            if len(self.messages) == original_len + 1 and self.messages[-1]["role"] == "user":
+                self.messages = self.messages[:original_len]
             else:
-                # system messages etc. — keep as-is
-                text_messages.append(msg)
-
-        # If nothing left to summarize, just discard the old segment
-        if not text_messages:
-            self.messages = [self.messages[0]] + recent_part
-            self._clean_orphan_tool_messages()
+                self._clean_orphan_tool_messages()
+            # Persist current state immediately so messages.json stays complete
+            self._save_messages()
             return
 
-        # Generate summary from the extracted text
-        to_summarize = text_messages.copy()
-        to_summarize.append({"role": "user", "content": SUMMARIZE_GUIDE})
-        stream = self.client.chat.completions.create(
-            model=self.model,
-            messages=to_summarize,
-            stream=True
-        )
-        full_summary = ""
-        for chunk in stream:
-            if chunk.choices[0].delta.content:
-                full_summary += chunk.choices[0].delta.content
-                yield chunk.choices[0].delta.content
+    def _find_safe_cut_index(self):
+        """Find the earliest index where cutting won't break tool_call/tool_result pairs.
+        Returns None if no safe cut exists."""
+        # Map tool_call_id -> message index for both calls and results
+        call_positions = {}
+        result_positions = {}
+        for i, msg in enumerate(self.messages):
+            if msg.get("role") == "assistant" and msg.get("tool_calls"):
+                for tc in msg["tool_calls"]:
+                    call_positions[tc["id"]] = i
+            elif msg.get("role") == "tool":
+                cid = msg.get("tool_call_id")
+                if cid:
+                    result_positions[cid] = i
 
-        # Replace the old segment with the generated summary
-        self.messages = [self.messages[0]] + [{"role": "system", "content": full_summary}] + recent_part
+        # Only IDs with both call and result matter for safety
+        paired_ids = set(call_positions.keys()) & set(result_positions.keys())
 
-        # Clean up any orphan tool messages left over
-        self._clean_orphan_tool_messages()
-        return
+            for cut_idx in range(2, len(self.messages)):
+            safe = True
+            for cid in paired_ids:
+                call_before = call_positions[cid] < cut_idx
+                result_before = result_positions[cid] < cut_idx
+                if call_before != result_before:
+                    # Pair crosses the cut boundary - not safe
+                    safe = False
+                    break
+            if safe:
+                return cut_idx
+        return None
 
     def memory(self):
         """
-        Memory management: automatically compress when context is too long
+        Memory management: delete oldest messages when context is too long.
+        Finds the earliest safe cut point to avoid breaking tool_call/tool_result pairs.
+        Falls back to cutting at half if no safe point exists.
         """
         # First remove any existing orphan tool messages
         self._clean_orphan_tool_messages()
-        
-        if len(self.messages) <= 5:  # Keep at least 5 messages (system + some context)
+
+        if len(self.messages) <= 5:
             return
-        # Compress the oldest half of the conversation
-        idx = len(self.messages) // 2 + 1
-        gen = self.summarize_msg(idx)
-        for _ in gen:
-            pass
-        # Final cleanup
+
+        # Find earliest index where cutting is safe (no orphaned tool_call/tool_result pairs)
+        cut_idx = self._find_safe_cut_index()
+
+        # If no safe point, or safe point is at the very end (would keep almost nothing),
+        # force cut at half
+        if cut_idx is None or cut_idx >= len(self.messages) - 1 or cut_idx <= 1:
+            cut_idx = len(self.messages) // 2 + 1
+
+        # Delete old messages: keep system prompt (index 0) and everything from cut_idx onwards
+        self.messages = [self.messages[0]] + self.messages[cut_idx:]
         self._clean_orphan_tool_messages()

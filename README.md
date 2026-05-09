@@ -84,7 +84,6 @@ In `config.json`, you can adjust the following parameters:
 | `settings` | string | `"You are a helpful AI assistant."` | System prompt defining AI's role or behaviour. |
 | `temperature` | float | `0.8` | Randomness, range 0–2 (but recommended 0–1). Lower = more deterministic, higher = more creative. |
 | `thinking` | bool | `false` | Enable deep thinking mode (GLM models only). The model outputs reasoning steps but responds slightly slower. |
-| `max_iterations` | int | `100` | Max tool call iterations to prevent infinite loops. |
 | `knowledge_k` | int | `5` | Number of knowledge snippets retrieved per conversation for knowledge‑augmented prompts. Larger values inject more system prompt but may bring more relevant info. |
 | `mcp_servers` | list | `[]` | List of MCP server configurations, each with `name`, `command`, `args` (optional). Example: `[{"name": "windows-mcp", "command": "uvx", "args": ["windows-mcp"]}]`. |
 
@@ -117,7 +116,6 @@ Inside the `tools` field, you can specify separate parameters for `ett` (multimo
     "model": "glm-4.7-flash",
     "temperature": 0.8,
     "thinking": false,
-    "max_iterations": 100,
     "knowledge_k": 5,
     "settings": "You are a helpful AI assistant.",
     "tools": {
@@ -126,7 +124,6 @@ Inside the `tools` field, you can specify separate parameters for `ett` (multimo
             "model": "glm-4.6v-flash",
             "temperature": 0.8,
             "thinking": false,
-            "max_iterations": 100,
             "max_retries": 20
         }
     },

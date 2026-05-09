@@ -133,7 +133,7 @@ async function loadConfig() {
             document.getElementById('temperature').value = config.temperature ?? 0.8;
             document.getElementById('thinking').checked = config.thinking ?? false;
             document.getElementById('max_iterations').value = config.max_iterations ?? 100;
-            document.getElementById('knowledge_k').value = config.knowledge_k ?? 1;
+            document.getElementById('knowledge_k').value = config.knowledge_k ?? 5;
             const ett = config.tools?.ett || {};
             document.getElementById('ett_api_key').value = ett.api_key || '';
             document.getElementById('ett_model').value = ett.model || 'glm-4.6v-flash';

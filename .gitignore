@@ -1,7 +1,8 @@
 /config.json
+/tasks.json
+/messages.json
 __pycache__/
 *.pyc
-tasks.json
 knowledge/skills/*
 knowledge/memories/*
 knowledge/knowledge.db

@@ -62,7 +62,6 @@ def init_agents():
 
     temperature = config.get("temperature", 0.8)
     thinking = config.get("thinking", False)
-    max_iterations = config.get("max_iterations", 100)
     knowledge_k = config.get("knowledge_k", 5)
     settings = config.get("settings", "You are a helpful AI assistant.")
 
@@ -71,7 +70,6 @@ def init_agents():
         url=config["base_url"],
         model=config["model"],
         settings=settings,
-        max_iterations=max_iterations,
         temperature=temperature,
         thinking=thinking,
         knowledge_k=knowledge_k
@@ -82,7 +80,6 @@ def init_agents():
         url=config["base_url"],
         model=config["model"],
         settings=settings,
-        max_iterations=max_iterations,
         temperature=temperature,
         thinking=thinking,
         knowledge_k=knowledge_k

@@ -194,7 +194,7 @@ class FranxAgent:
 
         self.messages = [{}]
         if os.path.exists("messages.json"):
-            with open("messages.json", "r") as f:
+            with open("messages.json", "r", encoding="utf-8") as f:
                 self.messages = json.load(f)
 
         # Fixed base system prompt (contains USER_GUIDE and user settings)

@@ -112,7 +112,7 @@ def chat():
 
                     # Block until the user approves or rejects via /api/confirm_tool
                     try:
-                        approved = confirm_queue.get(timeout=300)  # 5‑minute timeout
+                        approved = confirm_queue.get()
                     except queue.Empty:
                         approved = False  # Treat timeout as rejection
 

@@ -38,6 +38,11 @@ You should have received a copy of the GNU Affero General Public License along w
     ></script>
     <!-- Markdown parser -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- highlight.js for code highlighting -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
+    />
     <link rel="stylesheet" href="/static/css/index.css" />
   </head>
   <body>
@@ -180,6 +185,9 @@ You should have received a copy of the GNU Affero General Public License along w
       </div>
     </div>
 
+    <!-- highlight.js library (must load before chat.js) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <!-- Application scripts -->
     <script src="/static/js/i18n.js"></script>
     <script src="/static/js/auth.js"></script>
     <script src="/static/js/chat.js"></script>

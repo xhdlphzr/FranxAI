@@ -328,6 +328,36 @@ body {
   font-weight: 600;
 }
 
+/* ---- highlight.js code block styles ---- */
+.message pre {
+  margin: 0.5rem 0;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  border: 1px solid #e2e8f0;
+  background: #f6f8fa; /* 贴合 GitHub 浅色背景 */
+}
+.message pre code.hljs {
+  font-family:
+    "Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  white-space: pre;
+  tab-size: 4;
+  padding: 0; /* 由外层 pre 控制内边距 */
+  background: transparent;
+}
+/* Inline code */
+.message :not(pre) > code {
+  background: #e8ecf1;
+  color: #c7254e;
+  padding: 0.15em 0.4em;
+  border-radius: 0.3em;
+  font-size: 0.88em;
+  font-family: "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  white-space: normal;
+}
+
 @keyframes breathe {
   0%,
   100% {

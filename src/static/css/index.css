@@ -99,6 +99,7 @@ body {
   border-radius: 1.5rem;
   line-height: 1.45;
   word-wrap: break-word;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
   font-size: 0.95rem;
   font-family: inherit;
@@ -117,6 +118,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+}
+.assistant-content {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .typing-dot {
   display: inline-block;

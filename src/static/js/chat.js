@@ -18,6 +18,29 @@ let currentKnowledgeItems = [];
 let currentKnowledgeBlock = null;
 
 /**
+ * Check whether the user is currently scrolled near the bottom of the chat.
+ * @returns {boolean}
+ */
+function isUserAtBottom() {
+  const el = window.chatMessages;
+  if (!el) return false;
+  // Allow a small buffer (10px) so that slight variations don't break the detection
+  return el.scrollTop + el.clientHeight >= el.scrollHeight - 10;
+}
+
+/**
+ * Scroll the chat container to the very bottom immediately.
+ */
+function scrollToBottom() {
+  const el = window.chatMessages;
+  if (!el) return;
+  el.scrollTo({
+    top: el.scrollHeight,
+    behavior: "smooth",
+  });
+}
+
+/**
  * Highlight all unprocessed code blocks inside a container using highlight.js.
  * @param {HTMLElement} container
  */
@@ -581,6 +604,7 @@ async function sendMessage() {
   const signal = currentAbortController.signal;
   setSendButtonToStop();
   addMessage("user", message, false, "", true);
+  scrollToBottom();
   const assistantMsgDiv = addMessage(
     "assistant",
     t("chat.thinking"),
@@ -614,6 +638,10 @@ async function sendMessage() {
               currentPartialText = fullText;
               renderStreamingMarkdown(assistantMsgDiv, fullText);
               assistantMsgDiv.classList.remove("temp");
+              // Smart scroll: only auto-scroll when the user is at the bottom
+              if (isUserAtBottom()) {
+                scrollToBottom();
+              }
             } else if (data.type === "tool_call") {
               removeTypingDot(assistantMsgDiv);
               addToolCallBlockStructured(

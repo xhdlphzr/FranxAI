@@ -16,6 +16,7 @@ MCP Module - Core Implementation of MCP Server
 Provides the MCPStdioClient class to interface with external MCP servers
 """
 
+
 class MCPStdioClient:
     def __init__(self, command: str, args: List[str] = None):
         self.command = command
@@ -36,13 +37,14 @@ class MCPStdioClient:
             stderr=subprocess.PIPE,
             text=True,
             bufsize=1,
-            encoding='utf-8',
-            errors='replace'
+            encoding="utf-8",
+            errors="replace",
         )
 
         def read_stderr():
             for line in self.process.stderr:
                 sys.stderr.write(line)
+
         threading.Thread(target=read_stderr, daemon=True).start()
         self._reader_thread = threading.Thread(target=self._read_responses, daemon=True)
         self._reader_thread.start()
@@ -89,7 +91,7 @@ class MCPStdioClient:
         params = {
             "protocolVersion": "2025-03-26",
             "capabilities": {},
-            "clientInfo": {"name": "FranxAgent", "version": "3.0.0"}
+            "clientInfo": {"name": "FranxAgent", "version": "3.0.0"},
         }
         result = self._send_request("initialize", params)
         # Send initialized notification
@@ -124,7 +126,9 @@ class MCPStdioClient:
                     pass
             processed[key] = value
         # End preprocessing
-        result = self._send_request("tools/call", {"name": name, "arguments": processed})
+        result = self._send_request(
+            "tools/call", {"name": name, "arguments": processed}
+        )
         if isinstance(result, str):
             return result
         return json.dumps(result, ensure_ascii=False)

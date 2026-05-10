@@ -167,16 +167,22 @@ Add a skill as a Markdown file and immediately indexes it into the knowledge bas
 Now you can start helping the user. Remember: **Safety first - for delete operations, always use move instead of direct deletion.**
 """
 
+
 class FranxAgent:
     """
     AI Agent Class
     """
 
-    def __init__(self, key: str, url: str, model: str,
-                 settings="You are a helpful AI assistant.",
-                 temperature=0.8,
-                 thinking=False,
-                 knowledge_k=1):
+    def __init__(
+        self,
+        key: str,
+        url: str,
+        model: str,
+        settings="You are a helpful AI assistant.",
+        temperature=0.8,
+        thinking=False,
+        knowledge_k=1,
+    ):
         """
         Initialize the agent
         """
@@ -185,7 +191,7 @@ class FranxAgent:
         self.user_settings = settings
         self.temperature = temperature
         self.thinking = thinking
-        self.knowledge_k = knowledge_k   # Number of knowledge fragments to retrieve
+        self.knowledge_k = knowledge_k  # Number of knowledge fragments to retrieve
 
         # Unified tool functions (include built-in + MCP)
         self.tool_functions = tool_functions
@@ -209,7 +215,11 @@ class FranxAgent:
             try:
                 self._save_messages()
             except Exception as e:
-                print(f"[FranxAgent] Failed to save messages on exit: {e}", file=sys.stderr)
+                print(
+                    f"[FranxAgent] Failed to save messages on exit: {e}",
+                    file=sys.stderr,
+                )
+
         atexit.register(_safe_save)
 
     def _save_messages(self):
@@ -286,10 +296,12 @@ class FranxAgent:
             # If there is relevant knowledge, add it as an extra system message (immediately after the base prompt)
             if relevant:
                 knowledge_text = "\n\n".join(relevant)
-                api_messages.append({
-                    "role": "system",
-                    "content": f"## Related Content\n\n{knowledge_text}"
-                })
+                api_messages.append(
+                    {
+                        "role": "system",
+                        "content": f"## Related Content\n\n{knowledge_text}",
+                    }
+                )
 
             api_messages.extend(self.messages[1:])
 
@@ -306,7 +318,7 @@ class FranxAgent:
                             temperature=self.temperature,
                             tools=self.tools,
                             tool_choice="auto",
-                            stream=True
+                            stream=True,
                         )
                     else:
                         stream = self.client.chat.completions.create(
@@ -316,12 +328,12 @@ class FranxAgent:
                             tools=self.tools,
                             tool_choice="auto",
                             stream=True,
-                            extra_body={"thinking": {"type": "disabled"}}
+                            extra_body={"thinking": {"type": "disabled"}},
                         )
 
-                    full_content = ""      # Accumulate complete response
-                    full_reasoning = ""    # Accumulate reasoning (if enabled)
-                    tool_calls_data = {}   # Store tool call data
+                    full_content = ""  # Accumulate complete response
+                    full_reasoning = ""  # Accumulate reasoning (if enabled)
+                    tool_calls_data = {}  # Store tool call data
 
                     # Process streaming response
                     for chunk in stream:
@@ -331,8 +343,11 @@ class FranxAgent:
                         if delta.content:
                             full_content += delta.content
                             yield delta.content
-                        
-                        if hasattr(delta, 'reasoning_content') and delta.reasoning_content:
+
+                        if (
+                            hasattr(delta, "reasoning_content")
+                            and delta.reasoning_content
+                        ):
                             full_reasoning += delta.reasoning_content
 
                         # Process tool calls (incremental)
@@ -344,24 +359,30 @@ class FranxAgent:
                                     tool_calls_data[idx] = {
                                         "id": tc.id,
                                         "type": "function",
-                                        "function": {"name": "", "arguments": ""}
+                                        "function": {"name": "", "arguments": ""},
                                     }
                                 if tc.function.name:
-                                    tool_calls_data[idx]["function"]["name"] += tc.function.name
+                                    tool_calls_data[idx]["function"]["name"] += (
+                                        tc.function.name
+                                    )
                                 if tc.function.arguments:
-                                    tool_calls_data[idx]["function"]["arguments"] += tc.function.arguments
+                                    tool_calls_data[idx]["function"]["arguments"] += (
+                                        tc.function.arguments
+                                    )
 
                     # Build complete assistant message
                     assistant_message = {
                         "role": "assistant",
                         "content": full_content,
-                        "tool_calls": [dict(tc) for tc in tool_calls_data.values()] if tool_calls_data else None
+                        "tool_calls": [dict(tc) for tc in tool_calls_data.values()]
+                        if tool_calls_data
+                        else None,
                     }
                     if self.thinking and full_reasoning:
                         assistant_message["reasoning_content"] = full_reasoning
                     # Append to both current API messages and persistent history
                     current_api_messages.append(assistant_message)
-                    
+
                     # If no tool calls, finish
                     if not tool_calls_data:
                         self.messages.append(assistant_message)
@@ -374,20 +395,29 @@ class FranxAgent:
                         tool_message = None
                         try:
                             func_name = tool_call["function"]["name"]
-                            
+
                             try:
-                                arguments = json.loads(tool_call["function"]["arguments"])
+                                arguments = json.loads(
+                                    tool_call["function"]["arguments"]
+                                )
                             except json.JSONDecodeError as e:
                                 # Feed error back to model and continue
-                                raise ValueError(f"JSON parsing error: {e}. Raw arguments: {tool_call['function']['arguments']}")
+                                raise ValueError(
+                                    f"JSON parsing error: {e}. Raw arguments: {tool_call['function']['arguments']}"
+                                )
 
                             # If the model directly called a built-in tool name (e.g., time, read), automatically convert to tools call
                             if func_name != "tools" and "/" not in func_name:
                                 # Construct new arguments: tool_name is the original function name, arguments are the original parameters
-                                new_arguments = {"tool_name": func_name, "arguments": arguments}
+                                new_arguments = {
+                                    "tool_name": func_name,
+                                    "arguments": arguments,
+                                }
                                 # Update tool_call object
                                 tool_call["function"]["name"] = "tools"
-                                tool_call["function"]["arguments"] = json.dumps(new_arguments, ensure_ascii=False)
+                                tool_call["function"]["arguments"] = json.dumps(
+                                    new_arguments, ensure_ascii=False
+                                )
                                 func_name = "tools"
                                 arguments = new_arguments
 
@@ -406,7 +436,7 @@ class FranxAgent:
                                 "call_id": call_id,
                                 "tool_name": actual_tool_name,
                                 "arguments": arguments,
-                                "result": None # No result yet
+                                "result": None,  # No result yet
                             }
 
                             result = None
@@ -420,7 +450,7 @@ class FranxAgent:
                                     "confirm_id": confirm_id,
                                     "call_id": call_id,
                                     "tool_name": actual_tool_name,
-                                    "arguments": arguments
+                                    "arguments": arguments,
                                 }
                                 if approved:
                                     # Execute the tool
@@ -444,29 +474,33 @@ class FranxAgent:
                             yield {
                                 "type": "tool_result",
                                 "call_id": call_id,
-                                "result": str(result) if result is not None else "No result"
+                                "result": str(result)
+                                if result is not None
+                                else "No result",
                             }
 
                             # Add tool execution result to both current API messages and persistent history
                             tool_message = {
                                 "role": "tool",
                                 "tool_call_id": call_id,
-                                "content": str(result)
+                                "content": str(result),
                             }
                         except Exception as e:
                             # Catch any exception (including from tool functions) and turn into error message
-                            error_content = f"Tool execution error: {type(e).__name__}: {str(e)}"
+                            error_content = (
+                                f"Tool execution error: {type(e).__name__}: {str(e)}"
+                            )
                             # Try to get call_id if available, otherwise use fallback
                             call_id = tool_call.get("id", "unknown")
                             yield {
                                 "type": "tool_result",
                                 "call_id": call_id,
-                                "result": error_content
+                                "result": error_content,
                             }
                             tool_message = {
                                 "role": "tool",
                                 "tool_call_id": call_id,
-                                "content": error_content
+                                "content": error_content,
                             }
                         finally:
                             if tool_message:
@@ -475,21 +509,29 @@ class FranxAgent:
                     current_api_messages.extend(tool_messages)
                     self.messages.append(assistant_message)
                     self.messages.extend(tool_messages)
-                    
+
                 except Exception as e:
                     # If API call fails due to context length, compress and retry
                     error_str = str(e).lower()
-                    if "context length" in error_str or "token" in error_str or "too long" in error_str:
+                    if (
+                        "context length" in error_str
+                        or "token" in error_str
+                        or "too long" in error_str
+                    ):
                         # Compress messages and retry
                         self.memory()
                         # Rebuild API messages with compressed history
-                        current_api_messages = [{"role": "system", "content": self.base_system_prompt}]
+                        current_api_messages = [
+                            {"role": "system", "content": self.base_system_prompt}
+                        ]
                         if relevant:
                             knowledge_text = "\n\n".join(relevant)
-                            current_api_messages.append({
-                                "role": "system",
-                                "content": f"## Related Content\n\n{knowledge_text}"
-                            })
+                            current_api_messages.append(
+                                {
+                                    "role": "system",
+                                    "content": f"## Related Content\n\n{knowledge_text}",
+                                }
+                            )
                         current_api_messages.extend(self.messages[1:])
                         continue
                     else:
@@ -503,7 +545,10 @@ class FranxAgent:
         except GeneratorExit:
             # User stopped; keep committed messages, clean orphans
             # If only the user message was added (no assistant response), roll back
-            if len(self.messages) == original_len + 1 and self.messages[-1]["role"] == "user":
+            if (
+                len(self.messages) == original_len + 1
+                and self.messages[-1]["role"] == "user"
+            ):
                 self.messages = self.messages[:original_len]
             else:
                 self._clean_orphan_tool_messages()

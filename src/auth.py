@@ -32,33 +32,41 @@ PUBLIC_KEY_FILE = "public.key"
 CURVE = ec.SECP256R1()
 
 # HKDF info string for domain separation
-HKDF_INFO = b'franxagent-ecc-encryption'
+HKDF_INFO = b"franxagent-ecc-encryption"
+
 
 def generate_ecc_keys():
     private_key = ec.generate_private_key(CURVE)
     public_key = private_key.public_key()
     with open(PRIVATE_KEY_FILE, "wb") as f:
-        f.write(private_key.private_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PrivateFormat.PKCS8,
-            encryption_algorithm=serialization.NoEncryption()
-        ))
+        f.write(
+            private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption(),
+            )
+        )
     with open(PUBLIC_KEY_FILE, "wb") as f:
-        f.write(public_key.public_bytes(
-            encoding=serialization.Encoding.PEM,
-            format=serialization.PublicFormat.SubjectPublicKeyInfo
-        ))
-    if os.name != 'nt':
+        f.write(
+            public_key.public_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
+            )
+        )
+    if os.name != "nt":
         os.chmod(PRIVATE_KEY_FILE, 0o600)
     print("✅ Generated ECC key pair (P-256).")
+
 
 def load_private_key():
     with open(PRIVATE_KEY_FILE, "rb") as f:
         return serialization.load_pem_private_key(f.read(), password=None)
 
+
 def load_public_key_pem():
     with open(PUBLIC_KEY_FILE, "r") as f:
         return f.read()
+
 
 def ecc_decrypt(private_key, encrypted_data: dict) -> bytes:
     """
@@ -69,9 +77,9 @@ def ecc_decrypt(private_key, encrypted_data: dict) -> bytes:
         - iv: base64-encoded 12-byte nonce
         - ciphertext: base64-encoded AES-GCM ciphertext (includes 16-byte tag)
     """
-    ephemeral_key_der = base64.b64decode(encrypted_data['ephemeral_key'])
-    iv = base64.b64decode(encrypted_data['iv'])
-    ciphertext = base64.b64decode(encrypted_data['ciphertext'])
+    ephemeral_key_der = base64.b64decode(encrypted_data["ephemeral_key"])
+    iv = base64.b64decode(encrypted_data["iv"])
+    ciphertext = base64.b64decode(encrypted_data["ciphertext"])
 
     # Import client's ephemeral public key
     ephemeral_public_key = serialization.load_der_public_key(ephemeral_key_der)
@@ -91,6 +99,7 @@ def ecc_decrypt(private_key, encrypted_data: dict) -> bytes:
     aesgcm = AESGCM(derived_key)
     return aesgcm.decrypt(iv, ciphertext, None)
 
+
 def generate_jwt_token():
     config = load_config()
     secret = config.get("jwt_secret")
@@ -105,6 +114,7 @@ def generate_jwt_token():
     }
     return jwt.encode(payload, secret, algorithm="HS256")
 
+
 def verify_jwt_token(token):
     config = load_config()
     secret = config.get("jwt_secret")
@@ -116,17 +126,20 @@ def verify_jwt_token(token):
     except jwt.InvalidTokenError:
         return False
 
+
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         config = load_config()
         if "password_hash" not in config:
             return f(*args, **kwargs)
-        token = request.headers.get('Authorization', '').replace('Bearer ', '')
+        token = request.headers.get("Authorization", "").replace("Bearer ", "")
         if not token or not verify_jwt_token(token):
-            return jsonify({'error': 'Unauthorized'}), 401
+            return jsonify({"error": "Unauthorized"}), 401
         return f(*args, **kwargs)
+
     return decorated
+
 
 # Initialize ECC keys on first run (or migrate from old RSA keys)
 if not os.path.exists(PRIVATE_KEY_FILE) or not os.path.exists(PUBLIC_KEY_FILE):

@@ -11,6 +11,7 @@ from pathlib import Path
 SKILLS_DIR = Path(__file__).parent.parent.parent / "skills"
 SKILLS_DIR.mkdir(parents=True, exist_ok=True)
 
+
 def execute(name: str, content: str):
     """
     Save a skill as Markdown and immediately index it into the knowledge base.
@@ -24,7 +25,7 @@ def execute(name: str, content: str):
     from knowledge.config import VECTOR_DB_PATH, KNOWLEDGE_ROOT
 
     # Sanitize name
-    safe_name = "".join(c for c in name if c.isalnum() or c in ('_', '-')).strip()
+    safe_name = "".join(c for c in name if c.isalnum() or c in ("_", "-")).strip()
     if not safe_name:
         return "Error: Invalid skill name"
 
@@ -34,7 +35,7 @@ def execute(name: str, content: str):
     source_key = f"file:{relative_path}"
 
     # Write the file
-    filepath.write_text(content, encoding='utf-8')
+    filepath.write_text(content, encoding="utf-8")
 
     # Remove old entries with the same source (handle updates)
     conn = sqlite3.connect(VECTOR_DB_PATH)
@@ -56,7 +57,7 @@ def execute(name: str, content: str):
     cursor = conn.cursor()
     cursor.execute(
         "INSERT OR REPLACE INTO file_versions (path, mtime, last_updated) VALUES (?, ?, ?)",
-        (relative_path, mtime, time.time())
+        (relative_path, mtime, time.time()),
     )
     conn.commit()
     conn.close()

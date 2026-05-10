@@ -6,34 +6,37 @@ FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WA
 You should have received a copy of the GNU Affero General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 -->
 
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=yes"
+    />
     <title>Login | FranxAgent</title>
-    <link rel="stylesheet" href="/static/css/login.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/static/css/login.css" />
+  </head>
+  <body>
     <div class="login-container">
-        <h1>🤖 FranxAgent</h1>
-        <input type="password" id="password" autocomplete="current-password">
-        
-        <!-- Agreement checkbox -->
-        <div class="agree-container" id="agreeContainer">
-            <input type="checkbox" id="agreeCheckbox">
-            <label for="agreeCheckbox" id="agreeLabel"></label>
-        </div>
-        <div id="agreeError" class="agree-error" style="display: none;"></div>
-        
-        <button id="loginBtn"></button>
-        <div id="errorMsg" class="error"></div>
-        <div class="info">
-            <a href="/register" id="registerLink"></a>
-        </div>
+      <h1>🤖 FranxAgent</h1>
+      <input type="password" id="password" autocomplete="current-password" />
+
+      <!-- Agreement checkbox -->
+      <div class="agree-container" id="agreeContainer">
+        <input type="checkbox" id="agreeCheckbox" />
+        <label for="agreeCheckbox" id="agreeLabel"></label>
+      </div>
+      <div id="agreeError" class="agree-error" style="display: none"></div>
+
+      <button id="loginBtn"></button>
+      <div id="errorMsg" class="error"></div>
+      <div class="info">
+        <a href="/register" id="registerLink"></a>
+      </div>
     </div>
 
     <script src="/static/js/i18n.js"></script>
     <script src="/static/js/login.js"></script>
-</body>
+  </body>
 </html>

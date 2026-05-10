@@ -12,79 +12,94 @@ import yaml
 from pathlib import Path
 import bcrypt
 from flask import Blueprint, request, jsonify
-from src.auth import load_private_key, load_public_key_pem, generate_jwt_token, verify_jwt_token, ecc_decrypt
+from src.auth import (
+    load_private_key,
+    load_public_key_pem,
+    generate_jwt_token,
+    verify_jwt_token,
+    ecc_decrypt,
+)
 from src.state import load_config, save_config
 
-auth_bp = Blueprint('auth', __name__)
+auth_bp = Blueprint("auth", __name__)
 
 I18N_DIR = Path(__file__).parent.parent.parent / "i18n"
 
-@auth_bp.route('/api/public-key', methods=['GET'])
-def get_public_key():
-    return jsonify({'public_key': load_public_key_pem()})
 
-@auth_bp.route('/api/setup', methods=['POST'])
+@auth_bp.route("/api/public-key", methods=["GET"])
+def get_public_key():
+    return jsonify({"public_key": load_public_key_pem()})
+
+
+@auth_bp.route("/api/setup", methods=["POST"])
 def setup_password():
     config = load_config()
     if "password_hash" in config:
-        return jsonify({'error': 'Password already set'}), 400
+        return jsonify({"error": "Password already set"}), 400
     data = request.get_json()
-    encrypted_payload = data.get('password')
+    encrypted_payload = data.get("password")
     if not encrypted_payload:
-        return jsonify({'error': 'Missing password'}), 400
+        return jsonify({"error": "Missing password"}), 400
     if not isinstance(encrypted_payload, dict):
-        return jsonify({'error': 'Invalid password format (expected ECIES payload)'}), 400
+        return jsonify(
+            {"error": "Invalid password format (expected ECIES payload)"}
+        ), 400
     private_key = load_private_key()
     try:
         decrypted = ecc_decrypt(private_key, encrypted_payload)
         password = decrypted.decode()
     except Exception as e:
-        return jsonify({'error': f'Decryption failed: {e}'}), 400
+        return jsonify({"error": f"Decryption failed: {e}"}), 400
     hashed = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
     config["password_hash"] = hashed.decode()
     import secrets
+
     if "jwt_secret" not in config:
         config["jwt_secret"] = secrets.token_urlsafe(32)
     save_config(config)
     token = generate_jwt_token()
-    return jsonify({'status': 'success', 'token': token})
+    return jsonify({"status": "success", "token": token})
 
 
-@auth_bp.route('/api/login', methods=['POST'])
+@auth_bp.route("/api/login", methods=["POST"])
 def login():
     config = load_config()
     if "password_hash" not in config:
-        return jsonify({'error': 'Password not set'}), 400
+        return jsonify({"error": "Password not set"}), 400
     data = request.get_json()
-    encrypted_payload = data.get('password')
+    encrypted_payload = data.get("password")
     if not encrypted_payload:
-        return jsonify({'error': 'Missing password'}), 400
+        return jsonify({"error": "Missing password"}), 400
     if not isinstance(encrypted_payload, dict):
-        return jsonify({'error': 'Invalid password format (expected ECIES payload)'}), 400
+        return jsonify(
+            {"error": "Invalid password format (expected ECIES payload)"}
+        ), 400
     private_key = load_private_key()
     try:
         decrypted = ecc_decrypt(private_key, encrypted_payload)
         password = decrypted.decode()
     except Exception as e:
-        return jsonify({'error': f'Decryption failed: {e}'}), 400
+        return jsonify({"error": f"Decryption failed: {e}"}), 400
     stored_hash = config["password_hash"].encode()
     if bcrypt.checkpw(password.encode(), stored_hash):
         token = generate_jwt_token()
-        return jsonify({'status': 'success', 'token': token})
+        return jsonify({"status": "success", "token": token})
     else:
-        return jsonify({'error': 'Invalid password'}), 401
+        return jsonify({"error": "Invalid password"}), 401
 
-@auth_bp.route('/api/check-auth', methods=['GET'])
+
+@auth_bp.route("/api/check-auth", methods=["GET"])
 def check_auth():
     config = load_config()
     password_set = "password_hash" in config
-    token = request.headers.get('Authorization', '').replace('Bearer ', '')
+    token = request.headers.get("Authorization", "").replace("Bearer ", "")
     valid = False
     if token and password_set:
         valid = verify_jwt_token(token)
-    return jsonify({'password_set': password_set, 'authenticated': valid})
+    return jsonify({"password_set": password_set, "authenticated": valid})
 
-@auth_bp.route('/api/i18n', methods=['GET'])
+
+@auth_bp.route("/api/i18n", methods=["GET"])
 def get_i18n():
     try:
         config = load_config()
@@ -95,7 +110,7 @@ def get_i18n():
     if not lang_file.exists():
         lang_file = I18N_DIR / "en.yaml"
     if not lang_file.exists():
-        return jsonify({'language': 'en', 'translations': {}})
-    with open(lang_file, 'r', encoding='utf-8') as f:
+        return jsonify({"language": "en", "translations": {}})
+    with open(lang_file, "r", encoding="utf-8") as f:
         translations = yaml.safe_load(f) or {}
-    return jsonify({'language': lang, 'translations': translations})
+    return jsonify({"language": lang, "translations": translations})

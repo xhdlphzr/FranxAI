@@ -14,8 +14,8 @@ from sentence_transformers import SentenceTransformer
 # Project paths
 PROJECT_ROOT = Path(__file__).parent.parent
 KNOWLEDGE_ROOT = Path(__file__).parent
-TOOLS_DIR = KNOWLEDGE_ROOT / 'tools'
-MEMORIES_DIR = KNOWLEDGE_ROOT / 'memories'
+TOOLS_DIR = KNOWLEDGE_ROOT / "tools"
+MEMORIES_DIR = KNOWLEDGE_ROOT / "memories"
 VECTOR_DB_PATH = KNOWLEDGE_ROOT / "knowledge.db"
 
 # Create memories directory if it does not exist
@@ -27,7 +27,8 @@ HYBRID_FTS_WEIGHT = 0.3
 
 # Global Model (Singleton)
 _model = None
-MODEL_NAME = 'all-MiniLM-L12-v2'
+MODEL_NAME = "all-MiniLM-L12-v2"
+
 
 def get_model():
     global _model

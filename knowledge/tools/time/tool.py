@@ -11,6 +11,7 @@ Returns the current local date and time
 
 from datetime import datetime
 
+
 def execute() -> str:
     """
     Get current date and time
@@ -21,7 +22,15 @@ def execute() -> str:
     now = datetime.now()
 
     # List of weekday names
-    weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    weekdays = [
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+    ]
     # Get the day of the week (0=Monday, 6=Sunday)
     weekday = weekdays[now.weekday()]
 

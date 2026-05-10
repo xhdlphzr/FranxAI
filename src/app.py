@@ -26,6 +26,7 @@ from src.routes.auth import auth_bp
 from src.routes.chat import chat_bp
 from src.routes.config import config_bp
 from src.routes.tasks import tasks_bp
+
 # Import scheduler to start its background thread
 from src import scheduler
 
@@ -34,10 +35,10 @@ STARTUP_ID = str(int(time.time()))
 
 # Setup Flask secret key
 config = load_config()
-if 'flask_secret_key' not in config:
-    config['flask_secret_key'] = secrets.token_hex(32)
+if "flask_secret_key" not in config:
+    config["flask_secret_key"] = secrets.token_hex(32)
     save_config(config)
-app.secret_key = config['flask_secret_key']
+app.secret_key = config["flask_secret_key"]
 
 # Register blueprints
 app.register_blueprint(auth_bp)
@@ -46,6 +47,7 @@ app.register_blueprint(config_bp)
 app.register_blueprint(tasks_bp)
 
 _public_url = None
+
 
 def start_cloudflare_tunnel():
     global _public_url
@@ -56,8 +58,10 @@ def start_cloudflare_tunnel():
     except Exception as e:
         print(f"❌ Failed to start Cloudflare tunnel: {e}")
 
+
 def init_agents():
     from src import state
+
     config = load_config()
 
     temperature = config.get("temperature", 0.8)
@@ -72,7 +76,7 @@ def init_agents():
         settings=settings,
         temperature=temperature,
         thinking=thinking,
-        knowledge_k=knowledge_k
+        knowledge_k=knowledge_k,
     )
 
     state.tasks_agent = FranxAgent(
@@ -82,29 +86,33 @@ def init_agents():
         settings=settings,
         temperature=temperature,
         thinking=thinking,
-        knowledge_k=knowledge_k
+        knowledge_k=knowledge_k,
     )
 
+
 # Frontend routes
-@app.route('/login')
+@app.route("/login")
 def login_page():
-    return render_template('login.html')
+    return render_template("login.html")
 
-@app.route('/register')
+
+@app.route("/register")
 def register_page():
-    return render_template('register.html')
+    return render_template("register.html")
 
-@app.route('/')
+
+@app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template("index.html")
 
-@app.route('/session', methods=['GET'])
+
+@app.route("/session", methods=["GET"])
 def get_session():
-    return jsonify({'startup_id': STARTUP_ID})
+    return jsonify({"startup_id": STARTUP_ID})
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     init_agents()
     tunnel_thread = threading.Thread(target=start_cloudflare_tunnel, daemon=True)
     tunnel_thread.start()
-    app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False)
+    app.run(host="127.0.0.1", port=5000, debug=False, use_reloader=False)

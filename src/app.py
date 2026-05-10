@@ -61,6 +61,7 @@ def start_cloudflare_tunnel():
 
 def init_agents():
     from src import state
+    global STARTUP_ID
 
     config = load_config()
 
@@ -88,6 +89,9 @@ def init_agents():
         thinking=thinking,
         knowledge_k=knowledge_k,
     )
+
+    # Regenerate STARTUP_ID so the frontend can detect the agent reset
+    STARTUP_ID = str(int(time.time()))
 
 
 # Frontend routes

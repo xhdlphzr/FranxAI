@@ -13,7 +13,9 @@ eventSource.addEventListener("task_start", (e) => {
   msgDiv.id = `task-${data.task_id}`;
   msgDiv.innerHTML = `<div>${escapeHtml(data.message)}</div><div class="task-status">${t("task.executing")}</div><button class="stop-task-btn" data-task-id="${data.task_id}">${t("task.stop")}</button>`;
   window.chatMessages.appendChild(msgDiv);
-  window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+  setTimeout(() => {
+    window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+  }, 100);
   taskMessages[data.task_id] = msgDiv;
   msgDiv.querySelector(".stop-task-btn").onclick = () => stopTask(data.task_id);
 });
@@ -28,7 +30,9 @@ eventSource.addEventListener("task_chunk", (e) => {
       msgDiv.appendChild(resultDiv);
     }
     resultDiv.textContent += data.chunk;
-    window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+    requestAnimationFrame(() => {
+      window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+    });
   }
 });
 eventSource.addEventListener("task_done", (e) => {
@@ -190,7 +194,9 @@ async function loadMessagesFromServer() {
         }
       });
       saveMessagesToLocalStorage();
-      window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+      requestAnimationFrame(() => {
+        window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+      });
       return true;
     }
     return false;
@@ -217,6 +223,8 @@ async function loadMessagesFromServer() {
   if (!loadedFromServer) {
     loadMessagesFromLocalStorage();
   }
-  window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+  setTimeout(() => {
+    window.chatMessages.scrollTop = window.chatMessages.scrollHeight;
+  }, 100);
   loadConfig();
 })();

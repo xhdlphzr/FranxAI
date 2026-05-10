@@ -17,6 +17,18 @@ let currentAssistantMsgDiv = null;
 let currentKnowledgeItems = [];
 let currentKnowledgeBlock = null;
 
+/**
+ * Highlight all unprocessed code blocks inside a container using highlight.js.
+ * @param {HTMLElement} container
+ */
+function highlightCodeBlocks(container) {
+  if (!container) return;
+  // Select all code blocks that haven't been highlighted yet (no 'hljs' class).
+  container.querySelectorAll("pre code:not(.hljs)").forEach((block) => {
+    hljs.highlightElement(block);
+  });
+}
+
 function escapeHtml(str) {
   return str.replace(/[&<>]/g, function (m) {
     if (m === "&") return "&amp;";
@@ -62,6 +74,8 @@ function renderStreamingMarkdown(msgDiv, rawText) {
     contentContainer.textContent = rawText;
   }
   wrapTables(contentContainer);
+  // Apply code highlighting to the freshly rendered Markdown
+  highlightCodeBlocks(contentContainer);
   const existingDot = contentContainer.querySelector(".typing-dot");
   if (existingDot) existingDot.remove();
   const dot = document.createElement("span");
@@ -138,6 +152,8 @@ function updateKnowledgeBlock(msgDiv, knowledgeItems) {
       const html = marked.parse(text);
       fullDiv.innerHTML = html;
       wrapTables(fullDiv);
+      // Highlight code blocks inside knowledge items
+      highlightCodeBlocks(fullDiv);
       if (window.renderMathInElement) {
         window.renderMathInElement(fullDiv, {
           delimiters: [
@@ -434,6 +450,8 @@ function addMessage(
       msgDiv.innerHTML = html;
     }
     wrapTables(msgDiv);
+    // Highlight code blocks in the fully rendered message
+    highlightCodeBlocks(msgDiv);
     if (window.renderMathInElement) {
       window.renderMathInElement(msgDiv, {
         delimiters: [
@@ -458,6 +476,8 @@ function updateMessage(msgDiv, content) {
       const html = marked.parse(content);
       contentContainer.innerHTML = html;
       wrapTables(contentContainer);
+      // Highlight freshly rendered code
+      highlightCodeBlocks(contentContainer);
       let dot = contentContainer.querySelector(".typing-dot");
       if (!dot) {
         dot = document.createElement("span");
@@ -523,6 +543,8 @@ function stopGeneration() {
         try {
           contentContainer.innerHTML = marked.parse(stopText);
           wrapTables(contentContainer);
+          // Highlight code blocks when user stops generation
+          highlightCodeBlocks(contentContainer);
         } catch (e) {
           contentContainer.textContent = stopText;
         }
@@ -670,3 +692,37 @@ async function sendMessage() {
 messageInput.addEventListener("keydown", (e) => {
   if (e.ctrlKey && e.key === "Enter") sendMessage();
 });
+
+// Automatic code highlighting
+(function () {
+  const chat = document.getElementById("chat-messages");
+  if (!chat) return;
+
+  // Watch for new nodes added to the chat area
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach((mutation) => {
+      mutation.addedNodes.forEach((node) => {
+        // Only process element nodes
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          node.querySelectorAll("pre code:not(.hljs)").forEach((block) => {
+            // Ensure a language class exists, otherwise treat as plain text
+            if (!block.className.includes("language-")) {
+              block.classList.add("language-text");
+            }
+            hljs.highlightElement(block);
+          });
+        }
+      });
+    });
+  });
+
+  observer.observe(chat, { childList: true, subtree: true });
+
+  // Also highlight any code blocks already present on page load
+  chat.querySelectorAll("pre code:not(.hljs)").forEach((block) => {
+    if (!block.className.includes("language-")) {
+      block.classList.add("language-text");
+    }
+    hljs.highlightElement(block);
+  });
+})();

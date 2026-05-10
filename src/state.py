@@ -23,10 +23,12 @@ pending_lock = threading.Lock()
 # Cloudflare tunnel URL
 public_url = None
 
+
 def load_config():
-    with open("./config.json", 'r', encoding='utf-8') as f:
+    with open("./config.json", "r", encoding="utf-8") as f:
         return json.load(f)
 
+
 def save_config(config):
-    with open("./config.json", 'w', encoding='utf-8') as f:
+    with open("./config.json", "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)

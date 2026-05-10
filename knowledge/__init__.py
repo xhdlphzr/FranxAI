@@ -8,7 +8,13 @@
 Knowledge Module - Startup Orchestration and Public Exports
 """
 
-from .loader import load_builtin_tools, load_mcp_servers, tool_functions, tools_metadata, cleanup_mcp_clients
+from .loader import (
+    load_builtin_tools,
+    load_mcp_servers,
+    tool_functions,
+    tools_metadata,
+    cleanup_mcp_clients,
+)
 from .vector import add_document, check_and_update
 from .search import search
 from .memory import add_conversation
@@ -21,9 +27,18 @@ check_and_update()
 
 # Print status
 from .loader import _internal_tools, _mcp_tools
+
 print("Built-in tool list:", list(_internal_tools.keys()))
 print(f"MCP tool count: {len(_mcp_tools)}")
 print("Knowledge base incremental update completed.")
 
-__all__ = ['tools_metadata', 'tool_functions', 'search', 'cleanup_mcp_clients', 'add_conversation',
-           'add_document', 'VECTOR_DB_PATH', 'KNOWLEDGE_ROOT']
+__all__ = [
+    "tools_metadata",
+    "tool_functions",
+    "search",
+    "cleanup_mcp_clients",
+    "add_conversation",
+    "add_document",
+    "VECTOR_DB_PATH",
+    "KNOWLEDGE_ROOT",
+]

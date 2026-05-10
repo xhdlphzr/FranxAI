@@ -44,6 +44,7 @@ class EventBroadcaster:
                 except queue.Full:
                     pass
 
+
 broadcaster = EventBroadcaster()
 
 active_tasks = {}
@@ -51,40 +52,33 @@ active_tasks_lock = threading.Lock()
 
 
 def execute_task(task_id, content, cancel_event):
-    broadcaster.broadcast('task_start', {
-        'task_id': task_id,
-        'content': content,
-        'message': f"⏰ Executing scheduled task: {content}"
-    })
+    broadcaster.broadcast(
+        "task_start",
+        {
+            "task_id": task_id,
+            "content": content,
+            "message": f"⏰ Executing scheduled task: {content}",
+        },
+    )
 
     try:
         if state.tasks_agent is None:
-            broadcaster.broadcast('task_error', {
-                'task_id': task_id,
-                'error': 'Agent not initialized'
-            })
+            broadcaster.broadcast(
+                "task_error", {"task_id": task_id, "error": "Agent not initialized"}
+            )
             return
 
         result_parts = []
         for chunk in state.tasks_agent.input(content):
             if cancel_event.is_set():
-                broadcaster.broadcast('task_cancel', {'task_id': task_id})
+                broadcaster.broadcast("task_cancel", {"task_id": task_id})
                 return
             result_parts.append(chunk)
-            broadcaster.broadcast('task_chunk', {
-                'task_id': task_id,
-                'chunk': chunk
-            })
-        full_result = ''.join(result_parts)
-        broadcaster.broadcast('task_done', {
-            'task_id': task_id,
-            'result': full_result
-        })
+            broadcaster.broadcast("task_chunk", {"task_id": task_id, "chunk": chunk})
+        full_result = "".join(result_parts)
+        broadcaster.broadcast("task_done", {"task_id": task_id, "result": full_result})
     except Exception as e:
-        broadcaster.broadcast('task_error', {
-            'task_id': task_id,
-            'error': str(e)
-        })
+        broadcaster.broadcast("task_error", {"task_id": task_id, "error": str(e)})
     finally:
         with active_tasks_lock:
             if task_id in active_tasks:
@@ -100,7 +94,7 @@ def run_tasks():
     while True:
         if os.path.exists("./tasks.json"):
             try:
-                with open("./tasks.json", 'r', encoding='utf-8') as f:
+                with open("./tasks.json", "r", encoding="utf-8") as f:
                     tasks = json.load(f)
             except:
                 pass
@@ -119,7 +113,9 @@ def run_tasks():
                         cancel_event = threading.Event()
                         with active_tasks_lock:
                             active_tasks[task_id] = cancel_event
-                        thread = threading.Thread(target=execute_task, args=(task_id, content, cancel_event))
+                        thread = threading.Thread(
+                            target=execute_task, args=(task_id, content, cancel_event)
+                        )
                         thread.daemon = True
                         thread.start()
                         run_tasks._executed.add(time_str)

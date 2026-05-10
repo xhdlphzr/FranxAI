@@ -15,67 +15,67 @@ from flask import Blueprint, request, jsonify, Response, stream_with_context
 from src.auth import login_required
 from src.scheduler import broadcaster, active_tasks, active_tasks_lock
 
-tasks_bp = Blueprint('tasks', __name__)
+tasks_bp = Blueprint("tasks", __name__)
 
 
-@tasks_bp.route('/tasks', methods=['GET', 'POST'])
+@tasks_bp.route("/tasks", methods=["GET", "POST"])
 @login_required
 def tasks_api():
-    if request.method == 'GET':
+    if request.method == "GET":
         try:
             if os.path.exists("./tasks.json"):
-                with open("./tasks.json", 'r', encoding='utf-8') as f:
+                with open("./tasks.json", "r", encoding="utf-8") as f:
                     tasks = json.load(f)
             else:
                 tasks = {}
             return jsonify(tasks)
         except Exception as e:
-            return jsonify({'error': str(e)}), 500
+            return jsonify({"error": str(e)}), 500
 
-    elif request.method == 'POST':
+    elif request.method == "POST":
         data = request.get_json()
-        action = data.get('action')
-        if action == 'add':
-            time_str = data.get('time')
-            content = data.get('content')
+        action = data.get("action")
+        if action == "add":
+            time_str = data.get("time")
+            content = data.get("content")
             if not time_str or not content:
-                return jsonify({'error': 'Missing time or content field'}), 400
+                return jsonify({"error": "Missing time or content field"}), 400
             try:
                 if os.path.exists("./tasks.json"):
-                    with open("./tasks.json", 'r', encoding='utf-8') as f:
+                    with open("./tasks.json", "r", encoding="utf-8") as f:
                         tasks = json.load(f)
                 else:
                     tasks = {}
                 tasks[time_str] = content
-                with open("./tasks.json", 'w', encoding='utf-8') as f:
+                with open("./tasks.json", "w", encoding="utf-8") as f:
                     json.dump(tasks, f, indent=2, ensure_ascii=False)
-                return jsonify({'status': 'success'})
+                return jsonify({"status": "success"})
             except Exception as e:
-                return jsonify({'error': str(e)}), 500
+                return jsonify({"error": str(e)}), 500
 
-        elif action == 'delete':
-            time_str = data.get('time')
+        elif action == "delete":
+            time_str = data.get("time")
             if not time_str:
-                return jsonify({'error': 'Missing time field'}), 400
+                return jsonify({"error": "Missing time field"}), 400
             try:
                 if not os.path.exists("./tasks.json"):
-                    return jsonify({'error': 'Task file does not exist'}), 404
-                with open("./tasks.json", 'r', encoding='utf-8') as f:
+                    return jsonify({"error": "Task file does not exist"}), 404
+                with open("./tasks.json", "r", encoding="utf-8") as f:
                     tasks = json.load(f)
                 if time_str in tasks:
                     del tasks[time_str]
-                    with open("./tasks.json", 'w', encoding='utf-8') as f:
+                    with open("./tasks.json", "w", encoding="utf-8") as f:
                         json.dump(tasks, f, indent=2, ensure_ascii=False)
-                    return jsonify({'status': 'success'})
+                    return jsonify({"status": "success"})
                 else:
-                    return jsonify({'error': 'Task does not exist'}), 404
+                    return jsonify({"error": "Task does not exist"}), 404
             except Exception as e:
-                return jsonify({'error': str(e)}), 500
+                return jsonify({"error": str(e)}), 500
         else:
-            return jsonify({'error': 'Unknown action'}), 400
+            return jsonify({"error": "Unknown action"}), 400
 
 
-@tasks_bp.route('/events')
+@tasks_bp.route("/events")
 @login_required
 def events():
     def generate():
@@ -92,17 +92,17 @@ def events():
 
     return Response(
         stream_with_context(generate()),
-        mimetype='text/event-stream',
-        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'}
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
 
-@tasks_bp.route('/cancel_task/<task_id>', methods=['POST'])
+@tasks_bp.route("/cancel_task/<task_id>", methods=["POST"])
 @login_required
 def cancel_task(task_id):
     with active_tasks_lock:
         if task_id in active_tasks:
             active_tasks[task_id].set()
-            return jsonify({'status': 'cancelling'})
+            return jsonify({"status": "cancelling"})
         else:
-            return jsonify({'error': 'Task does not exist or has already ended'}), 404
+            return jsonify({"error": "Task does not exist or has already ended"}), 404

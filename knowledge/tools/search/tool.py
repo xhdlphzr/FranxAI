@@ -11,6 +11,7 @@ Use DuckDuckGo search engine to search internet information
 
 from ddgs import DDGS
 
+
 def execute(query: str, max_results: int = 5) -> str:
     """
     Search information on the internet

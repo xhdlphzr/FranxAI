@@ -26,7 +26,7 @@ def add_conversation(user_msg: str, ai_msg: str):
     add_document(text, source=source, doc_type="conversation")
 
     try:
-        with open(backup_path, 'w', encoding='utf-8') as f:
+        with open(backup_path, "w", encoding="utf-8") as f:
             f.write(text)
     except Exception as e:
         print(f"⚠️ Failed to write memory backup: {e}")

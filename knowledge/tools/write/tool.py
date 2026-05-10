@@ -11,6 +11,7 @@ Allows the AI to write, append, or edit content in a specified file
 
 from pathlib import Path
 
+
 def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0) -> str:
     """
     Write, append, or edit content in a file
@@ -42,10 +43,10 @@ def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0)
             if not p.exists():
                 return f"Edit failed: File does not exist - {p}"
 
-            with open(p, 'r', encoding='utf-8') as f:
+            with open(p, "r", encoding="utf-8") as f:
                 original = f.read()
 
-            lines = original.split('\n')
+            lines = original.split("\n")
             total_lines = len(lines)
 
             if start_line > total_lines:
@@ -56,22 +57,22 @@ def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0)
 
             # Replace lines [start_line, end_line] with content
             # Empty content deletes the line range
-            new_lines = content.split('\n') if content else []
-            lines[start_line - 1:effective_end] = new_lines
+            new_lines = content.split("\n") if content else []
+            lines[start_line - 1 : effective_end] = new_lines
 
-            with open(p, 'w', encoding='utf-8') as f:
-                f.write('\n'.join(lines))
+            with open(p, "w", encoding="utf-8") as f:
+                f.write("\n".join(lines))
 
             return f"Successfully edited file: {p} (L{start_line}-L{effective_end} replaced)"
         else:
             # Select file opening mode based on the parameter
-            flag = 'a' if mode == 'append' else 'w'
+            flag = "a" if mode == "append" else "w"
 
             # Write content to the file
-            with open(p, flag, encoding='utf-8') as f:
+            with open(p, flag, encoding="utf-8") as f:
                 f.write(content)
 
             # Return success message
-            return f"Successfully {'appended to' if mode=='append' else 'wrote to'} file: {p}"
+            return f"Successfully {'appended to' if mode == 'append' else 'wrote to'} file: {p}"
     except Exception as e:
         return f"Write failed: {e}"

@@ -31,18 +31,20 @@ def load_builtin_tools():
     global _internal_tools
     _internal_tools = {}
     for item in TOOLS_DIR.iterdir():
-        if not item.is_dir() or item.name.startswith('__'):
+        if not item.is_dir() or item.name.startswith("__"):
             continue
         tool_name = item.name
-        tool_path = item / 'tool.py'
-        readme_path = item / 'README.md'
+        tool_path = item / "tool.py"
+        readme_path = item / "README.md"
 
         if not (tool_path.exists() and readme_path.exists()):
             print(f"⚠️ Tool {tool_name} is missing tool.py or README.md, skipping")
             continue
 
         try:
-            spec = importlib.util.spec_from_file_location(f"knowledge.tools.{tool_name}", tool_path)
+            spec = importlib.util.spec_from_file_location(
+                f"knowledge.tools.{tool_name}", tool_path
+            )
             module = importlib.util.module_from_spec(spec)
             sys.modules[f"knowledge.tools.{tool_name}"] = module
             spec.loader.exec_module(module)
@@ -50,8 +52,10 @@ def load_builtin_tools():
             print(f"⚠️ Failed to import tool.py for {tool_name}: {e}, skipping")
             continue
 
-        if not hasattr(module, 'execute'):
-            print(f"⚠️ tool.py for {tool_name} does not define execute function, skipping")
+        if not hasattr(module, "execute"):
+            print(
+                f"⚠️ tool.py for {tool_name} does not define execute function, skipping"
+            )
             continue
 
         _internal_tools[tool_name] = module.execute
@@ -64,7 +68,7 @@ def load_mcp_servers():
     if not config_path.exists():
         return
     try:
-        with open(config_path, 'r', encoding='utf-8') as f:
+        with open(config_path, "r", encoding="utf-8") as f:
             config = json.load(f)
     except Exception as e:
         print(f"Failed to read config file: {e}")
@@ -105,11 +109,14 @@ def load_mcp_servers():
                                 return mcp_client.call_tool(t_name, kwargs)
                             except Exception as e:
                                 return f"Call failed: {e}"
+
                         return wrapper
+
                     _mcp_tools[full_name] = make_wrapper(client, tool_name)
         except Exception as e:
             print(f"Failed to start MCP server {name}: {e}")
             import traceback
+
             traceback.print_exc()
             continue
 
@@ -118,7 +125,7 @@ def tools(tool_name: str, arguments: dict = None) -> str:
     """
     Unified tool call interface: Supports built-in tools and MCP tools (format: server_name/tool_name)
     """
-    if '/' in tool_name:
+    if "/" in tool_name:
         with _mcp_lock:
             if tool_name in _mcp_tools:
                 try:
@@ -159,15 +166,12 @@ tools_metadata = [
                 "properties": {
                     "tool_name": {
                         "type": "string",
-                        "description": "Tool name, e.g., read, write, command, search, similarity, add_task, del_task, ett, beijing_subway, etc. External MCP tools use the format server_name/tool_name."
+                        "description": "Tool name, e.g., read, write, command, search, similarity, add_task, del_task, ett, beijing_subway, etc. External MCP tools use the format server_name/tool_name.",
                     },
-                    "arguments": {
-                        "type": "object",
-                        "description": "Tool parameters"
-                    }
+                    "arguments": {"type": "object", "description": "Tool parameters"},
                 },
-                "required": ["tool_name"]
-            }
-        }
+                "required": ["tool_name"],
+            },
+        },
     }
 ]

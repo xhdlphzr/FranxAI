@@ -41,11 +41,13 @@ def add_document(text: str, source: str = "", doc_type: str = "generic"):
     if row is None:
         cursor.execute(
             "INSERT INTO vectors (text, embedding, source, type) VALUES (?, ?, ?, ?)",
-            (text, emb_blob, source, doc_type)
+            (text, emb_blob, source, doc_type),
         )
         new_id = cursor.lastrowid
         try:
-            cursor.execute("INSERT INTO fts (rowid, text) VALUES (?, ?)", (new_id, text))
+            cursor.execute(
+                "INSERT INTO fts (rowid, text) VALUES (?, ?)", (new_id, text)
+            )
         except sqlite3.OperationalError as e:
             if "no such table" not in str(e):
                 raise
@@ -57,20 +59,20 @@ def init_vector_db():
     """Create database tables if they do not exist, and add missing columns"""
     conn = sqlite3.connect(VECTOR_DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('''
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS vectors (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL,
             embedding BLOB NOT NULL
         )
-    ''')
-    cursor.execute('''
+    """)
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS file_versions (
             path TEXT PRIMARY KEY,
             mtime REAL,
             last_updated REAL
         )
-    ''')
+    """)
     try:
         cursor.execute("ALTER TABLE vectors ADD COLUMN source TEXT")
     except sqlite3.OperationalError:
@@ -79,12 +81,12 @@ def init_vector_db():
         cursor.execute("ALTER TABLE vectors ADD COLUMN type TEXT")
     except sqlite3.OperationalError:
         pass
-    cursor.execute('''
+    cursor.execute("""
         CREATE VIRTUAL TABLE IF NOT EXISTS fts USING fts5(
             text,
             tokenize = 'unicode61'
         )
-    ''')
+    """)
     conn.commit()
     conn.close()
 
@@ -119,15 +121,19 @@ def incremental_update():
         if path not in stored or stored[path] != mtime:
             file_path = KNOWLEDGE_ROOT / path
             try:
-                text = file_path.read_text(encoding='utf-8').strip()
-                text = re.sub(r'^<!--.*?-->', '', text, flags=re.DOTALL).strip()
+                text = file_path.read_text(encoding="utf-8").strip()
+                text = re.sub(r"^<!--.*?-->", "", text, flags=re.DOTALL).strip()
                 if not text:
                     continue
-                cursor.execute("SELECT id FROM vectors WHERE source = ?", (f"file:{path}",))
+                cursor.execute(
+                    "SELECT id FROM vectors WHERE source = ?", (f"file:{path}",)
+                )
                 old_ids = cursor.fetchall()
                 for (old_id,) in old_ids:
                     cursor.execute("DELETE FROM fts WHERE rowid = ?", (old_id,))
-                cursor.execute("DELETE FROM vectors WHERE source = ?", (f"file:{path}",))
+                cursor.execute(
+                    "DELETE FROM vectors WHERE source = ?", (f"file:{path}",)
+                )
                 model = get_model()
                 emb = model.encode(text)
                 emb_blob = emb.tobytes()
@@ -143,13 +149,15 @@ def incremental_update():
 
                 cursor.execute(
                     "INSERT INTO vectors (text, embedding, source, type) VALUES (?, ?, ?, ?)",
-                    (text, emb_blob, f"file:{path}", doc_type)
+                    (text, emb_blob, f"file:{path}", doc_type),
                 )
                 new_id = cursor.lastrowid
-                cursor.execute("INSERT INTO fts (rowid, text) VALUES (?, ?)", (new_id, text))
+                cursor.execute(
+                    "INSERT INTO fts (rowid, text) VALUES (?, ?)", (new_id, text)
+                )
                 cursor.execute(
                     "INSERT OR REPLACE INTO file_versions (path, mtime, last_updated) VALUES (?, ?, ?)",
-                    (path, mtime, time.time())
+                    (path, mtime, time.time()),
                 )
                 print(f"Updated: {path}")
             except Exception as e:
@@ -187,9 +195,9 @@ def full_rebuild():
     print("Performing full vector library rebuild...")
     conn = sqlite3.connect(VECTOR_DB_PATH)
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM vectors')
-    cursor.execute('DELETE FROM file_versions')
-    cursor.execute('DELETE FROM fts')
+    cursor.execute("DELETE FROM vectors")
+    cursor.execute("DELETE FROM file_versions")
+    cursor.execute("DELETE FROM fts")
     conn.commit()
     conn.close()
     incremental_update()

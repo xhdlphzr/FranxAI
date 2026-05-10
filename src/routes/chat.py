@@ -18,19 +18,20 @@ from flask import Blueprint, request, jsonify, Response, stream_with_context
 from src.auth import login_required
 from src import state
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from knowledge import search, add_conversation
 
-chat_bp = Blueprint('chat', __name__)
+chat_bp = Blueprint("chat", __name__)
 
 
-@chat_bp.route('/chat', methods=['POST'])
+@chat_bp.route("/chat", methods=["POST"])
 @login_required
 def chat():
     data = request.get_json()
-    user_message = data.get('message', '').strip()
+    user_message = data.get("message", "").strip()
     if not user_message:
-        return jsonify({'error': 'Message cannot be empty'}), 400
+        return jsonify({"error": "Message cannot be empty"}), 400
 
     def generate():
         old_stdout = sys.stdout
@@ -49,7 +50,7 @@ def chat():
         try:
             # Knowledge retrieval
             try:
-                k = getattr(state.chat_agent, 'knowledge_k', 5)
+                k = getattr(state.chat_agent, "knowledge_k", 5)
                 relevant = search(user_message, k=k)
                 for item in relevant:
                     yield f"data: {json.dumps({'type': 'knowledge', 'text': item})}\n\n"
@@ -81,18 +82,21 @@ def chat():
                     yield f"data: {json.dumps({'type': 'content', 'text': item})}\n\n"
 
                 # Tool call event
-                elif isinstance(item, dict) and item.get('type') == 'tool_call':
+                elif isinstance(item, dict) and item.get("type") == "tool_call":
                     yield f"data: {json.dumps(item)}\n\n"
 
                 # Tool result event
-                elif isinstance(item, dict) and item.get('type') == 'tool_result':
+                elif isinstance(item, dict) and item.get("type") == "tool_result":
                     yield f"data: {json.dumps(item)}\n\n"
 
                 # Confirmation request – wait for user approval instead of auto‑approving
-                elif isinstance(item, dict) and item.get('type') == 'confirmation_required':
-                    confirm_id = item.get('confirm_id', str(uuid.uuid4()))
+                elif (
+                    isinstance(item, dict)
+                    and item.get("type") == "confirmation_required"
+                ):
+                    confirm_id = item.get("confirm_id", str(uuid.uuid4()))
                     # Ensure the item carries the confirm_id so the frontend can use it
-                    item['confirm_id'] = confirm_id
+                    item["confirm_id"] = confirm_id
 
                     # Send the confirmation request to the frontend
                     yield f"data: {json.dumps(item)}\n\n"
@@ -102,8 +106,8 @@ def chat():
 
                     with state.pending_lock:
                         state.pending_confirmations[confirm_id] = {
-                            'generator': agent_gen,
-                            'queue': confirm_queue,
+                            "generator": agent_gen,
+                            "queue": confirm_queue,
                         }
 
                     # Block until the user approves or rejects via /api/confirm_tool
@@ -119,7 +123,7 @@ def chat():
                     try:
                         next_item = agent_gen.send(approved)
                         if isinstance(next_item, dict):
-                            if next_item.get('type') == 'tool_result':
+                            if next_item.get("type") == "tool_result":
                                 yield f"data: {json.dumps(next_item)}\n\n"
                             else:
                                 # In case something else comes back, send it as generic
@@ -145,7 +149,9 @@ def chat():
             # Markdown rendering for full response
             if full_response:
                 try:
-                    html = markdown.markdown(full_response, extensions=['tables', 'fenced_code'])
+                    html = markdown.markdown(
+                        full_response, extensions=["tables", "fenced_code"]
+                    )
                     yield f"data: {json.dumps({'type': 'html', 'html': html})}\n\n"
                 except Exception as e:
                     yield f"data: {json.dumps({'type': 'error', 'text': f'Markdown rendering failed: {str(e)}'})}\n\n"
@@ -161,15 +167,18 @@ def chat():
             # Client disconnected – clean up any pending confirmations
             with state.pending_lock:
                 for confirm_id, info in list(state.pending_confirmations.items()):
-                    if info.get('generator') is agent_gen:
+                    if info.get("generator") is agent_gen:
                         # Wake up the generator to let it finish gracefully
                         try:
-                            info['queue'].put(False)  # Wake up from waiting so that the generator can finish
+                            info["queue"].put(
+                                False
+                            )  # Wake up from waiting so that the generator can finish
                         except Exception:
                             pass
                         del state.pending_confirmations[confirm_id]
         except Exception as e:
             import traceback
+
             traceback.print_exc()
             yield f"data: {json.dumps({'type': 'error', 'text': f'Agent crashed: {str(e)}'})}\n\n"
         finally:
@@ -177,12 +186,12 @@ def chat():
 
     return Response(
         stream_with_context(generate()),
-        mimetype='text/event-stream',
-        headers={'Cache-Control': 'no-cache', 'X-Accel-Buffering': 'no'}
+        mimetype="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
 
-@chat_bp.route('/api/confirm_tool', methods=['POST'])
+@chat_bp.route("/api/confirm_tool", methods=["POST"])
 @login_required
 def confirm_tool():
     """
@@ -190,16 +199,16 @@ def confirm_tool():
     Wakes up the blocked generator in /chat.
     """
     data = request.get_json()
-    confirm_id = data.get('confirm_id')
-    approved = data.get('approved', False)
+    confirm_id = data.get("confirm_id")
+    approved = data.get("approved", False)
 
     if not confirm_id:
-        return jsonify({'error': 'Missing confirm_id'}), 400
+        return jsonify({"error": "Missing confirm_id"}), 400
 
     with state.pending_lock:
         info = state.pending_confirmations.get(confirm_id)
-        if info and 'queue' in info:
-            info['queue'].put(approved)
-            return jsonify({'status': 'ok'})
+        if info and "queue" in info:
+            info["queue"].put(approved)
+            return jsonify({"status": "ok"})
 
-    return jsonify({'error': 'No pending confirmation found for this id'}), 404
+    return jsonify({"error": "No pending confirmation found for this id"}), 404

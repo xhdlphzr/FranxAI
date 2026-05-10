@@ -38,11 +38,11 @@ def search(query: str, k: int = 5):
         norm_d = np.linalg.norm(emb)
         sim = dot / (norm_q * norm_d) if norm_q * norm_d != 0 else 0
 
-        if doc_type == 'tool':
+        if doc_type == "tool":
             weight = 1.0
-        elif doc_type == 'skill':
+        elif doc_type == "skill":
             weight = 0.8
-        elif doc_type == 'conversation':
+        elif doc_type == "conversation":
             weight = 0.2
         else:
             weight = 1.0
@@ -53,8 +53,8 @@ def search(query: str, k: int = 5):
     vector_scores.sort(reverse=True, key=lambda x: x[0])
 
     def clean_fts_query(q: str) -> str:
-        cleaned = re.sub(r'[^\w\u4e00-\u9fff\s]', ' ', q)
-        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+        cleaned = re.sub(r"[^\w\u4e00-\u9fff\s]", " ", q)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
         return cleaned
 
     conn_fts = sqlite3.connect(VECTOR_DB_PATH)
@@ -64,7 +64,7 @@ def search(query: str, k: int = 5):
         try:
             cursor_fts.execute(
                 "SELECT rowid, rank FROM fts WHERE text MATCH ? ORDER BY rank LIMIT ?",
-                (fts_query, k * 2)
+                (fts_query, k * 2),
             )
             fts_results = cursor_fts.fetchall()
         except Exception as e:
@@ -85,10 +85,10 @@ def search(query: str, k: int = 5):
     if fts_rowids:
         conn_fts2 = sqlite3.connect(VECTOR_DB_PATH)
         cursor_fts2 = conn_fts2.cursor()
-        placeholders = ','.join('?' * len(fts_rowids))
+        placeholders = ",".join("?" * len(fts_rowids))
         cursor_fts2.execute(
             f"SELECT id, text, type FROM vectors WHERE id IN ({placeholders})",
-            fts_rowids
+            fts_rowids,
         )
         for doc_id, text, doc_type in cursor_fts2.fetchall():
             fts_text_map[doc_id] = (text, doc_type)
@@ -112,6 +112,10 @@ def search(query: str, k: int = 5):
     sorted_items = sorted(combined.items(), key=lambda x: x[1][0], reverse=True)
     final_texts = [item[1][1] for item in sorted_items[:k] if item[1][1]]
     if len(final_texts) < k:
-        final_texts.extend([text for _, _, text, _ in vector_scores if text not in final_texts][:k - len(final_texts)])
+        final_texts.extend(
+            [text for _, _, text, _ in vector_scores if text not in final_texts][
+                : k - len(final_texts)
+            ]
+        )
 
     return final_texts

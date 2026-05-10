@@ -31,3 +31,8 @@ You should have received a copy of the GNU Affero General Public License along w
     - Ensure the written content is explicitly requested by the user; do not modify files arbitrarily.
     - If the directory where the file is located does not exist, the tool will automatically create the directory (permissions required).
     - In edit mode, always use `read` first to get the current line numbers, then specify the exact range to replace.
+    - **Critical Rule for `edit` mode — Line Number Adherence (READ ONLY, NEVER PREDICT)**:
+        - **ALL `start_line` and `end_line` values MUST come exclusively from the most recent `read` operation.** You are FORBIDDEN from predicting, calculating, or inferring line numbers based on the content of the edit itself.
+        - **Original file only:** When deleting or replacing lines, use the line numbers of the ORIGINAL file BEFORE your edit. Example: If `read` shows lines 50-60 and you are replacing lines 54-57 with a 6-line block, you MUST use `start_line=54, end_line=57`. Using `54-59` (post-edit calculation) is a serious violation.
+        - **No "drift" correction:** Do NOT try to adjust line numbers to compensate for how the edit will shift subsequent lines. That shift is handled internally; your job is to provide the exact current coordinates.
+        - **Check your work:** Before calling `write` with `edit` mode, explicitly state in your plan: "I am replacing lines X to Y as they appear in the most recent `read` operation."

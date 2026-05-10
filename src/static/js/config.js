@@ -246,6 +246,12 @@ configForm.addEventListener("submit", async (e) => {
       renderTasks();
       renderMCPServers();
       configStatus.innerText = t("config.saved");
+      // Reset agent: clear chat UI and reload from the new agent instance
+      localStorage.removeItem("chatMessages");
+      window.chatMessages.innerHTML = "";
+      localStorage.removeItem("startup_id");
+      await checkSessionAndClear();
+      await loadMessagesFromServer();
     } else {
       configStatus.innerText = t("config.save_failed", {
         message: result.error,

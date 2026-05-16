@@ -52,6 +52,32 @@ function highlightCodeBlocks(container) {
   });
 }
 
+/**
+ * Render all unprocessed Mermaid code blocks inside a container as SVG diagrams.
+ * @param {HTMLElement} container
+ */
+async function renderMermaidBlocks(container) {
+  if (!container) return;
+  const blocks = container.querySelectorAll(
+    "pre code.language-mermaid:not(.mermaid-rendered)",
+  );
+  for (const code of blocks) {
+    const pre = code.parentElement;
+    const mermaidCode = code.textContent;
+    try {
+      const id = "mermaid-" + Math.random().toString(36).substr(2, 9);
+      const { svg } = await mermaid.render(id, mermaidCode);
+      const wrapper = document.createElement("div");
+      wrapper.className = "mermaid-wrapper";
+      wrapper.innerHTML = svg;
+      pre.replaceWith(wrapper);
+    } catch (err) {
+      console.error("Mermaid render failed:", err);
+      pre.innerHTML = `<div class="mermaid-error">Mermaid render error: ${err.message}</div>`;
+    }
+  }
+}
+
 function escapeHtml(str) {
   return str.replace(/[&<>]/g, function (m) {
     if (m === "&") return "&amp;";
@@ -99,6 +125,7 @@ function renderStreamingMarkdown(msgDiv, rawText) {
   wrapTables(contentContainer);
   // Apply code highlighting to the freshly rendered Markdown
   highlightCodeBlocks(contentContainer);
+  renderMermaidBlocks(contentContainer);
   const existingDot = contentContainer.querySelector(".typing-dot");
   if (existingDot) existingDot.remove();
   const dot = document.createElement("span");
@@ -177,6 +204,7 @@ function updateKnowledgeBlock(msgDiv, knowledgeItems) {
       wrapTables(fullDiv);
       // Highlight code blocks inside knowledge items
       highlightCodeBlocks(fullDiv);
+      renderMermaidBlocks(fullDiv);
       if (window.renderMathInElement) {
         window.renderMathInElement(fullDiv, {
           delimiters: [
@@ -475,6 +503,7 @@ function addMessage(
     wrapTables(msgDiv);
     // Highlight code blocks in the fully rendered message
     highlightCodeBlocks(msgDiv);
+    renderMermaidBlocks(msgDiv);
     if (window.renderMathInElement) {
       window.renderMathInElement(msgDiv, {
         delimiters: [
@@ -501,6 +530,7 @@ function updateMessage(msgDiv, content) {
       wrapTables(contentContainer);
       // Highlight freshly rendered code
       highlightCodeBlocks(contentContainer);
+      renderMermaidBlocks(contentContainer);
       let dot = contentContainer.querySelector(".typing-dot");
       if (!dot) {
         dot = document.createElement("span");
@@ -568,6 +598,7 @@ function stopGeneration() {
           wrapTables(contentContainer);
           // Highlight code blocks when user stops generation
           highlightCodeBlocks(contentContainer);
+          renderMermaidBlocks(contentContainer);
         } catch (e) {
           contentContainer.textContent = stopText;
         }

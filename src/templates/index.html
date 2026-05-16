@@ -44,6 +44,15 @@ You should have received a copy of the GNU Affero General Public License along w
       href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css"
     />
     <link rel="stylesheet" href="/static/css/index.css" />
+    <!-- Mermaid diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "default",
+        securityLevel: "loose",
+      });
+    </script>
   </head>
   <body>
     <div class="app-container">

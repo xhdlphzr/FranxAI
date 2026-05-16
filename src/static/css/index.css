@@ -546,3 +546,24 @@ body {
     padding: 0.6rem 1.8rem;
   }
 }
+
+/* Mermaid diagram rendering */
+.mermaid-wrapper {
+  margin: 0.5rem 0;
+  padding: 1rem;
+  background: #ffffff;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+  overflow-x: auto;
+  text-align: center;
+}
+.mermaid-wrapper svg {
+  max-width: 100%;
+  height: auto;
+}
+.mermaid-error {
+  color: #dc2626;
+  padding: 0.5rem;
+  background: #fef2f2;
+  border-radius: 0.5rem;
+}

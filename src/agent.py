@@ -324,6 +324,7 @@ class FranxAgent:
                             tools=self.tools,
                             tool_choice="auto",
                             stream=True,
+                            extra_body={"thinking": {"type": "enabled"}},
                         )
                     else:
                         stream = self.client.chat.completions.create(

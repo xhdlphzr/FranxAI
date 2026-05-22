@@ -676,6 +676,7 @@ async function sendMessage() {
               }
             } else if (data.type === "tool_call") {
               removeTypingDot(assistantMsgDiv);
+              assistantMsgDiv.classList.remove("temp");
               addToolCallBlockStructured(
                 assistantMsgDiv,
                 data.call_id,

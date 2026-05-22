@@ -6,14 +6,16 @@
 **Now you can control the AI on your computer directly from your phone – no public IP, no port forwarding, one‑click secure remote access.**
 
 FranxAgent is a lightweight AI agent framework that enables AI to read files, execute commands, search the web, understand multimodal content, and truly interact with the world through the MCP protocol.  
-**Now it also features:**
-- 🌐 **One‑click intranet penetration**: integrated Cloudflare Tunnel – start it and get a public URL, access from your phone or tablet anytime, anywhere.
-- 🔐 **Military‑grade security authentication**: RSA public‑key encryption + JWT short‑lived tokens, supports "refresh‑to‑re‑login" mode, completely eliminating long‑term token leakage risks.
-- 📱 **Perfect mobile adaptation**: bottom liquid‑glass dock, breathing dot animation, touch optimisation – same experience on phone and desktop.
-- 🧠 **Echoes of Thoughts knowledge base**: all tool descriptions, skill files, and conversation histories are automatically vectorised, using hybrid search (vector semantics + keyword matching) for long‑term memory and cross‑session recall.
-- 🌱 **Self‑growth**: after completing complex tasks, the AI can autonomously save reusable skills via `add_skill` – zero restart, real‑time retrieval. Every experience becomes nourishment for future conversations.
+**v5.0.0 introduces a revolutionary Code Review Panel that transforms how you collaborate with AI on code changes – no more blind approvals, every edit is visible and editable before it touches your files.**
 
-**From now on, AI can not only go "From Words to Worlds", but also "let every echo become the nourishment of thought".**
+---
+
+## 🎉 What's New in v5.0.0
+
+- 🔍 **Code Review Panel**: When the AI proposes file changes, a full‑featured code editor slides in from the right, showing syntax‑highlighted code with **red (deletion) and green (addition) diff markers**. You can switch between **view mode** and **edit mode**, modify the code directly, and only apply changes when you approve. No more "blind trust" – every line is reviewed before it reaches your disk.
+- 📊 **Mermaid diagram rendering**: Chat messages now render Mermaid diagrams as live SVGs – flowcharts, sequence diagrams, and more, directly in the conversation.
+- 📜 **Smart scrolling**: The chat intelligently auto‑scrolls only when you're at the bottom; scroll up to review history without interruption.
+- ✍️ **Write tool reborn**: The `write` tool no longer modifies files directly. It sends AI proposals to the frontend, where you review, edit, and approve changes – putting you firmly in control.
 
 ---
 
@@ -22,7 +24,7 @@ FranxAgent is a lightweight AI agent framework that enables AI to read files, ex
 - 📱 **Zero‑configuration remote access**: integrated Cloudflare Tunnel – one‑click public URL, no public IP or router settings needed. Access FranxAgent on your computer directly from your phone/tablet.
 - 🔐 **Military‑grade security authentication**: RSA asymmetric encryption + JWT short‑lived tokens, supports "refresh‑to‑re‑login" (token stored only in memory, cleared on page refresh), completely prevents long‑term control after token leakage.
 - 🧠 **Intelligent memory & hybrid search**: conversation history automatically stored in vector database, combined with FTS5 keyword search for precise cross‑session recall.
-- 🛠️ **Rich built‑in tools**: `time`, `read`, `write`, `command`, `search`, `add_skill`, etc., extensible.
+- 🛠️ **Rich built‑in tools**: `read`, `write`, `command`, `search`, `add_skill`, etc., extensible.
 - 🌐 **MCP protocol support**: integrate any stdio MCP server with a simple configuration – AI automatically learns to use all its tools.
 - ⏰ **Scheduled tasks**: runs in background thread, supports daily recurring tasks – AI executes commands at specified times.
 - 📚 **Skill system**: Markdown files in `knowledge/` are automatically merged into the system prompt, giving AI extra knowledge, rules, or workflows.
@@ -32,6 +34,21 @@ FranxAgent is a lightweight AI agent framework that enables AI to read files, ex
 - ⚙️ **Minimal configuration**: one `config.json` handles all settings.
 - 📦 **Lightweight dependencies**: Minimalist dependency.
 - 💻 **Cross‑platform**: Windows / Linux / macOS.
+
+---
+
+## 🔍 The Code Review Panel (v5.0.0)
+
+The Code Review Panel is the centrepiece of v5.0.0. When the AI uses the `write` tool, instead of modifying your file immediately, a full‑featured code editor slides in from the right side of the chat:
+
+- **Syntax highlighting**: Powered by CodeMirror 5, with automatic language detection based on file extension (Python, JavaScript, C/C++, Rust, Go, and more).
+- **Diff markers**: Deleted lines appear with red semi‑transparent background; added lines appear with green semi‑transparent background. Line numbers are colour‑coded to match.
+- **View mode**: Read‑only, with full diff visibility. Inspect every change the AI proposes.
+- **Edit mode**: One click to switch – the editor becomes fully editable. Modify the AI's proposal, fix mistakes, or add your own touches.
+- **Approve or reject**: Only when you click "Approve" does the final code reach your file. Reject to discard the proposal entirely.
+- **Smooth animations**: The panel slides in from the right and slides out when dismissed.
+
+This transforms FranxAgent from an "AI that writes code" into an "AI that collaborates on code with you."
 
 ---
 
@@ -149,7 +166,7 @@ Inside the `tools` field, you can specify separate parameters for `ett` (multimo
 |------|---------|------------------|
 | `time` | Current date/time | Read‑only, safe |
 | `read` | Read file content or project structure | Read‑only. Code files return AST structure + line‑numbered content; directories return project skeleton. Supports documents, images, videos. |
-| `write` | Write, append, or edit files | Auto‑creates parent directories. Edit mode replaces lines by line number range. Overwrite/append options. |
+| `write` | Propose file changes (review‑before‑write) | **v5.0.0**: No longer writes files directly. Sends AI proposals to the Code Review Panel, where you review diffs, edit code, and approve changes. Supports `overwrite`, `append`, and `edit` modes. |
 | `command` | Execute system command | ❌ Direct deletion blocked; suggests moving instead. Supports timeout. |
 | `search` | Web search (DuckDuckGo) | Free, no API key. Returns title, snippet, URL. |
 | `add_skill` | Save a reusable skill | Saves Markdown skill file and immediately indexes it into the vector database. Zero restart, real‑time retrieval. No confirmation needed. |
@@ -226,52 +243,6 @@ Copy some tools from the [tools branch](https://github.com/xhdlphzr/FranxAgent/t
 
 - **Long‑term memory**: FranxAgent no longer relies on `memory.txt`. Complete conversation history is automatically saved to `knowledge/memories/` (one `.md` file per session). On next startup, these histories are loaded into the vector knowledge base, allowing the AI to recall previous conversations via **hybrid retrieval (vector semantics + keyword matching)**.
 - **Scheduled tasks**: Background thread checks `tasks.json` every 10 seconds; executes commands at specified times (HH:MM). Supports daily repetition without duplication.
-
----
-
-## 🧪 Usage Examples
-
-User:
-```
-List files in the current directory
-```
-AI: Calls `tools(tool_name="command", arguments={"command": "ls"})` and returns the list.
-
-User:
-```
-Remind me to drink a glass of water every morning at 8am
-```
-AI: Calls `tools(tool_name="add_task", arguments={"content": "Remind me to drink water", "time": "08:00"})`, task added.
-
-User:
-```
-Compute the similarity between "hello world" and "hello word"
-```
-AI: Calls `tools(tool_name="similarity", arguments={"text1": "hello world", "text2": "hello word"})`, returns 33.33%.
-
-User:
-```
-Search for Python asynchronous programming
-```
-AI: Calls `tools(tool_name="search", arguments={"query": "Python asynchronous programming"})`, returns results.
-
-User:
-```
-What is in this picture? https://example.com/dog.jpg
-```
-AI: Calls `tools(tool_name="read", arguments={"path": "https://example.com/dog.jpg"})`, returns description.
-
-User:
-```
-Analyze the content of this Word document (local path provided)
-```
-AI: Calls `tools(tool_name="read", arguments={"path": "C:/docs/report.docx"})`, returns summary.
-
-User:
-```
-(After configuring Windows‑MCP) Take a screenshot
-```
-AI: Calls `tools(tool_name="windows-mcp/snapshot")`, returns screenshot result.
 
 ---
 

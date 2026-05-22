@@ -86,36 +86,35 @@ For tools that require parameters, `arguments` must be a JSON object containing 
     - An error message will be returned if the path does not exist or cannot be read.
 - **Notes**: This tool is read-only and will not modify any files. Ensure the path is correct; confirm the file location via other methods if necessary.
 
-### `write` — Write, append, or edit file content
-- **Purpose**: Used when the user requests creating new files, writing content to existing files, or modifying files.
-- **Input**:
-    ```json
-    {
-        "path": "Full path of the file",
-        "content": "Content to write",
-        "mode": "overwrite" or "append" or "edit",
-        "start_line": 0,
-        "end_line": 0
-    }
-    ```
-    - `path`: **string**, required, full path of the file
-    - `content`: **string**, required, content to be written. In edit mode, pass empty string to delete the target lines.
-    - `mode`: **string**, optional, default is "overwrite". Available values:
-        - `"overwrite"`: Replace entire file
-        - `"append"`: Append to end of file
-        - `"edit"`: Replace lines from `start_line` to `end_line` (both inclusive, 1-based). Use with `read` tool's line numbers for precise editing.
-    - `start_line`: **integer**, required in edit mode. Start line number (1-based, inclusive).
-    - `end_line`: **integer**, required in edit mode. End line number (1-based, inclusive).
-- **Output**: Prompt message indicating whether the operation succeeded or failed.
-- **Notes**:
-    - Ensure the written content is explicitly requested by the user; do not modify files arbitrarily.
-    - If the directory where the file is located does not exist, the tool will automatically create the directory (permissions required).
-    - In edit mode, always use `read` first to get the current line numbers, then specify the exact range to replace.
-    - **Critical Rule for `edit` mode — Line Number Adherence (READ ONLY, NEVER PREDICT)**:
-        - **ALL `start_line` and `end_line` values MUST come exclusively from the most recent `read` operation.** You are FORBIDDEN from predicting, calculating, or inferring line numbers based on the content of the edit itself.
-        - **Original file only:** When deleting or replacing lines, use the line numbers of the ORIGINAL file BEFORE your edit. Example: If `read` shows lines 50-60 and you are replacing lines 54-57 with a 6-line block, you MUST use `start_line=54, end_line=57`. Using `54-59` (post-edit calculation) is a serious violation.
-        - **No "drift" correction:** Do NOT try to adjust line numbers to compensate for how the edit will shift subsequent lines. That shift is handled internally; your job is to provide the exact current coordinates.
-        - **Check your work:** Before calling `write` with `edit` mode, explicitly state in your plan: "I am replacing lines X to Y as they appear in the most recent `read` operation."
+  ### `write` — Propose file content changes (proposal-review-overwrite mode)
+  - **Purpose**: Used when the AI wants to create a new file, write content to an existing file, or modify a file. The write tool **no longer performs any file operations on disk**. Instead, it returns the AI's suggested **complete file content** as a string, which is displayed in a code review panel on the frontend. The user reviews the diff, optionally edits the code, and approves the changes. Upon approval, the frontend writes the file and returns the final content back to the AI so it stays synchronized.
+  - **Input**:
+      ```json
+      {
+          "path": "Full path of the file",
+          "content": "Complete file content after all modifications",
+          "mode": "overwrite" or "append" or "edit",
+          "start_line": 0,
+          "end_line": 0
+      }
+      ```
+      - `path`: **string**, required, full path of the file
+      - `content`: **string**, required, the AI's proposed complete file content. In edit mode, this is the entire file with the target lines replaced.
+      - `mode`: **string**, optional, default is "overwrite". Available values:
+          - `"overwrite"`: Replace entire file
+          - `"append"`: Append to end of file
+          - `"edit"`: Replace lines from `start_line` to `end_line` (both inclusive, 1-based). Use with `read` tool's line numbers for precise editing.
+      - `start_line`: **integer**, required in edit mode. Start line number (1-based, inclusive).
+      - `end_line`: **integer**, required in edit mode. End line number (1-based, inclusive).
+  - **Output**: The AI's proposed complete file content as a string. The frontend will diff this against the current file on disk and let the user review and edit before writing.
+  - **Notes**:
+      - This tool does NOT write to disk. The frontend handles all file writes after user approval.
+      - In edit mode, always use `read` first to get the current line numbers, then specify the exact range to replace.
+      - **Critical Rule for `edit` mode — Line Number Adherence (READ ONLY, NEVER PREDICT)**:
+          - **ALL `start_line` and `end_line` values MUST come exclusively from the most recent `read` operation.** You are FORBIDDEN from predicting, calculating, or inferring line numbers based on the content of the edit itself.
+          - **Original file only:** When deleting or replacing lines, use the line numbers of the ORIGINAL file BEFORE your edit.
+          - **No "drift" correction:** Do NOT try to adjust line numbers to compensate for how the edit will shift subsequent lines.
+          - **Check your work:** Before calling `write` with `edit` mode, explicitly state in your plan: "I am replacing lines X to Y as they appear in the most recent `read` operation."
 
 ### `command` - Execute System Commands (With Administrator Privileges)
 - **Purpose**: Use this tool when users need to run programs, execute scripts, manage system services, install software, or perform other command-line tasks. This tool has **administrator privileges**, enabling most system-level operations.
@@ -446,9 +445,9 @@ class FranxAgent:
                             }
 
                             result = None
-                            # 2. Check if confirmation is needed
-                            if actual_tool_name in ("write", "command"):
-                                # Generate a unique confirmation ID
+                            # 2. Handle tool execution based on type
+                            if actual_tool_name == "command":
+                                # Command tools require user confirmation
                                 confirm_id = str(uuid.uuid4())
                                 # 3. Send confirmation request event
                                 approved = yield {
@@ -468,6 +467,27 @@ class FranxAgent:
                                 else:
                                     # User rejected
                                     result = f"Tool '{actual_tool_name}' execution was rejected by the user."
+                            elif actual_tool_name == "write":
+                                # Write tools use proposal-review-overwrite mode
+                                # First, execute the tool to get the AI's suggested content
+                                func = self.tool_functions.get(func_name)
+                                if func:
+                                    ai_content = func(**arguments)
+                                else:
+                                    ai_content = f"Error: unknown tool {func_name}"
+                                confirm_id = str(uuid.uuid4())
+                                # Send proposal to frontend, wait for user's final content
+                                result = yield {
+                                    "type": "write_proposal",
+                                    "confirm_id": confirm_id,
+                                    "call_id": call_id,
+                                    "tool_name": actual_tool_name,
+                                    "arguments": arguments,
+                                    "content": str(ai_content),
+                                }
+                                # result is the final_content string from frontend, or False if rejected
+                                if not result or result is False:
+                                    result = f"Tool '{actual_tool_name}' proposal was rejected by the user."
                             else:
                                 # Normal execution (no confirmation needed)
                                 func = self.tool_functions.get(func_name)

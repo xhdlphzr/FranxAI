@@ -4,6 +4,7 @@
 // FranxAgent is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Affero General Public License for more details.
 // You should have received a copy of the GNU Affero General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
+window.katexDisableDollar = true;
 const chatMessages = document.getElementById("chat-messages");
 const messageInput = document.getElementById("message-input");
 const sendBtn = document.getElementById("send-btn");
@@ -711,6 +712,8 @@ async function sendMessage() {
                 data.tool_name,
                 data.arguments,
               );
+            } else if (data.type === "write_proposal") {
+              await handleWriteProposal(assistantMsgDiv, data);
             } else if (data.type === "error") {
               updateMessage(
                 assistantMsgDiv,
@@ -785,3 +788,483 @@ messageInput.addEventListener("keydown", (e) => {
     hljs.highlightElement(block);
   });
 })();
+
+/**
+ * Handle a write_proposal SSE event: fetch the original file, create the
+ * code review panel in split-layout mode, and wire up approve/reject.
+ * @param {HTMLElement} msgDiv - The assistant message element
+ * @param {Object} data - The write_proposal event data
+ */
+async function handleWriteProposal(msgDiv, data) {
+  const confirmId = data.confirm_id;
+  const aiContent = data.content || "";
+
+  let args = data.arguments || {};
+  if (args.arguments && typeof args.arguments === "object") {
+    args = args.arguments;
+  }
+
+  const path = args.path || "";
+  console.log("Write proposal for path:", path);
+
+  // Fetch original file content
+  let originalText = "";
+  try {
+    const resp = await fetchWithAuth("/api/read_file", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path }),
+    });
+    const result = await resp.json();
+    originalText = result.content || "";
+  } catch (e) {
+    console.error("Failed to read original file:", e);
+  }
+
+  // Determine language from file extension
+  const ext = (path.split(".").pop() || "").toLowerCase();
+  const langMap = {
+    py: "python",
+    js: "javascript",
+    ts: "typescript",
+    jsx: "javascript",
+    tsx: "typescript",
+    cpp: "cpp",
+    cc: "cpp",
+    cxx: "cpp",
+    c: "cpp",
+    h: "cpp",
+    hpp: "cpp",
+    java: "java",
+    rs: "rust",
+    go: "go",
+    html: "html",
+    htm: "html",
+    css: "css",
+    json: "json",
+    md: "markdown",
+    sql: "sql",
+  };
+  const language = langMap[ext] || "text";
+
+  // Switch to split layout
+  const chatPage = document.getElementById("chat-page");
+  chatPage.classList.add("split-layout");
+
+  // Create wrapper for the panel
+  const wrapper = document.createElement("div");
+  wrapper.className = "code-review-panel-wrapper";
+  chatPage.appendChild(wrapper);
+
+  // Create panel
+  const panel = new CodeReviewPanel(
+    wrapper,
+    path,
+    originalText,
+    aiContent,
+    language,
+  );
+
+  panel.onApprove(async (finalContent) => {
+    try {
+      await fetchWithAuth("/api/write_file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ path, content: finalContent }),
+      });
+      await fetchWithAuth("/api/confirm_tool", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          confirm_id: confirmId,
+          approved: true,
+          final_content: finalContent,
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to write/confirm file:", err);
+    }
+    // Trigger slide-out animation, then clean up
+    wrapper.classList.add("closing");
+    setTimeout(() => {
+      panel.destroy();
+      chatPage.classList.remove("split-layout");
+      wrapper.remove();
+    }, 250);
+  });
+
+  panel.onReject(async () => {
+    try {
+      await fetchWithAuth("/api/confirm_tool", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          confirm_id: confirmId,
+          approved: false,
+        }),
+      });
+    } catch (err) {
+      console.error("Failed to reject:", err);
+    }
+    // Trigger slide-out animation, then clean up
+    wrapper.classList.add("closing");
+    setTimeout(() => {
+      panel.destroy();
+      chatPage.classList.remove("split-layout");
+      wrapper.remove();
+    }, 250);
+  });
+}
+
+/**
+ * CodeReviewPanel - A CodeMirror 5 based code review panel with diff view.
+ */
+class CodeReviewPanel {
+  /**
+   * @param {HTMLElement} container
+   * @param {string} path
+   * @param {string} originalText
+   * @param {string} modifiedText
+   * @param {string} language
+   */
+  constructor(container, path, originalText, modifiedText, language) {
+    this.container = container;
+    this.path = path;
+    this.originalText = originalText;
+    this.modifiedText = modifiedText;
+    this.language = this._mapLanguage(language);
+    this.currentMode = "view";
+    this._approveCallback = null;
+    this._rejectCallback = null;
+    // Store per-line gutter markers so we can clear them later
+    this._gutterMarkers = [];
+    this._init();
+  }
+
+  /**
+   * Map file extension language to CodeMirror 5 mode.
+   * @param {string} lang
+   * @returns {string|object}
+   */
+  _mapLanguage(lang) {
+    if (lang === "cpp" || lang === "cc" || lang === "cxx" || lang === "hpp") {
+      return { name: "clike", language: "cpp" };
+    }
+    if (lang === "c" || lang === "h") {
+      return { name: "clike", language: "c" };
+    }
+    if (lang === "java") {
+      return { name: "clike", language: "java" };
+    }
+
+    const map = {
+      python: "python",
+      javascript: "javascript",
+      typescript: "javascript",
+      rust: "rust",
+      go: "go",
+      html: "htmlmixed",
+      htm: "htmlmixed",
+      css: "css",
+      json: "javascript",
+      markdown: "markdown",
+      sql: "sql",
+    };
+    return map[lang] || "python";
+  }
+
+  _init() {
+    try {
+      // DOM
+      this.panelDiv = document.createElement("div");
+      this.panelDiv.className = "code-review-panel";
+
+      this.headerDiv = document.createElement("div");
+      this.headerDiv.className = "code-review-header";
+      this.headerDiv.textContent = this.path || "(unknown file)";
+
+      this.editorDiv = document.createElement("div");
+      this.editorDiv.className = "code-review-editor";
+      this.editorDiv.style.position = "relative";
+
+      this.footerDiv = document.createElement("div");
+      this.footerDiv.className = "code-review-footer";
+
+      const approveBtn = document.createElement("button");
+      approveBtn.className = "confirm-approve";
+      approveBtn.textContent =
+        (typeof t !== "undefined" && t("tool.approve")) || "\u2713 Approve";
+      const rejectBtn = document.createElement("button");
+      rejectBtn.className = "confirm-reject";
+      rejectBtn.textContent =
+        (typeof t !== "undefined" && t("tool.reject")) || "\u2717 Reject";
+
+      this.footerDiv.appendChild(approveBtn);
+      this.footerDiv.appendChild(rejectBtn);
+
+      this.modeToggleBtn = document.createElement("button");
+      this.modeToggleBtn.className = "mode-toggle-btn";
+      this.modeToggleBtn.textContent = "\u270E";
+      this.modeToggleBtn.title = "Switch to edit mode";
+
+      this.panelDiv.appendChild(this.headerDiv);
+      this.panelDiv.appendChild(this.editorDiv);
+      this.panelDiv.appendChild(this.footerDiv);
+      this.panelDiv.appendChild(this.modeToggleBtn);
+      this.container.appendChild(this.panelDiv);
+
+      this.cm = CodeMirror(this.editorDiv, {
+        value: this.modifiedText,
+        mode: this.language,
+        theme: "default",
+        lineNumbers: true,
+        readOnly: true,
+        lineWrapping: true,
+        viewportMargin: Infinity,
+      });
+
+      this.cm.refresh();
+
+      // Delay diff application to ensure CodeMirror is fully initialised
+      setTimeout(() => {
+        if (this.cm) {
+          this._applyDiff();
+        }
+      }, 200);
+
+      this.modeToggleBtn.addEventListener("click", () => {
+        if (this.currentMode === "view") {
+          this.currentMode = "edit";
+          this.cm.setOption("readOnly", false);
+          this._clearDiff();
+          this.modeToggleBtn.textContent = "\uD83D\uDC41";
+          this.modeToggleBtn.title = "Switch to view mode";
+        } else {
+          this.currentMode = "view";
+          this.cm.setOption("readOnly", true);
+          this._applyDiff();
+          this.modeToggleBtn.textContent = "\u270E";
+          this.modeToggleBtn.title = "Switch to edit mode";
+        }
+      });
+
+      approveBtn.addEventListener("click", () => {
+        if (this._approveCallback) {
+          this._approveCallback(this.cm.getValue());
+        }
+      });
+      rejectBtn.addEventListener("click", () => {
+        if (this._rejectCallback) {
+          this._rejectCallback();
+        }
+      });
+    } catch (initError) {
+      console.error("CodeReviewPanel init failed:", initError);
+      this.panelDiv = document.createElement("div");
+      this.panelDiv.className = "code-review-panel";
+      this.panelDiv.innerHTML =
+        '<div class="code-review-header">Initialization failed</div>' +
+        '<div class="code-review-editor" style="padding:1rem;color:#dc2626;">' +
+        "Error: " +
+        initError.message +
+        "</div>";
+      this.container.appendChild(this.panelDiv);
+      this.cm = null;
+    }
+  }
+
+  /**
+   * Apply diff highlights and custom line numbers.
+   * Green for additions, red for deletions.
+   */
+  _applyDiff() {
+    if (!this.cm || typeof Diff === "undefined" || !Diff.diffLines) return;
+
+    // Clear previous gutter markers
+    this._clearGutterMarkers();
+
+    const currentText = this.cm.getValue();
+    const diffResult = Diff.diffLines(this.originalText, currentText);
+
+    const wasReadOnly = this.cm.getOption("readOnly");
+    if (wasReadOnly) this.cm.setOption("readOnly", false);
+
+    try {
+      let lineOffset = 0; // Current line in the editor
+      let origLine = 1; // Line number in the original file
+      let newLine = 1; // Line number in the new file
+
+      for (const part of diffResult) {
+        const content = part.value;
+        const hasTrailingNewline = content.endsWith("\n");
+        const lines = content.split("\n");
+        const lineCount = hasTrailingNewline ? lines.length - 1 : lines.length;
+
+        if (part.added) {
+          // Added lines: green background + green gutter
+          for (let i = 0; i < lineCount; i++) {
+            const editorLine = lineOffset + i;
+            this.cm.addLineClass(editorLine, "background", "cm-diff-insert");
+            this.cm.addLineClass(editorLine, "gutter", "cm-diff-insert-gutter");
+            // Custom line number: show new file line number, empty for old
+            this._setGutterMarker(editorLine, `${newLine + i}`);
+          }
+          lineOffset += lineCount;
+          newLine += lineCount;
+        } else if (part.removed) {
+          // Deleted lines: insert the original code as placeholders, then mark red
+          const removedCode = hasTrailingNewline
+            ? lines.slice(0, -1).join("\n")
+            : content;
+          this.cm.replaceRange(removedCode + "\n", { line: lineOffset, ch: 0 });
+          for (let i = 0; i < lineCount; i++) {
+            const editorLine = lineOffset + i;
+            this.cm.addLineClass(
+              editorLine,
+              "background",
+              "cm-diff-placeholder",
+            );
+            this.cm.addLineClass(editorLine, "background", "cm-diff-delete");
+            this.cm.addLineClass(editorLine, "gutter", "cm-diff-delete-gutter");
+            // Custom line number: show original file line number, empty for new
+            this._setGutterMarker(editorLine, `${origLine + i}`);
+          }
+          lineOffset += lineCount;
+          origLine += lineCount;
+        } else {
+          // Unchanged lines: show both line numbers
+          for (let i = 0; i < lineCount; i++) {
+            const editorLine = lineOffset + i;
+            this._setGutterMarker(editorLine, `${newLine + i}`);
+          }
+          lineOffset += lineCount;
+          origLine += lineCount;
+          newLine += lineCount;
+        }
+      }
+    } finally {
+      if (wasReadOnly) this.cm.setOption("readOnly", true);
+    }
+    this.editorDiv.classList.add("cm-preview-mode");
+  }
+
+  /**
+   * Set a custom text in the line-number gutter for a specific line.
+   * @param {number} line - 0‑based line index
+   * @param {string} text - The text to display (e.g., "12 / " or " / 15")
+   */
+  _setGutterMarker(line, text) {
+    if (!this.cm) return;
+    const marker = document.createElement("div");
+    marker.className = "custom-linenumber";
+    marker.textContent = text;
+    this.cm.setGutterMarker(line, "CodeMirror-linenumbers", marker);
+    this._gutterMarkers.push(line);
+  }
+
+  /**
+   * Remove all custom gutter markers that were previously added.
+   */
+  _clearGutterMarkers() {
+    if (!this.cm) return;
+    for (const line of this._gutterMarkers) {
+      this.cm.setGutterMarker(line, "CodeMirror-linenumbers", null);
+    }
+    this._gutterMarkers = [];
+  }
+
+  /**
+   * Remove all diff decorations and gutter markers.
+   */
+  _clearDiff() {
+    if (!this.cm) return;
+
+    // Remove all placeholder lines that were inserted for deleted code
+    const linesToRemove = [];
+    const lineCount = this.cm.lineCount();
+    for (let i = 0; i < lineCount; i++) {
+      const classes = this.cm.lineInfo(i).bgClass || "";
+      if (classes.includes("cm-diff-placeholder")) {
+        linesToRemove.push(i);
+      }
+    }
+    // Remove from bottom to top to keep line indices valid
+    for (let i = linesToRemove.length - 1; i >= 0; i--) {
+      const line = linesToRemove[i];
+      this.cm.replaceRange("", { line, ch: 0 }, { line: line + 1, ch: 0 });
+    }
+
+    // Clear all remaining diff-related classes and gutter markers
+    const currentLineCount = this.cm.lineCount();
+    for (let i = 0; i < currentLineCount; i++) {
+      this.cm.removeLineClass(i, "background", "cm-diff-insert");
+      this.cm.removeLineClass(i, "background", "cm-diff-delete");
+      this.cm.removeLineClass(i, "background", "cm-diff-placeholder");
+      this.cm.removeLineClass(i, "gutter", "cm-diff-insert-gutter");
+      this.cm.removeLineClass(i, "gutter", "cm-diff-delete-gutter");
+    }
+
+    // Clear custom gutter markers
+    this._clearGutterMarkers();
+    this.editorDiv.classList.remove("cm-preview-mode");
+  }
+
+  /**
+   * Switch between view and edit modes.
+   * @param {string} mode - "view" or "edit"
+   */
+  setMode(mode) {
+    if (mode === this.currentMode || !this.cm) return;
+
+    if (mode === "edit") {
+      this.cm.setOption("readOnly", false);
+      this._clearDiff();
+      this.currentMode = "edit";
+      this.modeToggleBtn.textContent = "\uD83D\uDC41";
+      this.modeToggleBtn.title = "Switch to view mode";
+    } else {
+      this.cm.setOption("readOnly", true);
+      this._applyDiff();
+      this.currentMode = "view";
+      this.modeToggleBtn.textContent = "\u270E";
+      this.modeToggleBtn.title = "Switch to edit mode";
+    }
+  }
+
+  /**
+   * Register callback for approval.
+   * @param {(finalContent: string) => void} cb
+   */
+  onApprove(cb) {
+    this._approveCallback = cb;
+  }
+
+  /**
+   * Register callback for rejection.
+   * @param {() => void} cb
+   */
+  onReject(cb) {
+    this._rejectCallback = cb;
+  }
+
+  /**
+   * Safely destroy the CodeMirror instance and remove the panel from the DOM.
+   */
+  destroy() {
+    if (this.cm) {
+      try {
+        this.cm.toTextArea();
+      } catch (e) {
+        console.warn("CodeMirror toTextArea failed, cleaning up manually.", e);
+        const wrapper = this.cm.getWrapperElement();
+        if (wrapper && wrapper.parentNode) {
+          wrapper.parentNode.removeChild(wrapper);
+        }
+      }
+      this.cm = null;
+    }
+    if (this.panelDiv && this.panelDiv.parentElement) {
+      this.panelDiv.remove();
+    }
+  }
+}

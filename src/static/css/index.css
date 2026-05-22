@@ -59,6 +59,7 @@ body {
   flex-direction: column;
   height: 100%;
   overflow-y: hidden;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
 }
 
 /* Page header */
@@ -328,7 +329,7 @@ body {
   font-weight: 600;
 }
 
-/* ---- highlight.js code block styles ---- */
+/* highlight.js code block styles */
 .message pre {
   margin: 0.5rem 0;
   padding: 1rem;
@@ -337,14 +338,14 @@ body {
   font-size: 0.82rem;
   line-height: 1.55;
   border: 1px solid #e2e8f0;
-  background: #f6f8fa; /* 贴合 GitHub 浅色背景 */
+  background: #f6f8fa;
 }
 .message pre code.hljs {
   font-family:
     "Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace;
   white-space: pre;
   tab-size: 4;
-  padding: 0; /* 由外层 pre 控制内边距 */
+  padding: 0;
   background: transparent;
 }
 /* Inline code */
@@ -566,4 +567,200 @@ body {
   padding: 0.5rem;
   background: #fef2f2;
   border-radius: 0.5rem;
+}
+
+/* Split Layout (chat + code review panel) */
+#chat-page.split-layout {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 4rem);
+  position: relative;
+}
+#chat-page.split-layout > .page-header {
+  display: none;
+}
+#chat-page.split-layout .chat-messages {
+  flex: 0 0 50%;
+  max-width: 50%;
+  height: 100%;
+  overflow-y: auto;
+  padding-bottom: 5rem;
+}
+#chat-page.split-layout .chat-input-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  z-index: 10;
+  background: #ffffff;
+}
+.code-review-panel-wrapper {
+  flex: 0 0 50%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  animation: slideInFromRight 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1) forwards;
+}
+.code-review-panel-wrapper.closing {
+  animation: slideOutToRight 0.25s cubic-bezier(0.4, 0, 0.6, 1) forwards;
+}
+
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes slideOutToRight {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Code Review Panel */
+.code-review-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-left: 1px solid #e2e8f0;
+  background: #ffffff;
+  position: relative;
+}
+.code-review-header {
+  padding: 0.5rem 1rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-weight: 500;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  color: #1e293b;
+}
+.code-review-editor {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* CodeMirror 5 */
+.code-review-editor .CodeMirror {
+  height: 100%;
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+.code-review-editor .CodeMirror pre.CodeMirror-line,
+.code-review-editor .CodeMirror pre.CodeMirror-line-like {
+  font-family:
+    "Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  font-variant-ligatures: none;
+}
+.code-review-editor .CodeMirror-gutters {
+  border-right: 1px solid #e2e8f0;
+  background-color: transparent;
+}
+.code-review-editor .CodeMirror-linenumber {
+  color: #94a3b8;
+}
+.custom-linenumber {
+  color: #64748b;
+  font-size: 0.75rem;
+  white-space: pre;
+  font-family:
+    "Cascadia Code", "JetBrains Mono", "Fira Code", "Consolas", monospace;
+}
+.code-review-footer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+.code-review-footer button {
+  padding: 0.3rem 1rem;
+  border: none;
+  border-radius: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: 0.1s;
+}
+
+/* Mode Toggle Button */
+.mode-toggle-btn {
+  position: absolute;
+  bottom: 4.5rem;
+  right: 1rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background 0.15s;
+  color: #334155;
+}
+.mode-toggle-btn:hover {
+  background: #f1f5f9;
+}
+
+/* Diff Markers */
+.cm-diff-insert {
+  background-color: rgba(34, 197, 94, 0.2);
+}
+.cm-diff-delete {
+  background-color: rgba(239, 68, 68, 0.2);
+}
+/* Diff Gutter (Line Numbers) */
+.cm-diff-insert-gutter .CodeMirror-linenumber {
+  color: #16a34a !important;
+  background-color: rgba(34, 197, 94, 0.1);
+}
+.cm-diff-delete-gutter .CodeMirror-linenumber {
+  color: #dc2626 !important;
+  background-color: rgba(239, 68, 68, 0.1);
+}
+.cm-preview-mode .CodeMirror-linenumber {
+  display: none;
+}
+
+/* Mobile: stack vertically */
+@media (max-width: 640px) {
+  #chat-page.split-layout {
+    flex-direction: column;
+  }
+  #chat-page.split-layout .chat-messages {
+    flex: 0 0 50%;
+    max-width: 100%;
+  }
+  #chat-page.split-layout .chat-input-area {
+    flex: 0 0 auto;
+    max-width: 100%;
+    position: static;
+    width: 100%;
+  }
+  .code-review-panel-wrapper {
+    flex: 0 0 50%;
+    height: 50%;
+  }
 }

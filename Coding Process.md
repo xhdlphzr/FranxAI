@@ -24,6 +24,10 @@ A universal workflow for turning ideas into reliable, maintainable code, using F
 #### 3. Plan and Decompose
 - Define the precise change list: which files, which functions, which line ranges.
 - Use line numbers from `read`'s output as your edit targets — never rely on memory.
+- **Before drafting a fix, diagnose the root cause first**:
+    - **Do not guess. Verify.** If the code behaves unexpectedly, use debug logs, breakpoints, or manual tests to confirm exactly which line, which function, or which data flow step is at fault.
+    - **Ask "why".** Why was this code written this way? What problem was it originally solving? Will my change break its original intent?
+    - **Confirm the root cause before touching anything.** Do not attempt a single edit until you are certain of the true cause. Every invalid modification increases entropy and makes subsequent debugging harder.
 - For complex tasks, use an extra `read` snapshot as scratch paper to draft a side-by-side comparison of old and new code.
 - Identify the dependency order: which building blocks (type definitions, data structures, helper functions) must exist before the main logic can be assembled.
 - A good plan lets a reviewer foresee the code diff just by reading it.
@@ -39,6 +43,11 @@ A universal workflow for turning ideas into reliable, maintainable code, using F
 - When adding new functions or classes, use `edit` to insert at the correct position between neighbours, not appended at the end of the file.
 - Make exactly one logical change per edit. Re-`read` immediately afterwards to refresh line numbers and avoid line drift.
 - For greenfield files, use `write` in `overwrite` mode.
+- **Principle of Minimal Change (do not touch code that already works)**:
+    - **Only change the code directly responsible for the problem.** If a line, a function, or a module is unrelated to the current bug, leave it alone.
+    - **Do not refactor verified stable code.** Even seemingly harmless operations like "renaming a variable while I'm here" or "tidying up the structure a bit" can introduce new, unknown problems, robbing you of reliable reference points during debugging.
+    - **Before every edit, ask yourself:** "Can the problem be solved without changing this line?" If yes, do not change it.
+    - **Prefer the solution with the smallest diff.** When two approaches both solve the problem, choose the one that touches fewer files, fewer functions, and fewer lines.
 
 #### 5. Comments, Documentation, and Copyright Headers
 - **All comments, docstrings, and Doxygen tags (e.g., @brief, @param, @returns) must be written in English.**
@@ -70,6 +79,8 @@ A universal workflow for turning ideas into reliable, maintainable code, using F
 
 #### Core Principles
 - **Understand, then plan, then write** — the order is non-negotiable
+- **Diagnose the root cause before touching code** — find the true source, avoid ineffective edits
+- **Minimal change** — only touch what is directly responsible for the problem; never refactor stable code alongside a bugfix
 - **A detailed plan prevents over half of all rework**
 - **Edit by line, not by file** — surgical precision beats wholesale rewriting
 - **One change, one verify** — small, traceable, reversible steps

@@ -21,10 +21,10 @@ You should have received a copy of the GNU Affero General Public License along w
     - `path`: **string**, required, full path of the target file.
     - `content`: **string**, required, the AI's suggested complete file content after all modifications. The frontend will diff this against the current file on disk.
     - `mode`: **string**, optional, default is "overwrite". Available values:
-        - `"overwrite"`: Replace entire file
-        - `"append"`: Append to end of file
+        - `"overwrite"`: Replace entire file.
+        - `"append"`: Insert content **after** the line specified by `start_line` (if `start_line > 0`), otherwise append to the end of the file. `end_line` is ignored.
         - `"edit"`: Replace lines from `start_line` to `end_line` (both inclusive, 1-based). Use with `read` tool's line numbers for precise editing.
-    - `start_line`: **integer**, required in edit mode. Start line number (1-based, inclusive).
+    - `start_line`: **integer**, required in edit and append mode (for append only when inserting after a specific line). Start line number (1-based, inclusive). If `start_line <= 0` in append mode, content is appended to the end.
     - `end_line`: **integer**, required in edit mode. End line number (1-based, inclusive).
 - **Output**: The AI's suggested complete file content as a plain string (not a dictionary).
 - **Workflow**:
@@ -35,7 +35,15 @@ You should have received a copy of the GNU Affero General Public License along w
     5. On approval, the frontend writes the file and sends the final content back to the AI so it stays in sync.
 - **Notes**:
     - This tool does NOT execute any file operations. All disk writes are performed by the frontend after user approval.
-    - In edit mode, always use `read` first to get the current line numbers, then specify the exact range to replace.
+    - **Append mode with `start_line`**:  
+      Example: A file contains lines `1: a` `2: b`. Calling `write` with `mode="append"`, `start_line=1`, `content="X"` results in:  
+      ```
+      a
+      X
+      b
+      ```
+      If `start_line >= total_lines`, content is inserted after the last line (equivalent to appending).
+    - **Edit mode**: Always use `read` first to get the current line numbers, then specify the exact range to replace.
     - **Critical Rule for `edit` mode — Line Number Adherence (READ ONLY, NEVER PREDICT)**:
         - **ALL `start_line` and `end_line` values MUST come exclusively from the most recent `read` operation.** You are FORBIDDEN from predicting, calculating, or inferring line numbers based on the content of the edit itself.
         - **Original file only:** When deleting or replacing lines, use the line numbers of the ORIGINAL file BEFORE your edit. Example: If `read` shows lines 50-60 and you are replacing lines 54-57 with a 6-line block, you MUST use `start_line=54, end_line=57`. Using `54-59` (post-edit calculation) is a serious violation.

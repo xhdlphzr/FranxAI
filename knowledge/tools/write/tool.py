@@ -32,6 +32,7 @@ def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0)
     @param content: The content to be written/inserted/replaced.
     @param mode: Write mode --- "overwrite", "append", or "edit".
     @param start_line: Start line number for edit mode (1-based, inclusive).
+                       For append mode with start_line>0, insert after this line.
     @param end_line: End line number for edit mode (1-based, inclusive).
     @returns: The complete file content after applying the requested change.
     """
@@ -50,10 +51,27 @@ def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0)
         return content
 
     elif mode == "append":
-        # Append content to the end of the file
-        if original_content and not original_content.endswith("\n"):
-            return original_content + "\n" + content
-        return original_content + content
+        if start_line <= 0:
+            # Legacy append to end of file
+            if original_content and not original_content.endswith("\n"):
+                return original_content + "\n" + content
+            return original_content + content
+        else:
+            # Insert content after the specified line
+            if not original_lines:
+                return content
+            total_lines = len(original_lines)
+            # Determine insertion index: after start_line
+            if start_line >= total_lines:
+                insert_idx = total_lines  # after last line
+            else:
+                insert_idx = start_line  # 1‑based → index = start_line
+            new_lines = (
+                original_lines[:insert_idx]
+                + content.split("\n")
+                + original_lines[insert_idx:]
+            )
+            return "\n".join(new_lines)
 
     elif mode == "edit":
         # Replace lines start_line through end_line with new content

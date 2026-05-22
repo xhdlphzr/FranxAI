@@ -134,6 +134,49 @@ def chat():
                     except StopIteration:
                         gen_exhausted = True
 
+                # Write proposal – send AI content to frontend, wait for user's final content
+                elif (
+                    isinstance(item, dict)
+                    and item.get("type") == "write_proposal"
+                ):
+                    confirm_id = item.get("confirm_id", str(uuid.uuid4()))
+                    item["confirm_id"] = confirm_id
+
+                    # Send the write proposal to the frontend
+                    yield f"data: {json.dumps(item)}\n\n"
+
+                    # Create a queue to wait for the user's final content
+                    confirm_queue = queue.Queue()
+
+                    with state.pending_lock:
+                        state.pending_confirmations[confirm_id] = {
+                            "generator": agent_gen,
+                            "queue": confirm_queue,
+                        }
+
+                    # Block until the user returns the final content via /api/confirm_tool
+                    try:
+                        final_content = confirm_queue.get()
+                    except queue.Empty:
+                        final_content = item.get("content", "")  # Fallback to AI content
+
+                    with state.pending_lock:
+                        state.pending_confirmations.pop(confirm_id, None)
+
+                    # Feed the user's final content back into the generator
+                    try:
+                        next_item = agent_gen.send(final_content)
+                        if isinstance(next_item, dict):
+                            if next_item.get("type") == "tool_result":
+                                yield f"data: {json.dumps(next_item)}\n\n"
+                            else:
+                                yield f"data: {json.dumps(next_item)}\n\n"
+                        elif isinstance(next_item, str):
+                            full_response += next_item
+                            yield f"data: {json.dumps({'type': 'content', 'text': next_item})}\n\n"
+                    except StopIteration:
+                        gen_exhausted = True
+
                 else:
                     print(f"Unknown item from agent generator: {item}")
 
@@ -190,17 +233,18 @@ def chat():
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
-
 @chat_bp.route("/api/confirm_tool", methods=["POST"])
 @login_required
 def confirm_tool():
     """
     Called by the frontend when the user clicks Approve or Reject.
-    Wakes up the blocked generator in /chat.
+    For write tools: sends the user's final content back to the generator.
+    For command tools: sends True/False to approve or reject.
     """
     data = request.get_json()
     confirm_id = data.get("confirm_id")
     approved = data.get("approved", False)
+    final_content = data.get("final_content", None)
 
     if not confirm_id:
         return jsonify({"error": "Missing confirm_id"}), 400
@@ -208,7 +252,64 @@ def confirm_tool():
     with state.pending_lock:
         info = state.pending_confirmations.get(confirm_id)
         if info and "queue" in info:
-            info["queue"].put(approved)
+            if final_content is not None:
+                # write tool: send the user's final content back to the generator
+                info["queue"].put(final_content)
+            else:
+                # command tool: send True/False
+                info["queue"].put(approved)
             return jsonify({"status": "ok"})
 
     return jsonify({"error": "No pending confirmation found for this id"}), 404
+
+
+@chat_bp.route("/api/read_file", methods=["POST"])
+@login_required
+def read_file():
+    """
+    Read the content of a file at the given path.
+    Returns the file content as UTF-8 text.
+    """
+    data = request.get_json()
+    path = data.get("path", "")
+
+    if not path:
+        return jsonify({"error": "Missing path"}), 400
+
+    try:
+        p = Path(path).expanduser().resolve()
+        if not p.exists():
+            return jsonify({"content": ""}), 200
+        with open(p, "r", encoding="utf-8") as f:
+            content = f.read()
+        return jsonify({"content": content}), 200
+    except PermissionError:
+        return jsonify({"error": "Permission denied"}), 403
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@chat_bp.route("/api/write_file", methods=["POST"])
+@login_required
+def write_file():
+    """
+    Write content to a file at the given path.
+    Creates parent directories if they don't exist.
+    """
+    data = request.get_json()
+    path = data.get("path", "")
+    content = data.get("content", "")
+
+    if not path:
+        return jsonify({"error": "Missing path"}), 400
+
+    try:
+        p = Path(path).expanduser().resolve()
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(content)
+        return jsonify({"status": "ok"}), 200
+    except PermissionError:
+        return jsonify({"error": "Permission denied"}), 403
+    except Exception as e:
+      return jsonify({"error": str(e)}), 500

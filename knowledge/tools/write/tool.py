@@ -5,8 +5,16 @@
 # You should have received a copy of the GNU Affero General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-File Write Tool
-Allows the AI to write, append, or edit content in a specified file
+Write Tool - Proposal Mode
+
+The write tool no longer performs any file operations on disk. Instead, it
+computes the final file content that would result from applying the AI's
+suggested changes, and returns this complete file content as a proposal string.
+
+The frontend displays this content in a code review panel where the user can
+inspect the diff, edit the code, and then approve the changes. Upon approval,
+the frontend writes the file and returns the final content back to the AI so
+it can continue the conversation with the latest file state.
 """
 
 from pathlib import Path
@@ -14,65 +22,65 @@ from pathlib import Path
 
 def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0) -> str:
     """
-    Write, append, or edit content in a file
+    Compute and return the complete file content after applying the AI's changes.
 
-    Args:
-        path: Full path of the file
-        content: Content to be written
-        mode: Write mode - "overwrite", "append", or "edit"
-        start_line: Start line number for edit mode (1-based, inclusive)
-        end_line: End line number for edit mode (1-based, inclusive)
+    This function does NOT write to disk. It reads the original file (if it
+    exists), applies the requested modification, and returns the resulting
+    complete file content as a plain string.
 
-    Returns:
-        Operation result information
+    @param path: Full path of the target file.
+    @param content: The content to be written/inserted/replaced.
+    @param mode: Write mode --- "overwrite", "append", or "edit".
+    @param start_line: Start line number for edit mode (1-based, inclusive).
+    @param end_line: End line number for edit mode (1-based, inclusive).
+    @returns: The complete file content after applying the requested change.
     """
+    file_path = Path(path).expanduser().resolve()
+
+    # Read original file content (empty string if file does not exist)
     try:
-        # Resolve the path and handle user directory symbol (~)
-        p = Path(path).expanduser().resolve()
+        original_content = file_path.read_text(encoding="utf-8")
+        original_lines = original_content.split("\n")
+    except (FileNotFoundError, PermissionError):
+        original_content = ""
+        original_lines = []
 
-        # Ensure the parent directory exists
-        p.parent.mkdir(parents=True, exist_ok=True)
+    if mode == "overwrite":
+        # Replace entire file content
+        return content
 
-        if mode == "edit":
-            # Edit mode: replace lines from start_line to end_line (1-based, inclusive)
-            if start_line < 1:
-                return "Edit failed: start_line must be >= 1"
-            if end_line < start_line:
-                return "Edit failed: end_line must be >= start_line"
+    elif mode == "append":
+        # Append content to the end of the file
+        if original_content and not original_content.endswith("\n"):
+            return original_content + "\n" + content
+        return original_content + content
 
-            if not p.exists():
-                return f"Edit failed: File does not exist - {p}"
+    elif mode == "edit":
+        # Replace lines start_line through end_line with new content
+        if not original_content:
+            # Editing an empty file: just return the content as the new file
+            return content
 
-            with open(p, "r", encoding="utf-8") as f:
-                original = f.read()
+        total_lines = len(original_lines)
 
-            lines = original.split("\n")
-            total_lines = len(lines)
+        # Clamp line numbers to valid range
+        start = max(1, start_line)
+        end = min(end_line, total_lines) if end_line > 0 else total_lines
 
-            if start_line > total_lines:
-                return f"Edit failed: start_line ({start_line}) exceeds total lines ({total_lines})"
+        if start > total_lines:
+            # start_line beyond file end: append after a blank line
+            return original_content + "\n" + content
 
-            # Clamp end_line to file length
-            effective_end = min(end_line, total_lines)
+        # Convert to 0-based indices
+        start_idx = start - 1
+        end_idx = end  # slicing is exclusive on the upper bound
 
-            # Replace lines [start_line, end_line] with content
-            # Empty content deletes the line range
-            new_lines = content.split("\n") if content else []
-            lines[start_line - 1 : effective_end] = new_lines
+        # Build the new file content
+        new_lines = (
+            original_lines[:start_idx] + content.split("\n") + original_lines[end_idx:]
+        )
+        return "\n".join(new_lines)
 
-            with open(p, "w", encoding="utf-8") as f:
-                f.write("\n".join(lines))
-
-            return f"Successfully edited file: {p} (L{start_line}-L{effective_end} replaced)"
-        else:
-            # Select file opening mode based on the parameter
-            flag = "a" if mode == "append" else "w"
-
-            # Write content to the file
-            with open(p, flag, encoding="utf-8") as f:
-                f.write(content)
-
-            # Return success message
-            return f"Successfully {'appended to' if mode == 'append' else 'wrote to'} file: {p}"
-    except Exception as e:
-        return f"Write failed: {e}"
+    else:
+        # Unknown mode, return content unchanged
+        return content

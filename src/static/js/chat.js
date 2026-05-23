@@ -676,9 +676,6 @@ async function sendMessage() {
                 scrollToBottom();
               }
             } else if (data.type === "tool_call") {
-              assistantMsgDiv
-                .querySelectorAll(".assistant-content")
-                .forEach((el) => el.remove());
               for (const child of [...assistantMsgDiv.childNodes]) {
                 if (child.nodeType === Node.TEXT_NODE) {
                   child.remove();

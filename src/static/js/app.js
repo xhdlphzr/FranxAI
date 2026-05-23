@@ -96,19 +96,17 @@ async function loadMessagesFromServer() {
     const resp = await fetchWithAuth("/api/messages");
     const data = await resp.json();
     if (data.messages && data.messages.length > 0) {
-      let oldMessages = [];
-      try {
-        const stored = localStorage.getItem("chatMessages");
-        if (stored) oldMessages = JSON.parse(stored);
-      } catch (e) {}
-
       window.chatMessages.innerHTML = "";
       let mergedMessages = [];
       let lastAssistantMsg = null;
       data.messages.forEach((msg) => {
         if (msg.role === "assistant") {
           if (!lastAssistantMsg) {
-            lastAssistantMsg = { role: "assistant", chunks: [] };
+            lastAssistantMsg = {
+              role: "assistant",
+              chunks: [],
+              knowledge: msg.knowledge,
+            };
           }
           if (msg.content) {
             lastAssistantMsg.chunks.push({
@@ -144,12 +142,6 @@ async function loadMessagesFromServer() {
       if (lastAssistantMsg) {
         mergedMessages.push(lastAssistantMsg);
       }
-      const knowledgeByContent = {};
-      oldMessages.forEach((m) => {
-        if (m.role === "assistant" && m.knowledge && m.content) {
-          knowledgeByContent[m.content] = m.knowledge;
-        }
-      });
       mergedMessages.forEach((msg) => {
         if (msg.role === "user") {
           addMessage("user", msg.content, false, "", true);
@@ -195,10 +187,9 @@ async function loadMessagesFromServer() {
               });
             }
           });
-          const rawText = msgDiv._rawText || "";
-          if (knowledgeByContent[rawText]) {
-            msgDiv._knowledgeItems = knowledgeByContent[rawText];
-            updateKnowledgeBlock(msgDiv, knowledgeByContent[rawText]);
+          if (msg.knowledge) {
+            msgDiv._knowledgeItems = msg.knowledge;
+            updateKnowledgeBlock(msgDiv, msg.knowledge);
           }
           if (window.renderMathInElement) {
             window.renderMathInElement(msgDiv, {

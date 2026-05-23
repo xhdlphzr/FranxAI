@@ -497,6 +497,8 @@ class FranxAgent:
 
                     # If no tool calls, finish
                     if not tool_calls_data:
+                        if relevant:
+                            assistant_message["knowledge"] = relevant
                         self.messages.append(assistant_message)
                         self._save_messages()
                         return
@@ -637,6 +639,8 @@ class FranxAgent:
                             }
                         finally:
                             if tool_message:
+                                if relevant:
+                                    assistant_message["knowledge"] = relevant
                                 tool_messages.append(tool_message)
 
                     current_api_messages.extend(tool_messages)

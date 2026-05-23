@@ -292,6 +292,7 @@ class FranxAgent:
         temperature=0.8,
         thinking=False,
         knowledge_k=1,
+        readonly=False,
     ):
         """
         Initialize the agent
@@ -302,6 +303,7 @@ class FranxAgent:
         self.temperature = temperature
         self.thinking = thinking
         self.knowledge_k = knowledge_k  # Number of knowledge fragments to retrieve
+        self.readonly = readonly
 
         # Unified tool functions (include built-in + MCP)
         self.tool_functions = tool_functions
@@ -309,7 +311,7 @@ class FranxAgent:
         self.tools = self.tools_metadata
 
         self.messages = [{}]
-        if os.path.exists("messages.json"):
+        if not self.readonly and os.path.exists("messages.json"):
             with open("messages.json", "r", encoding="utf-8") as f:
                 self.messages = json.load(f)
 
@@ -321,19 +323,23 @@ class FranxAgent:
         # Register cleanup of MCP clients on exit
         atexit.register(cleanup_mcp_clients)
 
-        def _safe_save():
-            try:
-                self._save_messages()
-            except Exception as e:
-                print(
-                    f"[FranxAgent] Failed to save messages on exit: {e}",
-                    file=sys.stderr,
-                )
+        if not self.readonly:
 
-        atexit.register(_safe_save)
+            def _safe_save():
+                try:
+                    self._save_messages()
+                except Exception as e:
+                    print(
+                        f"[FranxAgent] Failed to save messages on exit: {e}",
+                        file=sys.stderr,
+                    )
+
+            atexit.register(_safe_save)
 
     def _save_messages(self):
         """Save current message history to messages.json atomically."""
+        if self.readonly:
+            return
         tmp_path = "./messages.json.tmp"
         with open(tmp_path, "w", encoding="utf-8") as f:
             json.dump(self.messages, f, ensure_ascii=False, indent=4)

@@ -61,6 +61,7 @@ def start_cloudflare_tunnel():
 
 def init_agents():
     from src import state
+
     global STARTUP_ID
 
     config = load_config()
@@ -78,6 +79,7 @@ def init_agents():
         temperature=temperature,
         thinking=thinking,
         knowledge_k=knowledge_k,
+        readonly=False,
     )
 
     state.tasks_agent = FranxAgent(
@@ -88,6 +90,7 @@ def init_agents():
         temperature=temperature,
         thinking=thinking,
         knowledge_k=knowledge_k,
+        readonly=True,
     )
 
     # Regenerate STARTUP_ID so the frontend can detect the agent reset

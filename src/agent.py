@@ -184,12 +184,6 @@ Add a skill as a Markdown file and immediately indexes it into the knowledge bas
 
 Now you can start helping the user. Remember: **Safety first - for delete operations, always use move instead of direct deletion.**
 
-<!--
-This is part of FranxAgent
-Copyright (C) 2026 xhdlphzr
-See the file COPYING for copying conditions.
--->
-
 ## Coding Process (Skill)
 
 A universal workflow for turning ideas into reliable, maintainable code, using FranxAgent's tools. This process emphasises understanding, deliberate planning, traceability, and quality assurance.
@@ -228,6 +222,7 @@ A universal workflow for turning ideas into reliable, maintainable code, using F
 - Replace only the lines that need changing — keep diffs readable and `git blame` coherent.
 - When adding new functions or classes, use `edit` to insert at the correct position between neighbours, not appended at the end of the file.
 - Make exactly one logical change per edit. Re-`read` immediately afterwards to refresh line numbers and avoid line drift.
+- **Mandatory re-read before every `write` in `edit` mode:** If you need to make multiple `write` calls in sequence, you MUST `read` the file again before each subsequent `write`. Never rely on line numbers from an earlier `read` — the previous edit may have shifted lines, and using stale line numbers will corrupt the file. **One `read`, one `edit`-mode `write`. Always paired.**
 - For greenfield files, use `write` in `overwrite` mode.
 - **Principle of Minimal Change (do not touch code that already works)**:
     - **Only change the code directly responsible for the problem.** If a line, a function, or a module is unrelated to the current bug, leave it alone.

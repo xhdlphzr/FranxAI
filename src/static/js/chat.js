@@ -675,6 +675,8 @@ async function sendMessage() {
                 scrollToBottom();
               }
             } else if (data.type === "tool_call") {
+              assistantMsgDiv.textContent = "";
+              removeTypingDot(assistantMsgDiv);
               removeTypingDot(assistantMsgDiv);
               assistantMsgDiv.classList.remove("temp");
               addToolCallBlockStructured(
@@ -1051,6 +1053,9 @@ class CodeReviewPanel {
 
       approveBtn.addEventListener("click", () => {
         if (this._approveCallback) {
+          if (this.currentMode === "view") {
+            this._clearDiff();
+          }
           this._approveCallback(this.cm.getValue());
         }
       });

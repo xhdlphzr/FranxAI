@@ -96,6 +96,13 @@ async function loadMessagesFromServer() {
     const resp = await fetchWithAuth("/api/messages");
     const data = await resp.json();
     if (data.messages && data.messages.length > 0) {
+      let oldMessages = [];
+      try {
+        const stored = localStorage.getItem("chatMessages");
+        if (stored) oldMessages = JSON.parse(stored);
+      } catch (e) {}
+
+      let knowledgeIndex = 0;
       window.chatMessages.innerHTML = "";
       let mergedMessages = [];
       let lastAssistantMsg = null;
@@ -182,6 +189,20 @@ async function loadMessagesFromServer() {
               });
             }
           });
+          const oldAssistantMsgs = oldMessages.filter(
+            (m) => m.role === "assistant" && m.knowledge,
+          );
+          if (
+            knowledgeIndex < oldAssistantMsgs.length &&
+            oldAssistantMsgs[knowledgeIndex].knowledge
+          ) {
+            msgDiv._knowledgeItems = oldAssistantMsgs[knowledgeIndex].knowledge;
+            updateKnowledgeBlock(
+              msgDiv,
+              oldAssistantMsgs[knowledgeIndex].knowledge,
+            );
+          }
+          knowledgeIndex++;
           if (window.renderMathInElement) {
             window.renderMathInElement(msgDiv, {
               delimiters: [

@@ -3,9 +3,11 @@
 **English** | [中文](docs/zh/README.md)
 
 **Let AI work for you like a partner – simple, secure, low cost.**  
+
 **Now you can control the AI on your computer directly from your phone – no public IP, no port forwarding, one‑click secure remote access.**
 
 FranxAgent is a lightweight AI agent framework that enables AI to read files, execute commands, search the web, understand multimodal content, and truly interact with the world through the MCP protocol.  
+
 **v5.0.0 introduces a revolutionary Code Review Panel that transforms how you collaborate with AI on code changes – no more blind approvals, every edit is visible and editable before it touches your files.**
 
 ---
@@ -66,8 +68,11 @@ Windows users double‑click `init.bat`, macOS users double‑click `init.sh` �
 ### 3. Configure
 Modify `config.json` according to your needs (see configuration section below).
 
+You can run the vector model by downloading the model file to the `model` folder (Place the file directly in the "models" folder instead of nesting it within another (or multiple) folders).
+
 ### 4. Run
 Windows users double‑click `run.bat`, macOS users double‑click `run.sh`.  
+
 After startup, the terminal will display a public URL (e.g. `https://xxxx.trycloudflare.com`). **Open that link on your phone browser** – the first time you will be guided to set a password, then log in and control the AI on your computer from your phone.
 
 > 💡 **Security tip**: JWT tokens are valid for only 1 hour and are stored only in browser memory – they are lost on page refresh. Do not use remote access on public computers.
@@ -105,6 +110,7 @@ In `config.json`, you can adjust the following parameters:
 | `mcp_servers` | list | `[]` | List of MCP server configurations, each with `name`, `command`, `args` (optional). Example: `[{"name": "windows-mcp", "command": "uvx", "args": ["windows-mcp"]}]`. |
 
 **Multimodal tool independent configuration (optional)**  
+
 Inside the `tools` field, you can specify separate parameters for `ett` (multimodal understanding). If not set, the top‑level configuration is used:
 
 ```json
@@ -242,6 +248,7 @@ Copy some tools from the [tools branch](https://github.com/xhdlphzr/FranxAgent/t
 ## 🧠 Memory & Scheduled Tasks
 
 - **Long‑term memory**: FranxAgent no longer relies on `memory.txt`. Complete conversation history is automatically saved to `knowledge/memories/` (one `.md` file per session). On next startup, these histories are loaded into the vector knowledge base, allowing the AI to recall previous conversations via **hybrid retrieval (vector semantics + keyword matching)**.
+
 - **Scheduled tasks**: Background thread checks `tasks.json` every 10 seconds; executes commands at specified times (HH:MM). Supports daily repetition without duplication.
 
 ---

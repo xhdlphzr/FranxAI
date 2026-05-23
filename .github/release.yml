@@ -1,0 +1,19 @@
+changelog:
+  categories:
+    - title: ✨ New Features
+      labels:
+        - feat
+        - feature
+    - title: 🐛 Bug Fixes
+      labels:
+        - fix
+        - bug
+    - title: ♻️ Code Refactor
+      labels:
+        - refactor
+    - title: 📚 Documentation
+      labels:
+        - docs
+        - documentation
+    - title: 🔨 Other Changes
+      labels: ["*"]

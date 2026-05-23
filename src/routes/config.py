@@ -5,7 +5,7 @@
 # You should have received a copy of the GNU Affero General Public License along with FranxAgent.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Config Routes - /config, /api/messages, /api/save_partial, /api/confirm_tool
+Config Routes - /config, /api/messages, /api/save_partial
 """
 
 import json
@@ -50,27 +50,6 @@ def save_partial():
     return jsonify({"status": "ok"})
 
 
-@config_bp.route("/api/confirm_tool", methods=["POST"])
-@login_required
-def confirm_tool():
-    data = request.get_json()
-    confirm_id = data.get("confirm_id")
-    approved = data.get("approved", False)
-
-    if not confirm_id:
-        return jsonify({"error": "Missing confirm_id"}), 400
-
-    with state.pending_lock:
-        if confirm_id not in state.pending_confirmations:
-            return jsonify({"error": "Invalid or expired confirm_id"}), 404
-        pending = state.pending_confirmations.pop(confirm_id)
-
-    pending["result"]["done"] = approved
-    pending["event"].set()
-
-    return jsonify({"status": "ok"})
-
-
 @config_bp.route("/config", methods=["GET"])
 @login_required
 def get_config():
@@ -93,7 +72,7 @@ def update_config():
     try:
         with open("./config.json", "w", encoding="utf-8") as f:
             json.dump(data, f, indent=2, ensure_ascii=False)
-        # Lazy import to avoid circular dependency | 延迟导入避免循环依赖
+        # Lazy import to avoid circular dependency
         from src.app import init_agents
 
         init_agents()

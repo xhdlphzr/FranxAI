@@ -675,8 +675,11 @@ async function sendMessage() {
                 scrollToBottom();
               }
             } else if (data.type === "tool_call") {
-              assistantMsgDiv.textContent = "";
-              removeTypingDot(assistantMsgDiv);
+              for (const child of [...assistantMsgDiv.childNodes]) {
+                if (child.nodeType === Node.TEXT_NODE) {
+                  child.remove();
+                }
+              }
               removeTypingDot(assistantMsgDiv);
               assistantMsgDiv.classList.remove("temp");
               addToolCallBlockStructured(

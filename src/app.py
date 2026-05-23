@@ -62,8 +62,6 @@ def start_cloudflare_tunnel():
 def init_agents():
     from src import state
 
-    global STARTUP_ID
-
     config = load_config()
 
     temperature = config.get("temperature", 0.8)
@@ -92,9 +90,6 @@ def init_agents():
         knowledge_k=knowledge_k,
         readonly=True,
     )
-
-    # Regenerate STARTUP_ID so the frontend can detect the agent reset
-    STARTUP_ID = str(int(time.time()))
 
 
 # Frontend routes

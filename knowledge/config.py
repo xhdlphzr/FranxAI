@@ -29,8 +29,8 @@ HYBRID_FTS_WEIGHT = 0.3
 _model = None
 MODEL_NAME = "all-MiniLM-L12-v2"
 
-# Local model path: PROJECT_ROOT/models/all-MiniLM-L12-v2
-LOCAL_MODEL_PATH = PROJECT_ROOT / "models" / MODEL_NAME
+# Local model path: PROJECT_ROOT/model
+LOCAL_MODEL_PATH = PROJECT_ROOT / "model"
 
 
 def get_model():

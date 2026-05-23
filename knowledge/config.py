@@ -29,9 +29,16 @@ HYBRID_FTS_WEIGHT = 0.3
 _model = None
 MODEL_NAME = "all-MiniLM-L12-v2"
 
+# Local model path: PROJECT_ROOT/models/all-MiniLM-L12-v2
+LOCAL_MODEL_PATH = PROJECT_ROOT / "models" / MODEL_NAME
+
 
 def get_model():
     global _model
     if _model is None:
-        _model = SentenceTransformer(MODEL_NAME)
+        # Prefer local model if exists, otherwise fallback to online download
+        if LOCAL_MODEL_PATH.exists():
+            _model = SentenceTransformer(str(LOCAL_MODEL_PATH))
+        else:
+            _model = SentenceTransformer(MODEL_NAME)
     return _model

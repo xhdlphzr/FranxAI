@@ -102,7 +102,6 @@ async function loadMessagesFromServer() {
         if (stored) oldMessages = JSON.parse(stored);
       } catch (e) {}
 
-      let knowledgeIndex = 0;
       window.chatMessages.innerHTML = "";
       let mergedMessages = [];
       let lastAssistantMsg = null;
@@ -145,6 +144,12 @@ async function loadMessagesFromServer() {
       if (lastAssistantMsg) {
         mergedMessages.push(lastAssistantMsg);
       }
+      const knowledgeByContent = {};
+      oldMessages.forEach((m) => {
+        if (m.role === "assistant" && m.knowledge && m.content) {
+          knowledgeByContent[m.content] = m.knowledge;
+        }
+      });
       mergedMessages.forEach((msg) => {
         if (msg.role === "user") {
           addMessage("user", msg.content, false, "", true);
@@ -159,6 +164,7 @@ async function loadMessagesFromServer() {
                 try {
                   contentContainer.innerHTML = marked.parse(chunk.content);
                   wrapTables(contentContainer);
+                  msgDiv._rawText = chunk.content;
                 } catch (e) {
                   contentContainer.textContent = chunk.content;
                 }
@@ -189,20 +195,11 @@ async function loadMessagesFromServer() {
               });
             }
           });
-          const oldAssistantMsgs = oldMessages.filter(
-            (m) => m.role === "assistant" && m.knowledge,
-          );
-          if (
-            knowledgeIndex < oldAssistantMsgs.length &&
-            oldAssistantMsgs[knowledgeIndex].knowledge
-          ) {
-            msgDiv._knowledgeItems = oldAssistantMsgs[knowledgeIndex].knowledge;
-            updateKnowledgeBlock(
-              msgDiv,
-              oldAssistantMsgs[knowledgeIndex].knowledge,
-            );
+          const rawText = msgDiv._rawText || "";
+          if (knowledgeByContent[rawText]) {
+            msgDiv._knowledgeItems = knowledgeByContent[rawText];
+            updateKnowledgeBlock(msgDiv, knowledgeByContent[rawText]);
           }
-          knowledgeIndex++;
           if (window.renderMathInElement) {
             window.renderMathInElement(msgDiv, {
               delimiters: [

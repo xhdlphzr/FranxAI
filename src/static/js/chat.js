@@ -337,7 +337,8 @@ function updateToolCallResult(msgDiv, callId, resultText) {
     pendingResult.textContent = resultText;
     pendingResult.classList.remove("tool-result-pending");
   } else {
-    const resultContent = blockDiv.querySelectorAll(".tool-param")[1];
+    const allParams = blockDiv.querySelectorAll(".tool-param");
+    const resultContent = allParams[allParams.length - 1];
     if (resultContent) resultContent.textContent = resultText;
   }
 }

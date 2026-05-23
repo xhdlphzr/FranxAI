@@ -6,5 +6,6 @@ __pycache__/
 knowledge/skills/*
 knowledge/memories/*
 knowledge/knowledge.db
+models/*
 /private.key
 /public.key

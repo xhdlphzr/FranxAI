@@ -13,7 +13,7 @@ You should have received a copy of the GNU Affero General Public License along w
     {
         "path": "Full path of the file",
         "content": "Complete file content after modifications",
-        "mode": "overwrite" or "append" or "edit",
+        "mode": "overwrite" or "insert" or "edit",
         "start_line": 0,
         "end_line": 0
     }
@@ -22,7 +22,7 @@ You should have received a copy of the GNU Affero General Public License along w
     - `content`: **string**, required, the AI's suggested complete file content after all modifications. The frontend will diff this against the current file on disk.
     - `mode`: **string**, optional, default is "overwrite". Available values:
         - `"overwrite"`: Replace entire file.
-        - `"append"`: Insert content **after** the line specified by `start_line` (if `start_line > 0`), otherwise append to the end of the file. `end_line` is ignored.
+        - `"insert"`: Insert content **after** the line specified by `start_line` (if `start_line > 0`), otherwise append to the end of the file. `end_line` is ignored.
         - `"edit"`: Replace lines from `start_line` to `end_line` (both inclusive, 1-based). Use with `read` tool's line numbers for precise editing.
     - `start_line`: **integer**, required in edit and append mode (for append only when inserting after a specific line). Start line number (1-based, inclusive). If `start_line <= 0` in append mode, content is appended to the end.
     - `end_line`: **integer**, required in edit mode. End line number (1-based, inclusive).
@@ -35,8 +35,8 @@ You should have received a copy of the GNU Affero General Public License along w
     5. On approval, the frontend writes the file and sends the final content back to the AI so it stays in sync.
 - **Notes**:
     - This tool does NOT execute any file operations. All disk writes are performed by the frontend after user approval.
-    - **Append mode with `start_line`**:  
-      Example: A file contains lines `1: a` `2: b`. Calling `write` with `mode="append"`, `start_line=1`, `content="X"` results in:  
+    - **Insert mode with `start_line`**:  
+      Example: A file contains lines `1: a` `2: b`. Calling `write` with `mode="insert"`, `start_line=1`, `content="X"` results in:  
       ```
       a
       X

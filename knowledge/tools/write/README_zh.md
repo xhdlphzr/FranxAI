@@ -13,7 +13,7 @@ You should have received a copy of the GNU Affero General Public License along w
     {
         "path": "文件的完整路径",
         "content": "完整文件内容",
-        "mode": "overwrite" 或 "append" 或 "edit",
+        "mode": "overwrite" 或 "insert" 或 "edit",
         "start_line": 0,
         "end_line": 0
     }
@@ -22,10 +22,10 @@ You should have received a copy of the GNU Affero General Public License along w
     - `content`：**字符串**，必填，AI 建议的修改后的完整文件内容。前端会将该内容与当前磁盘上的文件进行 diff。
     - `mode`：**字符串**，可选，默认为 "overwrite"。可用值：
         - `"overwrite"`：替换整个文件。
-        - `"append"`：在 `start_line` 指定的行**之后**插入内容（当 `start_line > 0` 时），否则追加到文件末尾。`end_line` 被忽略。
+        - `"insert"`：在 `start_line` 指定的行**之后**插入内容（当 `start_line > 0` 时），否则追加到文件末尾。`end_line` 被忽略。
         - `"edit"`：替换从 `start_line` 到 `end_line` 的行（两端包含，从 1 开始计数）。与 `read` 工具的行号配合使用，实现精确编辑。
-    - `start_line`：**整数**，编辑模式和 append 模式下（仅当需要在特定行后插入时）必填。起始行号（从 1 开始，包含该行）。若 append 模式下 `start_line <= 0`，内容追加到文件末尾。
-    - `end_line`：**整数**，编辑模式下必填。结束行号（从 1 开始，包含该行）。
+    - `start_line`：**整数**，edit 模式和 insert 模式下（仅当需要在特定行后插入时）必填。起始行号（从 1 开始，包含该行）。若 insert 模式下 `start_line <= 0`，内容追加到文件末尾。
+    - `end_line`：**整数**，edit 模式下必填。结束行号（从 1 开始，包含该行）。
 - **输出**：AI 建议的完整文件内容，以纯字符串形式返回（不是字典）。
 - **工作流程**：
     1. AI 调用 `write` 工具并提供建议的文件内容。
@@ -35,8 +35,8 @@ You should have received a copy of the GNU Affero General Public License along w
     5. 批准后，前端写入文件并将最终内容回传给 AI，以保持同步。
 - **备注**：
     - 该工具不执行任何文件操作。所有磁盘写入均由前端在用户批准后执行。
-    - **带 `start_line` 的 Append 模式**：  
-      例如，文件包含行 `1: a`、`2: b`。调用 `write` 并设置 `mode="append"`、`start_line=1`、`content="X"`，结果：  
+    - **带 `start_line` 的 insert 模式**：  
+      例如，文件包含行 `1: a`、`2: b`。调用 `write` 并设置 `mode="insert"`、`start_line=1`、`content="X"`，结果：  
       ```
       a
       X

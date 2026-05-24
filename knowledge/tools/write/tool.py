@@ -30,9 +30,9 @@ def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0)
 
     @param path: Full path of the target file.
     @param content: The content to be written/inserted/replaced.
-    @param mode: Write mode --- "overwrite", "append", or "edit".
+    @param mode: Write mode --- "overwrite", "insert", or "edit".
     @param start_line: Start line number for edit mode (1-based, inclusive).
-                       For append mode with start_line>0, insert after this line.
+                       For insert mode with start_line>0, insert after this line.
     @param end_line: End line number for edit mode (1-based, inclusive).
     @returns: The complete file content after applying the requested change.
     """
@@ -50,9 +50,9 @@ def execute(path: str, content: str, mode="overwrite", start_line=0, end_line=0)
         # Replace entire file content
         return content
 
-    elif mode == "append":
+    elif mode == "insert":
         if start_line <= 0:
-            # Legacy append to end of file
+            # Legacy insert to end of file
             if original_content and not original_content.endswith("\n"):
                 return original_content + "\n" + content
             return original_content + content
